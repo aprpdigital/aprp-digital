@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>APRP Digital</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,12 +12,13 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: Arial, sans-serif;
     }
 
     body {
+      font-family: Arial, sans-serif;
       background: #f5f7fb;
       color: #172033;
+      min-height: 100vh;
     }
 
     button,
@@ -26,186 +26,211 @@
       font: inherit;
     }
 
-    .app {
-      max-width: 520px;
-      min-height: 100vh;
-      margin: auto;
-      background: #f5f7fb;
-    }
-
-    .topbar {
-      background: #ffffff;
-      padding: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e7eaf0;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .brand {
-      font-size: 21px;
-      font-weight: 800;
-      color: #162b55;
-    }
-
-    .brand span {
-      color: #e63946;
-    }
-
-    .menu-btn {
-      border: 0;
-      background: #f0f3f8;
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      font-size: 20px;
+    button {
       cursor: pointer;
     }
 
-    .page {
-      padding: 18px;
-      padding-bottom: 90px;
+    .hidden {
+      display: none !important;
+    }
+
+    /* AUTH */
+    #authPage {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #071d49, #0d5bd7);
     }
 
     .auth-card {
+      width: 100%;
+      max-width: 430px;
       background: #fff;
       border-radius: 22px;
-      padding: 25px 20px;
-      margin-top: 35px;
-      box-shadow: 0 8px 30px rgba(20, 35, 70, .08);
+      padding: 28px 22px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.18);
     }
 
-    .auth-logo {
+    .brand {
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 22px;
     }
 
-    .auth-logo h1 {
-      color: #162b55;
-      font-size: 30px;
+    .brand-logo {
+      width: 65px;
+      height: 65px;
+      border-radius: 18px;
+      background: #0b5ed7;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+      font-weight: 800;
     }
 
-    .auth-logo h1 span {
-      color: #e63946;
+    .brand h1 {
+      font-size: 27px;
+      color: #0b285c;
     }
 
-    .auth-logo p {
-      margin-top: 7px;
-      color: #70798b;
+    .brand p {
+      color: #697386;
+      margin-top: 5px;
       font-size: 14px;
     }
 
     .tabs {
       display: flex;
-      background: #f1f4f8;
-      padding: 4px;
+      background: #eef2f7;
       border-radius: 12px;
+      padding: 4px;
       margin-bottom: 20px;
     }
 
     .tab {
       flex: 1;
       border: 0;
-      background: transparent;
       padding: 11px;
       border-radius: 9px;
-      cursor: pointer;
-      color: #667085;
+      background: transparent;
+      color: #64748b;
+      font-weight: 700;
     }
 
     .tab.active {
       background: #fff;
-      color: #162b55;
-      font-weight: 700;
-      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      color: #0b5ed7;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
     }
 
-    .field {
-      margin-bottom: 14px;
+    .form-group {
+      margin-bottom: 15px;
     }
 
-    .field label {
+    .form-group label {
       display: block;
-      margin-bottom: 7px;
       font-size: 13px;
-      color: #4b5565;
-      font-weight: 600;
+      font-weight: 700;
+      margin-bottom: 7px;
+      color: #334155;
     }
 
-    .field input {
+    .form-group input {
       width: 100%;
-      padding: 14px;
-      border: 1px solid #dce1e9;
-      border-radius: 12px;
+      border: 1px solid #d7dee8;
+      border-radius: 11px;
+      padding: 13px 14px;
       outline: none;
       background: #fff;
     }
 
-    .field input:focus {
-      border-color: #3157a4;
+    .form-group input:focus {
+      border-color: #0b5ed7;
+      box-shadow: 0 0 0 3px rgba(11,94,215,.10);
     }
 
     .primary-btn {
       width: 100%;
-      padding: 14px;
       border: 0;
-      border-radius: 12px;
-      background: #162b55;
+      background: #0b5ed7;
       color: #fff;
+      padding: 13px;
+      border-radius: 11px;
       font-weight: 700;
-      cursor: pointer;
       margin-top: 5px;
     }
 
     .primary-btn:disabled {
-      opacity: .6;
+      opacity: .65;
+      cursor: not-allowed;
     }
 
     .message {
-      margin-top: 14px;
+      margin-top: 15px;
       padding: 11px;
       border-radius: 10px;
       font-size: 13px;
       display: none;
     }
 
-    .message.show {
+    .message.success {
       display: block;
+      background: #e9f9ef;
+      color: #176b35;
     }
 
     .message.error {
+      display: block;
       background: #fff0f0;
-      color: #c62828;
+      color: #a51d2d;
     }
 
-    .message.success {
-      background: #ecf9f0;
-      color: #177245;
+    /* APP */
+    #appPage {
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e7ebf0;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .top-brand {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0b285c;
+    }
+
+    .menu-btn {
+      border: 0;
+      background: #eef4ff;
+      color: #0b5ed7;
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      font-size: 21px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 18px 15px;
     }
 
     .welcome {
-      margin-bottom: 18px;
-    }
-
-    .welcome small {
-      color: #7a8394;
+      margin-bottom: 16px;
     }
 
     .welcome h2 {
-      margin-top: 5px;
-      font-size: 24px;
+      font-size: 22px;
+      color: #0b285c;
     }
 
-    .wallet {
-      background: linear-gradient(135deg, #162b55, #284d91);
-      color: white;
-      padding: 22px;
+    .welcome p {
+      color: #718096;
+      margin-top: 4px;
+      font-size: 14px;
+    }
+
+    .wallet-card {
+      background: linear-gradient(135deg, #071d49, #0b5ed7);
+      color: #fff;
       border-radius: 20px;
+      padding: 22px;
       margin-bottom: 18px;
-      box-shadow: 0 10px 25px rgba(22,43,85,.18);
+      box-shadow: 0 10px 30px rgba(11,94,215,.20);
     }
 
     .wallet-label {
@@ -213,110 +238,104 @@
       font-size: 13px;
     }
 
-    .balance {
-      font-size: 31px;
+    .wallet-balance {
+      font-size: 32px;
       font-weight: 800;
-      margin: 8px 0;
+      margin: 7px 0 5px;
     }
 
-    .balance-note {
+    .wallet-note {
       font-size: 12px;
       opacity: .75;
     }
 
     .section-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
+      color: #172033;
       margin: 20px 0 12px;
     }
 
-    .grid {
+    .quick-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
     }
 
-    .feature {
+    .quick-card {
+      border: 0;
       background: #fff;
-      border: 1px solid #edf0f5;
-      border-radius: 17px;
-      padding: 17px;
-      min-height: 100px;
-      cursor: pointer;
-      text-align: left;
-      box-shadow: 0 5px 15px rgba(20,35,70,.04);
+      border-radius: 15px;
+      padding: 15px 8px;
+      min-height: 90px;
+      box-shadow: 0 3px 14px rgba(15,23,42,.06);
+      color: #172033;
     }
 
-    .feature-icon {
-      font-size: 25px;
-      margin-bottom: 10px;
+    .quick-icon {
+      font-size: 24px;
+      margin-bottom: 7px;
     }
 
-    .feature strong {
-      display: block;
-      font-size: 14px;
+    .quick-card span {
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .feature small {
-      display: block;
-      color: #7a8394;
-      margin-top: 5px;
-      font-size: 11px;
-    }
-
-    .notice {
+    .info-card {
       background: #fff;
       border-radius: 16px;
-      padding: 16px;
-      margin-top: 18px;
-      border: 1px solid #edf0f5;
+      padding: 18px;
+      box-shadow: 0 3px 14px rgba(15,23,42,.06);
+      margin-top: 12px;
     }
 
-    .notice strong {
+    .info-card h3 {
+      margin-bottom: 7px;
+      color: #0b285c;
+    }
+
+    .info-card p {
+      color: #667085;
       font-size: 14px;
+      line-height: 1.6;
     }
 
-    .notice p {
-      margin-top: 7px;
-      color: #737c8d;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
+    /* BOTTOM NAV */
     .bottom-nav {
       position: fixed;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 520px;
+      left: 0;
+      right: 0;
+      height: 67px;
       background: #fff;
-      border-top: 1px solid #e6e9ef;
+      border-top: 1px solid #e5e9ef;
       display: flex;
       justify-content: space-around;
-      padding: 9px 5px;
+      align-items: center;
       z-index: 30;
     }
 
     .nav-item {
       border: 0;
       background: transparent;
-      color: #7b8495;
+      color: #778195;
       font-size: 11px;
-      cursor: pointer;
-      padding: 5px;
+      text-align: center;
     }
 
     .nav-item div {
-      font-size: 19px;
-      margin-bottom: 3px;
+      font-size: 21px;
+      margin-bottom: 2px;
     }
 
-    .hidden {
-      display: none !important;
+    .nav-item.active {
+      color: #0b5ed7;
+      font-weight: 700;
     }
 
-    .drawer {
+    /* DRAWER */
+    .drawer-overlay {
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,.4);
@@ -324,841 +343,936 @@
       display: none;
     }
 
-    .drawer.open {
+    .drawer-overlay.show {
       display: block;
     }
 
-    .drawer-box {
-      width: 280px;
-      max-width: 85%;
-      height: 100%;
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -310px;
+      width: 290px;
+      height: 100vh;
       background: #fff;
-      padding: 25px 18px;
+      z-index: 60;
+      padding: 22px;
+      transition: .25s;
+      box-shadow: -10px 0 30px rgba(0,0,0,.12);
     }
 
-    .drawer-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: #162b55;
+    .drawer.show {
+      right: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 25px;
+    }
+
+    .drawer-header h2 {
+      color: #0b285c;
+      font-size: 21px;
+    }
+
+    .close-btn {
+      border: 0;
+      background: #eef2f7;
+      width: 35px;
+      height: 35px;
+      border-radius: 9px;
     }
 
     .drawer-item {
       width: 100%;
       border: 0;
-      background: #f7f8fa;
-      padding: 13px;
+      background: transparent;
+      padding: 13px 5px;
       text-align: left;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      cursor: pointer;
+      font-weight: 700;
+      color: #344054;
+      border-bottom: 1px solid #eef1f5;
     }
 
     .logout {
-      color: #d32f2f;
-      margin-top: 20px;
+      color: #c62828;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .quick-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .quick-card {
+        padding: 12px 5px;
+      }
+
+      .quick-icon {
+        font-size: 21px;
+      }
+
+      .quick-card span {
+        font-size: 10px;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .quick-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
 
-<div class="app">
-
-  <header class="topbar hidden" id="topbar">
-    <div class="brand">
-      APRP <span>Digital</span>
-    </div>
-
-    <button class="menu-btn" onclick="openDrawer()">
-      ☰
-    </button>
-  </header>
-
-
-  <!-- LOGIN / SIGNUP -->
-
-  <main class="page" id="authPage">
+  <!-- AUTH PAGE -->
+  <section id="authPage">
 
     <div class="auth-card">
 
-      <div class="auth-logo">
-        <h1>APRP <span>Digital</span></h1>
+      <div class="brand">
+        <div class="brand-logo">AP</div>
+        <h1>APRP Digital</h1>
         <p>Technology & Digital Platform</p>
       </div>
 
       <div class="tabs">
-
-        <button
-          class="tab active"
-          id="loginTab"
-          onclick="showLogin()">
+        <button id="loginTab" class="tab active" type="button">
           Login
         </button>
 
-        <button
-          class="tab"
-          id="signupTab"
-          onclick="showSignup()">
+        <button id="signupTab" class="tab" type="button">
           Create Account
         </button>
-
       </div>
-
 
       <!-- LOGIN -->
-
       <form id="loginForm">
 
-        <div class="field">
-
+        <div class="form-group">
           <label>Email</label>
-
           <input
-            type="email"
             id="loginEmail"
+            type="email"
             placeholder="Enter your email"
-            required>
-
+            required
+          />
         </div>
 
-
-        <div class="field">
-
+        <div class="form-group">
           <label>Password</label>
-
           <input
-            type="password"
             id="loginPassword"
+            type="password"
             placeholder="Enter your password"
-            required>
-
+            required
+          />
         </div>
-
 
         <button
-          class="primary-btn"
           id="loginBtn"
-          type="submit">
-
+          class="primary-btn"
+          type="submit"
+        >
           Login
-
         </button>
 
       </form>
-
 
       <!-- SIGNUP -->
+      <form id="signupForm" class="hidden">
 
-      <form
-        id="signupForm"
-        class="hidden">
-
-        <div class="field">
-
+        <div class="form-group">
           <label>Full Name</label>
-
           <input
-            type="text"
             id="signupName"
-            placeholder="Your full name"
-            required>
-
+            type="text"
+            placeholder="Enter your full name"
+            required
+          />
         </div>
 
-
-        <div class="field">
-
+        <div class="form-group">
           <label>Email</label>
-
           <input
-            type="email"
             id="signupEmail"
-            placeholder="Your email"
-            required>
-
+            type="email"
+            placeholder="Enter your email"
+            required
+          />
         </div>
 
-
-        <div class="field">
-
+        <div class="form-group">
           <label>Password</label>
-
           <input
-            type="password"
             id="signupPassword"
-            placeholder="Create password"
+            type="password"
+            placeholder="Create a password"
             minlength="6"
-            required>
-
+            required
+          />
         </div>
-
 
         <button
-          class="primary-btn"
           id="signupBtn"
-          type="submit">
-
+          class="primary-btn"
+          type="submit"
+        >
           Create Account
-
         </button>
 
       </form>
 
+      <div id="authMessage" class="message"></div>
 
-      <div
-        id="authMessage"
-        class="message">
+    </div>
+
+  </section>
+
+
+  <!-- APP PAGE -->
+  <section id="appPage" class="hidden">
+
+    <header class="topbar">
+
+      <div class="top-brand">
+        APRP Digital
       </div>
 
-    </div>
+      <button
+        id="menuBtn"
+        class="menu-btn"
+        type="button"
+      >
+        ☰
+      </button>
 
-  </main>
-
-
-  <!-- USER DASHBOARD -->
-
-  <main
-    class="page hidden"
-    id="dashboardPage">
-
-    <div class="welcome">
-
-      <small>Welcome back</small>
-
-      <h2 id="userName">
-        User
-      </h2>
-
-    </div>
+    </header>
 
 
-    <section class="wallet">
+    <main class="container">
 
-      <div class="wallet-label">
-        Available Balance
+      <div class="welcome">
+        <h2 id="welcomeName">Welcome</h2>
+        <p>Manage your APRP Digital account</p>
       </div>
 
-      <div class="balance">
-        ৳ —
+
+      <!-- WALLET -->
+      <div class="wallet-card">
+
+        <div class="wallet-label">
+          Available Balance
+        </div>
+
+        <div class="wallet-balance">
+          ৳ —
+        </div>
+
+        <div class="wallet-note">
+          Real balance will appear after the wallet is connected.
+        </div>
+
       </div>
 
-      <div class="balance-note">
-        Secure wallet connection will be added through the APRP backend.
+
+      <div class="section-title">
+        Quick Actions
       </div>
 
-    </section>
+
+      <div class="quick-grid">
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">💰</div>
+          <span>Deposit</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">💸</div>
+          <span>Withdraw</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">📱</div>
+          <span>Products</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">🛒</div>
+          <span>My Orders</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">🔄</div>
+          <span>Buyback</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">📊</div>
+          <span>Transactions</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">👥</div>
+          <span>Referral</span>
+        </button>
+
+        <button class="quick-card" type="button">
+          <div class="quick-icon">🎧</div>
+          <span>Support</span>
+        </button>
+
+      </div>
 
 
-    <div class="section-title">
-      Quick Actions
-    </div>
+      <div class="section-title">
+        Account
+      </div>
 
 
-    <div class="grid">
+      <div class="info-card">
 
-      <button class="feature">
-        <div class="feature-icon">💳</div>
-        <strong>Deposit</strong>
-        <small>Add balance</small>
+        <h3>APRP Digital Platform</h3>
+
+        <p>
+          Your account is connected with Supabase Authentication.
+          Wallet, transactions, products, deposits, withdrawals and
+          other modules will be connected step-by-step.
+        </p>
+
+      </div>
+
+    </main>
+
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+
+      <button class="nav-item active" type="button">
+        <div>⌂</div>
+        Home
       </button>
 
-      <button class="feature">
-        <div class="feature-icon">💸</div>
-        <strong>Withdraw</strong>
-        <small>Request withdrawal</small>
+      <button class="nav-item" type="button">
+        <div>💰</div>
+        Wallet
       </button>
 
-      <button class="feature">
-        <div class="feature-icon">📱</div>
-        <strong>Products</strong>
-        <small>Technology products</small>
+      <button class="nav-item" type="button">
+        <div>🛍</div>
+        Products
       </button>
 
-      <button class="feature">
-        <div class="feature-icon">🛒</div>
-        <strong>My Orders</strong>
-        <small>Purchase history</small>
+      <button class="nav-item" type="button">
+        <div>📋</div>
+        Orders
       </button>
 
-      <button class="feature">
-        <div class="feature-icon">🔄</div>
-        <strong>Buyback</strong>
-        <small>Company buyback</small>
+      <button
+        id="bottomMenuBtn"
+        class="nav-item"
+        type="button"
+      >
+        <div>☰</div>
+        Menu
       </button>
 
-      <button class="feature">
-        <div class="feature-icon">📊</div>
-        <strong>Transactions</strong>
-        <small>Ledger history</small>
-      </button>
+    </nav>
 
-      <button class="feature">
-        <div class="feature-icon">🎁</div>
-        <strong>Referral</strong>
-        <small>Invite & earn</small>
-      </button>
-
-      <button class="feature">
-        <div class="feature-icon">🎧</div>
-        <strong>Support</strong>
-        <small>Get assistance</small>
-      </button>
-
-    </div>
+  </section>
 
 
-    <div class="section-title">
-      Account
-    </div>
-
-
-    <div class="notice">
-
-      <strong>
-        🔐 Secure Account
-      </strong>
-
-      <p>
-        Your account, wallet and transaction system
-        will be connected to the APRP Digital backend.
-        No fake balance or fake transaction confirmation
-        is used.
-      </p>
-
-    </div>
-
-  </main>
-
-
-  <!-- BOTTOM NAV -->
-
-  <nav
-    class="bottom-nav hidden"
-    id="bottomNav">
-
-    <button
-      class="nav-item"
-      onclick="showDashboard()">
-      <div>⌂</div>
-      Home
-    </button>
-
-    <button class="nav-item">
-      <div>💰</div>
-      Wallet
-    </button>
-
-    <button class="nav-item">
-      <div>🛍️</div>
-      Products
-    </button>
-
-    <button class="nav-item">
-      <div>📄</div>
-      History
-    </button>
-
-    <button
-      class="nav-item"
-      onclick="openDrawer()">
-      <div>☰</div>
-      Menu
-    </button>
-
-  </nav>
-
-</div>
-
-
-<!-- SIDE MENU -->
-
-<div
-  class="drawer"
-  id="drawer"
-  onclick="closeDrawer(event)">
-
+  <!-- DRAWER OVERLAY -->
   <div
-    class="drawer-box"
-    onclick="event.stopPropagation()">
+    id="drawerOverlay"
+    class="drawer-overlay"
+  ></div>
 
-    <div class="drawer-title">
-      APRP Digital
+
+  <!-- DRAWER -->
+  <aside
+    id="drawer"
+    class="drawer"
+  >
+
+    <div class="drawer-header">
+
+      <h2>APRP Digital</h2>
+
+      <button
+        id="closeDrawer"
+        class="close-btn"
+        type="button"
+      >
+        ✕
+      </button>
+
     </div>
 
-    <button class="drawer-item">
-      👤 Profile / KYC
+
+    <button class="drawer-item" type="button">
+      👤 Profile
     </button>
 
-    <button class="drawer-item">
-      💳 Wallet
+    <button class="drawer-item" type="button">
+      🪪 KYC
     </button>
 
-    <button class="drawer-item">
+    <button class="drawer-item" type="button">
       🔔 Notifications
     </button>
 
-    <button class="drawer-item">
-      🎁 Referral
+    <button class="drawer-item" type="button">
+      👥 Referral
     </button>
 
-    <button class="drawer-item">
+    <button class="drawer-item" type="button">
       🎧 Support
     </button>
 
+    <button class="drawer-item" type="button">
+      ⚙️ Settings
+    </button>
+
     <button
+      id="logoutBtn"
       class="drawer-item logout"
-      onclick="logout()">
+      type="button"
+    >
       🚪 Logout
     </button>
 
-  </div>
-
-</div>
+  </aside>
 
 
-<script>
+  <script>
 
-/* =========================================
-   APRP DIGITAL - SUPABASE CONFIGURATION
-   ========================================= */
+    /*
+     * ==========================================
+     * APRP DIGITAL - SUPABASE CONFIGURATION
+     * ==========================================
+     */
 
-const SUPABASE_URL =
-  "https://hdlskefeuodhoeaksflq.supabase.co";
+    const SUPABASE_URL =
+      "https://hdlskefeuodhoeaksflq.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY =
-  "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItG";
-
-const APRP_REDIRECT_URL =
-  "https://aprpdigital.github.io/aprp-digital/";
-
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
 
 
-/* =========================================
-   ELEMENTS
-   ========================================= */
+    /*
+     * Production redirect URL
+     */
 
-const authPage =
-  document.getElementById("authPage");
-
-const dashboardPage =
-  document.getElementById("dashboardPage");
-
-const topbar =
-  document.getElementById("topbar");
-
-const bottomNav =
-  document.getElementById("bottomNav");
-
-const userName =
-  document.getElementById("userName");
+    const APRP_REDIRECT_URL =
+      "https://aprpdigital.github.io/aprp-digital/";
 
 
-/* =========================================
-   LOGIN TAB
-   ========================================= */
+    /*
+     * Create Supabase client
+     */
 
-function showLogin() {
-
-  document
-    .getElementById("loginForm")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("signupForm")
-    .classList.add("hidden");
-
-  document
-    .getElementById("loginTab")
-    .classList.add("active");
-
-  document
-    .getElementById("signupTab")
-    .classList.remove("active");
-
-  clearMessage();
-}
-
-
-/* =========================================
-   SIGNUP TAB
-   ========================================= */
-
-function showSignup() {
-
-  document
-    .getElementById("loginForm")
-    .classList.add("hidden");
-
-  document
-    .getElementById("signupForm")
-    .classList.remove("hidden");
-
-  document
-    .getElementById("loginTab")
-    .classList.remove("active");
-
-  document
-    .getElementById("signupTab")
-    .classList.add("active");
-
-  clearMessage();
-}
-
-
-/* =========================================
-   MESSAGE
-   ========================================= */
-
-function showMessage(text, type) {
-
-  const box =
-    document.getElementById("authMessage");
-
-  box.textContent = text;
-
-  box.className =
-    "message show " + type;
-}
-
-
-function clearMessage() {
-
-  const box =
-    document.getElementById("authMessage");
-
-  box.textContent = "";
-
-  box.className =
-    "message";
-}
-
-
-/* =========================================
-   LOGIN
-   ========================================= */
-
-document
-  .getElementById("loginForm")
-  .addEventListener(
-    "submit",
-    async function(event) {
-
-      event.preventDefault();
-
-      const email =
-        document
-          .getElementById("loginEmail")
-          .value
-          .trim();
-
-      const password =
-        document
-          .getElementById("loginPassword")
-          .value;
-
-      const button =
-        document.getElementById("loginBtn");
-
-      button.disabled = true;
-      button.textContent = "Logging in...";
-
-      const { error } =
-        await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-
-      button.disabled = false;
-      button.textContent = "Login";
-
-      if (error) {
-
-        showMessage(
-          error.message,
-          "error"
-        );
-
-        return;
-      }
-
-      showMessage(
-        "Login successful.",
-        "success"
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
       );
 
+
+    /*
+     * ==========================================
+     * ELEMENTS
+     * ==========================================
+     */
+
+    const authPage =
+      document.getElementById("authPage");
+
+    const appPage =
+      document.getElementById("appPage");
+
+    const loginTab =
+      document.getElementById("loginTab");
+
+    const signupTab =
+      document.getElementById("signupTab");
+
+    const loginForm =
+      document.getElementById("loginForm");
+
+    const signupForm =
+      document.getElementById("signupForm");
+
+    const authMessage =
+      document.getElementById("authMessage");
+
+    const welcomeName =
+      document.getElementById("welcomeName");
+
+    const drawer =
+      document.getElementById("drawer");
+
+    const drawerOverlay =
+      document.getElementById("drawerOverlay");
+
+
+    /*
+     * ==========================================
+     * MESSAGE
+     * ==========================================
+     */
+
+    function showMessage(message, type) {
+
+      authMessage.textContent = message;
+
+      authMessage.className =
+        "message " + type;
+
     }
-  );
 
 
-/* =========================================
-   SIGNUP
-   ========================================= */
+    function clearMessage() {
 
-document
-  .getElementById("signupForm")
-  .addEventListener(
-    "submit",
-    async function(event) {
+      authMessage.textContent = "";
 
-      event.preventDefault();
+      authMessage.className =
+        "message";
 
-      const name =
-        document
-          .getElementById("signupName")
-          .value
-          .trim();
+    }
 
-      const email =
-        document
-          .getElementById("signupEmail")
-          .value
-          .trim();
 
-      const password =
-        document
-          .getElementById("signupPassword")
-          .value;
+    /*
+     * ==========================================
+     * LOGIN / SIGNUP TABS
+     * ==========================================
+     */
 
-      const button =
-        document.getElementById("signupBtn");
+    loginTab.addEventListener("click", function() {
 
-      button.disabled = true;
-      button.textContent = "Creating...";
+      loginTab.classList.add("active");
+      signupTab.classList.remove("active");
 
-      const { data, error } =
-        await supabaseClient.auth.signUp({
+      loginForm.classList.remove("hidden");
+      signupForm.classList.add("hidden");
 
-          email: email,
+      clearMessage();
 
-          password: password,
+    });
 
-          options: {
 
-            data: {
-              full_name: name
-            },
+    signupTab.addEventListener("click", function() {
 
-            emailRedirectTo:
-              APRP_REDIRECT_URL
+      signupTab.classList.add("active");
+      loginTab.classList.remove("active");
+
+      signupForm.classList.remove("hidden");
+      loginForm.classList.add("hidden");
+
+      clearMessage();
+
+    });
+
+
+    /*
+     * ==========================================
+     * SIGN UP
+     * ==========================================
+     */
+
+    signupForm.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+        clearMessage();
+
+        const name =
+          document.getElementById("signupName")
+            .value
+            .trim();
+
+        const email =
+          document.getElementById("signupEmail")
+            .value
+            .trim();
+
+        const password =
+          document.getElementById("signupPassword")
+            .value;
+
+
+        const signupBtn =
+          document.getElementById("signupBtn");
+
+
+        signupBtn.disabled = true;
+        signupBtn.textContent = "Creating...";
+
+
+        try {
+
+          const result =
+            await supabaseClient.auth.signUp({
+
+              email: email,
+
+              password: password,
+
+              options: {
+
+                data: {
+                  full_name: name
+                },
+
+                emailRedirectTo:
+                  APRP_REDIRECT_URL
+
+              }
+
+            });
+
+
+          if (result.error) {
+
+            showMessage(
+              result.error.message,
+              "error"
+            );
+
+          } else {
+
+            showMessage(
+              "Account created. Please check your email for confirmation.",
+              "success"
+            );
 
           }
 
-        });
+        } catch (error) {
 
-      button.disabled = false;
-      button.textContent = "Create Account";
+          showMessage(
+            error.message || "Signup failed.",
+            "error"
+          );
 
-      if (error) {
+        } finally {
 
-        showMessage(
-          error.message,
-          "error"
-        );
+          signupBtn.disabled = false;
+          signupBtn.textContent = "Create Account";
 
-        return;
-      }
-
-      if (data.session) {
-
-        showMessage(
-          "Account created successfully.",
-          "success"
-        );
-
-      } else {
-
-        showMessage(
-          "Account created. Please check your email to confirm your account.",
-          "success"
-        );
+        }
 
       }
-
-    }
-  );
-
-
-/* =========================================
-   LOAD SESSION
-   ========================================= */
-
-async function loadSession() {
-
-  const {
-    data: {
-      session
-    }
-  } =
-    await supabaseClient.auth.getSession();
-
-  if (session) {
-
-    showDashboardForUser(
-      session.user
     );
 
-  } else {
 
-    showAuth();
+    /*
+     * ==========================================
+     * LOGIN
+     * ==========================================
+     */
 
-  }
+    loginForm.addEventListener(
+      "submit",
+      async function(event) {
 
-}
+        event.preventDefault();
+
+        clearMessage();
+
+        const email =
+          document.getElementById("loginEmail")
+            .value
+            .trim();
+
+        const password =
+          document.getElementById("loginPassword")
+            .value;
 
 
-/* =========================================
-   AUTH STATE
-   ========================================= */
+        const loginBtn =
+          document.getElementById("loginBtn");
 
-supabaseClient.auth.onAuthStateChange(
-  function(event, session) {
 
-    if (session) {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Logging in...";
 
-      showDashboardForUser(
-        session.user
-      );
 
-    } else {
+        try {
 
-      showAuth();
+          const result =
+            await supabaseClient.auth.signInWithPassword({
+
+              email: email,
+              password: password
+
+            });
+
+
+          if (result.error) {
+
+            showMessage(
+              result.error.message,
+              "error"
+            );
+
+          } else {
+
+            showApp(
+              result.data.user
+            );
+
+          }
+
+        } catch (error) {
+
+          showMessage(
+            error.message || "Login failed.",
+            "error"
+          );
+
+        } finally {
+
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Login";
+
+        }
+
+      }
+    );
+
+
+    /*
+     * ==========================================
+     * SHOW APP
+     * ==========================================
+     */
+
+    function showApp(user) {
+
+      authPage.classList.add("hidden");
+
+      appPage.classList.remove("hidden");
+
+
+      let name =
+        user?.user_metadata?.full_name;
+
+
+      if (!name) {
+
+        name =
+          user?.email
+            ? user.email.split("@")[0]
+            : "User";
+
+      }
+
+
+      welcomeName.textContent =
+        "Welcome, " + name;
 
     }
 
-  }
-);
+
+    /*
+     * ==========================================
+     * SHOW AUTH
+     * ==========================================
+     */
+
+    function showAuth() {
+
+      appPage.classList.add("hidden");
+
+      authPage.classList.remove("hidden");
+
+      closeDrawer();
+
+    }
 
 
-/* =========================================
-   SHOW LOGIN PAGE
-   ========================================= */
+    /*
+     * ==========================================
+     * SESSION CHECK
+     * ==========================================
+     */
 
-function showAuth() {
+    async function checkSession() {
 
-  authPage
-    .classList
-    .remove("hidden");
+      try {
 
-  dashboardPage
-    .classList
-    .add("hidden");
-
-  topbar
-    .classList
-    .add("hidden");
-
-  bottomNav
-    .classList
-    .add("hidden");
-}
+        const result =
+          await supabaseClient.auth.getSession();
 
 
-/* =========================================
-   SHOW DASHBOARD
-   ========================================= */
+        if (result.error) {
 
-function showDashboardForUser(user) {
+          console.error(
+            "Session error:",
+            result.error
+          );
 
-  authPage
-    .classList
-    .add("hidden");
+          return;
 
-  dashboardPage
-    .classList
-    .remove("hidden");
-
-  topbar
-    .classList
-    .remove("hidden");
-
-  bottomNav
-    .classList
-    .remove("hidden");
-
-  const name =
-    user.user_metadata?.full_name ||
-    user.email?.split("@")[0] ||
-    "User";
-
-  userName.textContent =
-    name;
-}
+        }
 
 
-/* =========================================
-   HOME
-   ========================================= */
-
-function showDashboard() {
-
-  dashboardPage
-    .classList
-    .remove("hidden");
-
-  authPage
-    .classList
-    .add("hidden");
-}
+        const session =
+          result.data.session;
 
 
-/* =========================================
-   LOGOUT
-   ========================================= */
+        if (session && session.user) {
 
-async function logout() {
+          showApp(session.user);
 
-  await supabaseClient.auth.signOut();
+        } else {
 
-  closeDrawer();
+          showAuth();
 
-  showAuth();
-}
+        }
 
+      } catch (error) {
 
-/* =========================================
-   DRAWER
-   ========================================= */
+        console.error(
+          "Session check failed:",
+          error
+        );
 
-function openDrawer() {
+      }
 
-  document
-    .getElementById("drawer")
-    .classList
-    .add("open");
-}
+    }
 
 
-function closeDrawer(event) {
+    /*
+     * ==========================================
+     * AUTH STATE
+     * ==========================================
+     */
 
-  if (
-    !event ||
-    event.target.id === "drawer"
-  ) {
+    supabaseClient.auth.onAuthStateChange(
+      function(event, session) {
+
+        if (
+          session &&
+          session.user
+        ) {
+
+          showApp(session.user);
+
+        } else {
+
+          showAuth();
+
+        }
+
+      }
+    );
+
+
+    /*
+     * ==========================================
+     * LOGOUT
+     * ==========================================
+     */
 
     document
-      .getElementById("drawer")
-      .classList
-      .remove("open");
+      .getElementById("logoutBtn")
+      .addEventListener(
+        "click",
+        async function() {
 
-  }
+          const result =
+            await supabaseClient.auth.signOut();
 
-}
+
+          if (result.error) {
+
+            alert(
+              result.error.message
+            );
+
+            return;
+
+          }
 
 
-/* =========================================
-   START APPLICATION
-   ========================================= */
+          showAuth();
 
-loadSession();
+        }
+      );
 
-</script>
+
+    /*
+     * ==========================================
+     * DRAWER
+     * ==========================================
+     */
+
+    function openDrawer() {
+
+      drawer.classList.add("show");
+
+      drawerOverlay.classList.add("show");
+
+    }
+
+
+    function closeDrawer() {
+
+      drawer.classList.remove("show");
+
+      drawerOverlay.classList.remove("show");
+
+    }
+
+
+    document
+      .getElementById("menuBtn")
+      .addEventListener(
+        "click",
+        openDrawer
+      );
+
+
+    document
+      .getElementById("bottomMenuBtn")
+      .addEventListener(
+        "click",
+        openDrawer
+      );
+
+
+    document
+      .getElementById("closeDrawer")
+      .addEventListener(
+        "click",
+        closeDrawer
+      );
+
+
+    drawerOverlay.addEventListener(
+      "click",
+      closeDrawer
+    );
+
+
+    /*
+     * ==========================================
+     * START
+     * ==========================================
+     */
+
+    checkSession();
+
+  </script>
 
 </body>
 </html>
