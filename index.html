@@ -3,901 +3,525 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b285c">
   <title>APRP Digital</title>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fb;
-      color: #172033;
-      min-height: 100vh;
-    }
-
-    button, input { font: inherit; }
-    button { cursor: pointer; }
-    .hidden { display: none !important; }
-
-    /* AUTH */
-    #authPage {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: linear-gradient(135deg, #071d49, #0d5bd7);
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 430px;
-      background: #fff;
-      border-radius: 22px;
-      padding: 28px 22px;
-      box-shadow: 0 18px 50px rgba(0,0,0,.18);
-    }
-
-    .brand { text-align: center; margin-bottom: 22px; }
-
-    .brand-logo {
-      width: 65px;
-      height: 65px;
-      border-radius: 18px;
-      background: #0b5ed7;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 12px;
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .brand h1 { font-size: 27px; color: #0b285c; }
-    .brand p { color: #697386; margin-top: 5px; font-size: 14px; }
-
-    .tabs {
-      display: flex;
-      background: #eef2f7;
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 20px;
-    }
-
-    .tab {
-      flex: 1;
-      border: 0;
-      padding: 11px;
-      border-radius: 9px;
-      background: transparent;
-      color: #64748b;
-      font-weight: 700;
-    }
-
-    .tab.active {
-      background: #fff;
-      color: #0b5ed7;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    }
-
-    .form-group { margin-bottom: 15px; }
-
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 7px;
-      color: #334155;
-    }
-
-    .form-group input {
-      width: 100%;
-      border: 1px solid #d7dee8;
-      border-radius: 11px;
-      padding: 13px 14px;
-      outline: none;
-      background: #fff;
-    }
-
-    .form-group input:focus {
-      border-color: #0b5ed7;
-      box-shadow: 0 0 0 3px rgba(11,94,215,.10);
-    }
-
-    .primary-btn {
-      width: 100%;
-      border: 0;
-      background: #0b5ed7;
-      color: #fff;
-      padding: 13px;
-      border-radius: 11px;
-      font-weight: 700;
-      margin-top: 5px;
-    }
-
-    .primary-btn:disabled { opacity: .65; cursor: not-allowed; }
-
-    .message {
-      margin-top: 15px;
-      padding: 11px;
-      border-radius: 10px;
-      font-size: 13px;
-      display: none;
-      overflow-wrap: anywhere;
-    }
-
-    .message.success { display: block; background: #e9f9ef; color: #176b35; }
-    .message.error { display: block; background: #fff0f0; color: #a51d2d; }
-
-    /* APP */
-    #appPage { min-height: 100vh; padding-bottom: 80px; }
-
-    .topbar {
-      background: #fff;
-      border-bottom: 1px solid #e7ebf0;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
-    .top-brand { font-size: 20px; font-weight: 800; color: #0b285c; }
-
-    .menu-btn {
-      border: 0;
-      background: #eef4ff;
-      color: #0b5ed7;
-      width: 40px;
-      height: 40px;
-      border-radius: 11px;
-      font-size: 21px;
-    }
-
-    .container { max-width: 1100px; margin: auto; padding: 18px 15px; }
-    .welcome { margin-bottom: 16px; }
-    .welcome h2 { font-size: 22px; color: #0b285c; }
-    .welcome p { color: #718096; margin-top: 4px; font-size: 14px; }
-
-    .wallet-card {
-      background: linear-gradient(135deg, #071d49, #0b5ed7);
-      color: #fff;
-      border-radius: 20px;
-      padding: 22px;
-      margin-bottom: 18px;
-      box-shadow: 0 10px 30px rgba(11,94,215,.20);
-    }
-
-    .wallet-label { opacity: .8; font-size: 13px; }
-    .wallet-balance { font-size: 32px; font-weight: 800; margin: 7px 0 5px; overflow-wrap: anywhere; }
-    .wallet-note { font-size: 12px; opacity: .85; overflow-wrap: anywhere; }
-
-    .section-title { font-size: 18px; font-weight: 800; color: #172033; margin: 20px 0 12px; }
-
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    .quick-card {
-      border: 0;
-      background: #fff;
-      border-radius: 15px;
-      padding: 15px 8px;
-      min-height: 90px;
-      box-shadow: 0 3px 14px rgba(15,23,42,.06);
-      color: #172033;
-    }
-
-    .quick-icon { font-size: 24px; margin-bottom: 7px; }
-    .quick-card span { font-size: 12px; font-weight: 700; }
-
-    .info-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: 0 3px 14px rgba(15,23,42,.06);
-      margin-top: 12px;
-    }
-
-    .info-card h3 { margin-bottom: 7px; color: #0b285c; }
-    .info-card p { color: #667085; font-size: 14px; line-height: 1.6; }
-
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 67px;
-      background: #fff;
-      border-top: 1px solid #e5e9ef;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 30;
-    }
-
-    .nav-item {
-      border: 0;
-      background: transparent;
-      color: #778195;
-      font-size: 11px;
-      text-align: center;
-    }
-
-    .nav-item div { font-size: 21px; margin-bottom: 2px; }
-    .nav-item.active { color: #0b5ed7; font-weight: 700; }
-
-    /* DRAWER */
-    .drawer-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.4);
-      z-index: 50;
-      display: none;
-    }
-
-    .drawer-overlay.show { display: block; }
-
-    .drawer {
-      position: fixed;
-      top: 0;
-      right: -310px;
-      width: 290px;
-      max-width: 85vw;
-      height: 100vh;
-      height: 100dvh;
-      background: #fff;
-      z-index: 60;
-      padding: 22px;
-      transition: right .25s;
-      box-shadow: -10px 0 30px rgba(0,0,0,.12);
-      overflow-y: auto;
-    }
-
-    .drawer.show { right: 0; }
-
-    .drawer-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-
-    .drawer-header h2 { color: #0b285c; font-size: 21px; }
-
-    .close-btn {
-      border: 0;
-      background: #eef2f7;
-      width: 35px;
-      height: 35px;
-      border-radius: 9px;
-    }
-
-    .drawer-item {
-      width: 100%;
-      border: 0;
-      background: transparent;
-      padding: 13px 5px;
-      text-align: left;
-      font-weight: 700;
-      color: #344054;
-      border-bottom: 1px solid #eef1f5;
-    }
-
-    .logout { color: #c62828; margin-top: 10px; }
-
-    @media (max-width: 600px) {
-      .quick-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-      .quick-card { padding: 12px 5px; }
-      .quick-icon { font-size: 21px; }
-      .quick-card span { font-size: 10px; }
-      .wallet-balance { font-size: 28px; }
-    }
-
-    @media (max-width: 360px) {
-      .quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .quick-card span { font-size: 12px; }
-    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f7fb;color:#172033;min-height:100vh}
+    button,input{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+    #authPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#071d49,#0d5bd7)}
+    .auth-card{width:100%;max-width:430px;background:#fff;border-radius:22px;padding:28px 22px;box-shadow:0 18px 50px #0003}
+    .brand{text-align:center;margin-bottom:22px}
+    .brand-logo{width:65px;height:65px;border-radius:18px;background:#0b5ed7;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:24px;font-weight:800}
+    .brand h1{font-size:27px;color:#0b285c}.brand p{color:#697386;margin-top:5px;font-size:14px}
+    .tabs{display:flex;background:#eef2f7;border-radius:12px;padding:4px;margin-bottom:20px}
+    .tab{flex:1;border:0;padding:11px;border-radius:9px;background:transparent;color:#64748b;font-weight:700}
+    .tab.active{background:#fff;color:#0b5ed7;box-shadow:0 2px 8px #0001}
+    .form-group{margin-bottom:15px}
+    .form-group label{display:block;font-size:13px;font-weight:700;margin-bottom:7px;color:#334155}
+    .form-group input{width:100%;border:1px solid #d7dee8;border-radius:11px;padding:13px 14px;outline:none;background:#fff}
+    .form-group input:focus{border-color:#0b5ed7;box-shadow:0 0 0 3px #0b5ed71a}
+    .primary-btn{width:100%;border:0;background:#0b5ed7;color:#fff;padding:13px;border-radius:11px;font-weight:700;margin-top:5px}
+    button:disabled{opacity:.65;cursor:not-allowed}
+    .message{margin-top:15px;padding:11px;border-radius:10px;font-size:13px;display:none;overflow-wrap:anywhere}
+    .message.success{display:block;background:#e9f9ef;color:#176b35}.message.error{display:block;background:#fff0f0;color:#a51d2d}
+    #appPage{min-height:100vh;padding-bottom:80px}
+    .topbar{background:#fff;border-bottom:1px solid #e7ebf0;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+    .top-brand{font-size:20px;font-weight:800;color:#0b285c}
+    .menu-btn{border:0;background:#eef4ff;color:#0b5ed7;width:40px;height:40px;border-radius:11px;font-size:21px}
+    .container{max-width:1100px;margin:auto;padding:18px 15px}
+    .welcome{margin-bottom:16px}.welcome h2{font-size:22px;color:#0b285c}.welcome p{color:#718096;margin-top:4px;font-size:14px}
+    .wallet-card{background:linear-gradient(135deg,#071d49,#0b5ed7);color:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 10px 30px #0b5ed733}
+    .wallet-label{opacity:.8;font-size:13px}
+    .wallet-balance{font-size:32px;font-weight:800;margin:7px 0 5px;overflow-wrap:anywhere}
+    .wallet-note{font-size:12px;opacity:.9;overflow-wrap:anywhere;line-height:1.5}
+    .section-title{font-size:18px;font-weight:800;margin:20px 0 12px}
+    .quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+    .quick-card{border:0;background:#fff;border-radius:15px;padding:15px 8px;min-height:90px;box-shadow:0 3px 14px #0f172a0f;color:#172033}
+    .quick-icon{font-size:24px;margin-bottom:7px}.quick-card span{font-size:12px;font-weight:700}
+    .info-card{background:#fff;border-radius:16px;padding:18px;box-shadow:0 3px 14px #0f172a0f;margin-top:12px}
+    .info-card h3{margin-bottom:7px;color:#0b285c}.info-card p{color:#667085;font-size:14px;line-height:1.6}
+    .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:67px;background:#fff;border-top:1px solid #e5e9ef;display:flex;justify-content:space-around;align-items:center;z-index:30}
+    .nav-item{border:0;background:transparent;color:#778195;font-size:11px;text-align:center}
+    .nav-item div{font-size:21px;margin-bottom:2px}.nav-item.active{color:#0b5ed7;font-weight:700}
+    .drawer-overlay{position:fixed;inset:0;background:#0006;z-index:50;display:none}
+    .drawer-overlay.show{display:block}
+    .drawer{position:fixed;top:0;right:-310px;width:290px;max-width:85vw;height:100vh;height:100dvh;background:#fff;z-index:60;padding:22px;transition:right .25s;box-shadow:-10px 0 30px #0002;overflow-y:auto}
+    .drawer.show{right:0}
+    .drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+    .drawer-header h2{color:#0b285c;font-size:21px}
+    .close-btn{border:0;background:#eef2f7;width:35px;height:35px;border-radius:9px}
+    .drawer-item{width:100%;border:0;background:transparent;padding:13px 5px;text-align:left;font-weight:700;color:#344054;border-bottom:1px solid #eef1f5}
+    .logout{color:#c62828;margin-top:10px}
+    @media(max-width:600px){.quick-grid{gap:8px}.quick-card{padding:12px 5px}.quick-icon{font-size:21px}.quick-card span{font-size:10px}.wallet-balance{font-size:28px}}
+    @media(max-width:360px){.quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.quick-card span{font-size:12px}}
   </style>
 </head>
-
 <body>
-  <!-- AUTH PAGE -->
-  <section id="authPage">
-    <div class="auth-card">
-      <div class="brand">
-        <div class="brand-logo">AP</div>
-        <h1>APRP Digital</h1>
-        <p>Technology &amp; Digital Platform</p>
-      </div>
 
-      <div class="tabs">
-        <button id="loginTab" class="tab active" type="button">Login</button>
-        <button id="signupTab" class="tab" type="button">Create Account</button>
-      </div>
-
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input id="loginEmail" type="email" autocomplete="email"
-                 placeholder="Enter your email" required>
-        </div>
-
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input id="loginPassword" type="password"
-                 autocomplete="current-password"
-                 placeholder="Enter your password" required>
-        </div>
-
-        <button id="loginBtn" class="primary-btn" type="submit">Login</button>
-      </form>
-
-      <form id="signupForm" class="hidden">
-        <div class="form-group">
-          <label for="signupName">Full Name</label>
-          <input id="signupName" type="text" autocomplete="name"
-                 placeholder="Enter your full name" required>
-        </div>
-
-        <div class="form-group">
-          <label for="signupEmail">Email</label>
-          <input id="signupEmail" type="email" autocomplete="email"
-                 placeholder="Enter your email" required>
-        </div>
-
-        <div class="form-group">
-          <label for="signupPassword">Password</label>
-          <input id="signupPassword" type="password"
-                 autocomplete="new-password"
-                 placeholder="Create a password" minlength="6" required>
-        </div>
-
-        <button id="signupBtn" class="primary-btn" type="submit">
-          Create Account
-        </button>
-      </form>
-
-      <div id="authMessage" class="message" role="status" aria-live="polite"></div>
+<section id="authPage">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-logo">AP</div>
+      <h1>APRP Digital</h1>
+      <p>Technology &amp; Digital Platform</p>
     </div>
-  </section>
-
-  <!-- APP PAGE -->
-  <section id="appPage" class="hidden">
-    <header class="topbar">
-      <div class="top-brand">APRP Digital</div>
-      <button id="menuBtn" class="menu-btn" type="button"
-              aria-label="Open menu" aria-expanded="false">☰</button>
-    </header>
-
-    <main class="container">
-      <div class="welcome">
-        <h2 id="welcomeName">Welcome</h2>
-        <p>Manage your APRP Digital account</p>
-      </div>
-
-      <!-- WALLET -->
-      <div class="wallet-card">
-        <div class="wallet-label">Available Balance</div>
-        <div class="wallet-balance" id="availableBalance">Loading...</div>
-        <div class="wallet-note" id="walletStatus" role="status" aria-live="polite">
-          Loading wallet information...
-        </div>
-      </div>
-
-      <div class="section-title">Quick Actions</div>
-
-      <div class="quick-grid">
-        <button class="quick-card" type="button" data-feature="Deposit">
-          <div class="quick-icon">💰</div><span>Deposit</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Withdraw">
-          <div class="quick-icon">💸</div><span>Withdraw</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Products">
-          <div class="quick-icon">📱</div><span>Products</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="My Orders">
-          <div class="quick-icon">🛒</div><span>My Orders</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Buyback">
-          <div class="quick-icon">🔄</div><span>Buyback</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Transactions">
-          <div class="quick-icon">📊</div><span>Transactions</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Referral">
-          <div class="quick-icon">👥</div><span>Referral</span>
-        </button>
-        <button class="quick-card" type="button" data-feature="Support">
-          <div class="quick-icon">🎧</div><span>Support</span>
-        </button>
-      </div>
-
-      <div class="section-title">Account</div>
-
-      <div class="info-card">
-        <h3>APRP Digital Platform</h3>
-        <p>
-          Your account is connected with Supabase Authentication.
-          Wallet information is read from the existing wallet record.
-          Other modules will be connected after their backend workflows
-          are implemented.
-        </p>
-      </div>
-    </main>
-
-    <nav class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-item active" type="button" data-feature="Home">
-        <div>⌂</div>Home
-      </button>
-      <button class="nav-item" type="button" data-feature="Wallet">
-        <div>💰</div>Wallet
-      </button>
-      <button class="nav-item" type="button" data-feature="Products">
-        <div>🛍</div>Products
-      </button>
-      <button class="nav-item" type="button" data-feature="Orders">
-        <div>📋</div>Orders
-      </button>
-      <button id="bottomMenuBtn" class="nav-item" type="button">
-        <div>☰</div>Menu
-      </button>
-    </nav>
-  </section>
-
-  <!-- DRAWER -->
-  <div id="drawerOverlay" class="drawer-overlay"></div>
-
-  <aside id="drawer" class="drawer" aria-label="Account menu">
-    <div class="drawer-header">
-      <h2>APRP Digital</h2>
-      <button id="closeDrawer" class="close-btn" type="button"
-              aria-label="Close menu">✕</button>
+    <div class="tabs">
+      <button id="loginTab" class="tab active" type="button">Login</button>
+      <button id="signupTab" class="tab" type="button">Create Account</button>
     </div>
 
-    <button class="drawer-item" type="button" data-feature="Profile">👤 Profile</button>
-    <button class="drawer-item" type="button" data-feature="KYC">🪪 KYC</button>
-    <button class="drawer-item" type="button" data-feature="Notifications">🔔 Notifications</button>
-    <button class="drawer-item" type="button" data-feature="Referral">👥 Referral</button>
-    <button class="drawer-item" type="button" data-feature="Support">🎧 Support</button>
-    <button class="drawer-item" type="button" data-feature="Settings">⚙️ Settings</button>
-    <button id="logoutBtn" class="drawer-item logout" type="button">🚪 Logout</button>
-  </aside>
-
-  <script>
-    "use strict";
-
-    /*
-     * APRP DIGITAL - SUPABASE CONFIGURATION
-     * The publishable key is intended for frontend use.
-     * Never place a service-role or secret key in this file.
-     */
-    const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
-    const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
-
-    if (!window.supabase) {
-      document.body.innerHTML =
-        "<p style='padding:20px'>Supabase library could not load. Check your internet connection and reload.</p>";
-      throw new Error("Supabase JS library did not load.");
-    }
-
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-
-    const authPage = document.getElementById("authPage");
-    const appPage = document.getElementById("appPage");
-    const loginTab = document.getElementById("loginTab");
-    const signupTab = document.getElementById("signupTab");
-    const loginForm = document.getElementById("loginForm");
-    const signupForm = document.getElementById("signupForm");
-    const authMessage = document.getElementById("authMessage");
-    const welcomeName = document.getElementById("welcomeName");
-    const drawer = document.getElementById("drawer");
-    const drawerOverlay = document.getElementById("drawerOverlay");
-    const availableBalance = document.getElementById("availableBalance");
-    const walletStatus = document.getElementById("walletStatus");
-
-    let currentUserId = null;
-    let walletRequestNumber = 0;
-
-    function showMessage(message, type) {
-      authMessage.textContent = message;
-      authMessage.className = "message " + type;
-    }
-
-    function clearMessage() {
-      authMessage.textContent = "";
-      authMessage.className = "message";
-    }
-
-    function showLoginTab() {
-      loginTab.classList.add("active");
-      signupTab.classList.remove("active");
-      loginForm.classList.remove("hidden");
-      signupForm.classList.add("hidden");
-      clearMessage();
-    }
-
-    function showSignupTab() {
-      signupTab.classList.add("active");
-      loginTab.classList.remove("active");
-      signupForm.classList.remove("hidden");
-      loginForm.classList.add("hidden");
-      clearMessage();
-    }
-
-    loginTab.addEventListener("click", showLoginTab);
-    signupTab.addEventListener("click", showSignupTab);
-
-    /*
-     * WALLET
-     * Reads the signed-in user's existing wallet row only.
-     * Does not create wallets or change any balance.
-     */
-    async function loadWallet(user) {
-      const requestNumber = ++walletRequestNumber;
-
-      availableBalance.textContent = "Loading...";
-      walletStatus.textContent = "Loading wallet information...";
-
-      if (!user || !user.id) {
-        availableBalance.textContent = "Unavailable";
-        walletStatus.textContent = "Please log in again.";
-        return;
-      }
-
-      try {
-        /*
-         * user_id is used because it was present in the previously
-         * successful wallet existence check.
-         * select("*") avoids assuming balance column spelling.
-         */
-        const { data, error } = await supabaseClient
-          .from("wallets")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (requestNumber !== walletRequestNumber) return;
-
-        if (error) {
-          console.error("Wallet query error:", error);
-          availableBalance.textContent = "Unavailable";
-          walletStatus.textContent =
-            "Wallet could not be loaded. Check the exact schema and read access policy.";
-          return;
-        }
-
-        if (!data) {
-          availableBalance.textContent = "Unavailable";
-          walletStatus.textContent =
-            "No wallet record was returned for this account.";
-          return;
-        }
-
-        const availableKeys = [
-          "available_balance",
-          "available balance",
-          "availableBalance"
-        ];
-
-        const reservedKeys = [
-          "reserved_balance",
-          "reserved balance",
-          "reservedBalance"
-        ];
-
-        const currencyKeys = ["currency"];
-        const statusKeys = ["status"];
-
-        function findValue(row, keys) {
-          for (const key of keys) {
-            if (Object.prototype.hasOwnProperty.call(row, key)) {
-              return row[key];
-            }
-          }
-          return undefined;
-        }
-
-        const balance = findValue(data, availableKeys);
-        const reserved = findValue(data, reservedKeys);
-        const currencyValue = findValue(data, currencyKeys);
-        const statusValue = findValue(data, statusKeys);
-
-        if (balance === undefined || balance === null ||
-            !Number.isFinite(Number(balance))) {
-          console.error("Unrecognized wallet balance column. Returned columns:", Object.keys(data));
-          availableBalance.textContent = "Unavailable";
-          walletStatus.textContent =
-            "Wallet found, but its balance column name needs to be verified.";
-          return;
-        }
-
-        const currency = currencyValue || "BDT";
-        const amount = Number(balance).toLocaleString("en-BD", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-
-        availableBalance.textContent = currency + " " + amount;
-
-        let details = [];
-        if (reserved !== undefined && reserved !== null &&
-            Number.isFinite(Number(reserved))) {
-          details.push(
-            "Reserved: " + currency + " " +
-            Number(reserved).toLocaleString("en-BD", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2
-            })
-          );
-        }
-
-        if (statusValue !== undefined && statusValue !== null) {
-          details.push("Status: " + String(statusValue));
-        }
-
-        walletStatus.textContent = details.length
-          ? details.join(" · ")
-          : "Wallet balance loaded.";
-
-      } catch (error) {
-        if (requestNumber !== walletRequestNumber) return;
-
-        console.error("Wallet loading error:", error);
-        availableBalance.textContent = "Unavailable";
-        walletStatus.textContent =
-          "Could not load wallet information. Please reload and check the browser console if the issue continues.";
-      }
-    }
-
-    /*
-     * SIGN UP
-     */
-    signupForm.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      clearMessage();
-
-      const name = document.getElementById("signupName").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
-      const password = document.getElementById("signupPassword").value;
-      const signupBtn = document.getElementById("signupBtn");
-
-      signupBtn.disabled = true;
-      signupBtn.textContent = "Creating...";
-
-      try {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: name },
-            emailRedirectTo: APRP_REDIRECT_URL
-          }
-        });
-
-        if (error) {
-          showMessage(error.message, "error");
-        } else if (data.session) {
-          showMessage("Account created and signed in.", "success");
-          signupForm.reset();
-          if (data.user) showApp(data.user);
-        } else {
-          showMessage(
-            "Account created. Please check your email for confirmation before logging in.",
-            "success"
-          );
-        }
-      } catch (error) {
-        showMessage(error.message || "Signup failed.", "error");
-      } finally {
-        signupBtn.disabled = false;
-        signupBtn.textContent = "Create Account";
-      }
-    });
-
-    /*
-     * LOGIN
-     */
-    loginForm.addEventListener("submit", async function(event) {
-      event.preventDefault();
-      clearMessage();
-
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      const loginBtn = document.getElementById("loginBtn");
-
-      loginBtn.disabled = true;
-      loginBtn.textContent = "Logging in...";
-
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          showMessage(error.message, "error");
-        } else if (data.user) {
-          showApp(data.user);
-        } else {
-          showMessage("Login succeeded, but no user was returned.", "error");
-        }
-      } catch (error) {
-        showMessage(error.message || "Login failed.", "error");
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = "Login";
-      }
-    });
-
-    /*
-     * SHOW APP
-     */
-    function showApp(user) {
-      if (!user) {
-        showAuth();
-        return;
-      }
-
-      authPage.classList.add("hidden");
-      appPage.classList.remove("hidden");
-
-      const name = user.user_metadata?.full_name ||
-        user.email?.split("@")[0] ||
-        "User";
-
-      welcomeName.textContent = "Welcome, " + name;
-
-      if (currentUserId !== user.id) {
-        currentUserId = user.id;
-      }
-
-      loadWallet(user);
-    }
-
-    /*
-     * SHOW AUTH
-     */
-    function showAuth() {
-      currentUserId = null;
-      walletRequestNumber++;
-
-      appPage.classList.add("hidden");
-      authPage.classList.remove("hidden");
-      closeDrawer();
-
-      availableBalance.textContent = "—";
-      walletStatus.textContent = "Log in to view your wallet.";
-    }
-
-    /*
-     * SESSION CHECK
-     */
-    async function checkSession() {
-      try {
-        const { data, error } = await supabaseClient.auth.getSession();
-
-        if (error) {
-          console.error("Session error:", error);
-          showAuth();
-          return;
-        }
-
-        if (data.session?.user) {
-          showApp(data.session.user);
-        } else {
-          showAuth();
-        }
-      } catch (error) {
-        console.error("Session check failed:", error);
-        showAuth();
-      }
-    }
-
-    /*
-     * AUTH STATE
-     */
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        showApp(session.user);
-      } else {
-        showAuth();
-      }
-    });
-
-    /*
-     * LOGOUT
-     */
-    document.getElementById("logoutBtn").addEventListener("click", async function() {
-      const button = this;
-      button.disabled = true;
-
-      try {
-        const { error } = await supabaseClient.auth.signOut();
-
-        if (error) {
-          alert(error.message);
-          return;
-        }
-
-        showAuth();
-      } catch (error) {
-        alert(error.message || "Logout failed.");
-      } finally {
-        button.disabled = false;
-      }
-    });
-
-    /*
-     * DRAWER
-     */
-    function openDrawer() {
-      drawer.classList.add("show");
-      drawerOverlay.classList.add("show");
-      document.getElementById("menuBtn").setAttribute("aria-expanded", "true");
-    }
-
-    function closeDrawer() {
-      drawer.classList.remove("show");
-      drawerOverlay.classList.remove("show");
-      document.getElementById("menuBtn").setAttribute("aria-expanded", "false");
-    }
-
-    document.getElementById("menuBtn").addEventListener("click", openDrawer);
-    document.getElementById("bottomMenuBtn").addEventListener("click", openDrawer);
-    document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
-    drawerOverlay.addEventListener("click", closeDrawer);
-
-    document.addEventListener("keydown", function(event) {
-      if (event.key === "Escape") closeDrawer();
-    });
-
-    /*
-     * NOT YET CONNECTED MODULES
-     * Avoid pretending that these buttons already process transactions.
-     */
-    document.querySelectorAll("[data-feature]").forEach(button => {
-      button.addEventListener("click", function() {
-        const feature = this.getAttribute("data-feature");
-
-        if (feature === "Home") {
-          closeDrawer();
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          return;
-        }
-
-        if (feature === "Wallet") {
-          closeDrawer();
-          document.querySelector(".wallet-card").scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
-          return;
-        }
-
-        alert(feature + " module is not connected yet.");
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" autocomplete="email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+      </div>
+      <button id="loginBtn" class="primary-btn" type="submit">Login</button>
+    </form>
+
+    <form id="signupForm" class="hidden">
+      <div class="form-group">
+        <label for="signupName">Full Name</label>
+        <input id="signupName" type="text" autocomplete="name" placeholder="Enter your full name" required>
+      </div>
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" autocomplete="email" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Create a password" required>
+      </div>
+      <button id="signupBtn" class="primary-btn" type="submit">Create Account</button>
+    </form>
+    <div id="authMessage" class="message" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="appPage" class="hidden">
+  <header class="topbar">
+    <div class="top-brand">APRP Digital</div>
+    <button id="menuBtn" class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+  </header>
+
+  <main class="container">
+    <div class="welcome">
+      <h2 id="welcomeName">Welcome</h2>
+      <p>Manage your APRP Digital account</p>
+    </div>
+
+    <div class="wallet-card">
+      <div class="wallet-label">Available Balance</div>
+      <div id="availableBalance" class="wallet-balance">Loading...</div>
+      <div id="walletStatus" class="wallet-note" role="status" aria-live="polite">Loading wallet information...</div>
+    </div>
+
+    <div class="section-title">Quick Actions</div>
+    <div class="quick-grid">
+      <button class="quick-card" type="button" data-feature="Deposit"><div class="quick-icon">💰</div><span>Deposit</span></button>
+      <button class="quick-card" type="button" data-feature="Withdraw"><div class="quick-icon">💸</div><span>Withdraw</span></button>
+      <button class="quick-card" type="button" data-feature="Products"><div class="quick-icon">📱</div><span>Products</span></button>
+      <button class="quick-card" type="button" data-feature="My Orders"><div class="quick-icon">🛒</div><span>My Orders</span></button>
+      <button class="quick-card" type="button" data-feature="Buyback"><div class="quick-icon">🔄</div><span>Buyback</span></button>
+      <button class="quick-card" type="button" data-feature="Transactions"><div class="quick-icon">📊</div><span>Transactions</span></button>
+      <button class="quick-card" type="button" data-feature="Referral"><div class="quick-icon">👥</div><span>Referral</span></button>
+      <button class="quick-card" type="button" data-feature="Support"><div class="quick-icon">🎧</div><span>Support</span></button>
+    </div>
+
+    <div class="section-title">Account</div>
+    <div class="info-card">
+      <h3>APRP Digital Platform</h3>
+      <p>Your account is connected with Supabase Authentication. The wallet reads the signed-in user's existing wallet record. Other modules require their own backend workflows before they can process real transactions.</p>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Main navigation">
+    <button class="nav-item active" type="button" data-feature="Home"><div>⌂</div>Home</button>
+    <button class="nav-item" type="button" data-feature="Wallet"><div>💰</div>Wallet</button>
+    <button class="nav-item" type="button" data-feature="Products"><div>🛍</div>Products</button>
+    <button class="nav-item" type="button" data-feature="Orders"><div>📋</div>Orders</button>
+    <button id="bottomMenuBtn" class="nav-item" type="button"><div>☰</div>Menu</button>
+  </nav>
+</section>
+
+<div id="drawerOverlay" class="drawer-overlay"></div>
+<aside id="drawer" class="drawer" aria-label="Account menu">
+  <div class="drawer-header">
+    <h2>APRP Digital</h2>
+    <button id="closeDrawer" class="close-btn" type="button" aria-label="Close menu">✕</button>
+  </div>
+  <button class="drawer-item" type="button" data-feature="Profile">👤 Profile</button>
+  <button class="drawer-item" type="button" data-feature="KYC">🪪 KYC</button>
+  <button class="drawer-item" type="button" data-feature="Notifications">🔔 Notifications</button>
+  <button class="drawer-item" type="button" data-feature="Referral">👥 Referral</button>
+  <button class="drawer-item" type="button" data-feature="Support">🎧 Support</button>
+  <button class="drawer-item" type="button" data-feature="Settings">⚙️ Settings</button>
+  <button id="logoutBtn" class="drawer-item logout" type="button">🚪 Logout</button>
+</aside>
+
+<script>
+"use strict";
+
+/* SUPABASE CONFIG */
+const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
+const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
+
+if (!window.supabase) {
+  document.body.textContent = "Supabase library failed to load. Check your internet connection and reload.";
+  throw new Error("Supabase JS library did not load.");
+}
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const $ = id => document.getElementById(id);
+const authPage = $("authPage");
+const appPage = $("appPage");
+const authMessage = $("authMessage");
+const drawer = $("drawer");
+const drawerOverlay = $("drawerOverlay");
+const availableBalance = $("availableBalance");
+const walletStatus = $("walletStatus");
+
+let walletRequestNumber = 0;
+let activeUserId = null;
+let lastWalletLoadUserId = null;
+
+function showMessage(message, type) {
+  authMessage.textContent = message;
+  authMessage.className = "message " + type;
+}
+
+function clearMessage() {
+  authMessage.textContent = "";
+  authMessage.className = "message";
+}
+
+function setAuthTab(tab) {
+  const isLogin = tab === "login";
+  $("loginTab").classList.toggle("active", isLogin);
+  $("signupTab").classList.toggle("active", !isLogin);
+  $("loginForm").classList.toggle("hidden", !isLogin);
+  $("signupForm").classList.toggle("hidden", isLogin);
+  clearMessage();
+}
+
+$("loginTab").addEventListener("click", () => setAuthTab("login"));
+$("signupTab").addEventListener("click", () => setAuthTab("signup"));
+
+/* WALLET: READ-ONLY, EXISTING RECORD ONLY */
+async function loadWallet(user) {
+  const requestId = ++walletRequestNumber;
+
+  availableBalance.textContent = "Loading...";
+  walletStatus.textContent = "Loading wallet information...";
+
+  if (!user?.id) {
+    availableBalance.textContent = "Unavailable";
+    walletStatus.textContent = "Please log in again.";
+    return;
+  }
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("wallets")
+      .select("currency, available_balance, reserved_balance, status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (requestId !== walletRequestNumber) return;
+
+    if (error) {
+      console.error("Wallet query failed:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
       });
+
+      availableBalance.textContent = "Unavailable";
+
+      if (error.code === "42501" || /permission|policy|row-level security|RLS/i.test(error.message || "")) {
+        walletStatus.textContent = "Access denied by database permissions (RLS).";
+      } else {
+        walletStatus.textContent =
+          "Database error: " + (error.message || "Unknown error");
+      }
+      return;
+    }
+
+    if (!data) {
+      availableBalance.textContent = "Unavailable";
+      walletStatus.textContent =
+        "No wallet row is visible for this account. Check the user ID and read policy.";
+      console.warn("No wallet row returned for authenticated user:", user.id);
+      return;
+    }
+
+    const balance = Number(data.available_balance);
+    const reserved = Number(data.reserved_balance);
+    const currency = data.currency || "BDT";
+
+    if (data.available_balance == null || !Number.isFinite(balance)) {
+      availableBalance.textContent = "Unavailable";
+      walletStatus.textContent = "Wallet row returned, but balance data is invalid.";
+      console.error("Invalid wallet row:", data);
+      return;
+    }
+
+    availableBalance.textContent =
+      currency + " " + balance.toLocaleString("en-BD", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+    const details = [];
+
+    if (data.reserved_balance != null && Number.isFinite(reserved)) {
+      details.push("Reserved: " + currency + " " + reserved.toLocaleString("en-BD", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }));
+    }
+
+    if (data.status != null) details.push("Status: " + data.status);
+
+    walletStatus.textContent = details.join(" · ") || "Wallet balance loaded.";
+  } catch (error) {
+    if (requestId !== walletRequestNumber) return;
+
+    console.error("Unexpected wallet error:", error);
+    availableBalance.textContent = "Unavailable";
+    walletStatus.textContent =
+      "Could not contact the wallet service. Check your connection and reload.";
+  }
+}
+
+/* SHOW APP */
+function showApp(user) {
+  if (!user?.id) return showAuth();
+
+  activeUserId = user.id;
+  authPage.classList.add("hidden");
+  appPage.classList.remove("hidden");
+
+  $("welcomeName").textContent =
+    "Welcome, " + (user.user_metadata?.full_name || user.email?.split("@")[0] || "User");
+
+  // Avoid duplicate simultaneous wallet requests for the same login.
+  if (lastWalletLoadUserId !== user.id) {
+    lastWalletLoadUserId = user.id;
+    loadWallet(user);
+  }
+}
+
+/* SHOW AUTH */
+function showAuth() {
+  activeUserId = null;
+  lastWalletLoadUserId = null;
+  walletRequestNumber++;
+
+  appPage.classList.add("hidden");
+  authPage.classList.remove("hidden");
+  closeDrawer();
+
+  availableBalance.textContent = "—";
+  walletStatus.textContent = "Log in to view your wallet.";
+}
+
+/* SIGN UP */
+$("signupForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessage();
+
+  const name = $("signupName").value.trim();
+  const email = $("signupEmail").value.trim();
+  const password = $("signupPassword").value;
+  const button = $("signupBtn");
+
+  button.disabled = true;
+  button.textContent = "Creating...";
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: APRP_REDIRECT_URL
+      }
     });
 
-    /*
-     * START
-     */
-    checkSession();
-  </script>
+    if (error) {
+      showMessage(error.message, "error");
+    } else if (data.session && data.user) {
+      $("signupForm").reset();
+      showMessage("Account created successfully.", "success");
+      showApp(data.user);
+    } else {
+      showMessage(
+        "Account created. Check your email to confirm the account, then log in.",
+        "success"
+      );
+    }
+  } catch (error) {
+    showMessage(error.message || "Signup failed.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Account";
+  }
+});
+
+/* LOGIN */
+$("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessage();
+
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const button = $("loginBtn");
+
+  button.disabled = true;
+  button.textContent = "Logging in...";
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      showMessage(error.message, "error");
+    } else if (data.user) {
+      lastWalletLoadUserId = null;
+      showApp(data.user);
+    } else {
+      showMessage("Login did not return a user.", "error");
+    }
+  } catch (error) {
+    showMessage(error.message || "Login failed.", "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Login";
+  }
+});
+
+/* SESSION CHECK */
+async function checkSession() {
+  try {
+    const { data, error } = await supabaseClient.auth.getSession();
+
+    if (error) {
+      console.error("Session check error:", error);
+      showAuth();
+      return;
+    }
+
+    if (data.session?.user) {
+      showApp(data.session.user);
+    } else {
+      showAuth();
+    }
+  } catch (error) {
+    console.error("Session check failed:", error);
+    showAuth();
+  }
+}
+
+/*
+ * Keep the auth callback synchronous.
+ * Defer UI/database work to avoid running Supabase queries inside
+ * the auth callback's execution context.
+ */
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  setTimeout(() => {
+    if (session?.user) {
+      if (activeUserId !== session.user.id) {
+        lastWalletLoadUserId = null;
+      }
+      showApp(session.user);
+    } else {
+      showAuth();
+    }
+  }, 0);
+});
+
+/* LOGOUT */
+$("logoutBtn").addEventListener("click", async event => {
+  const button = event.currentTarget;
+  button.disabled = true;
+
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    showAuth();
+  } catch (error) {
+    alert(error.message || "Logout failed.");
+  } finally {
+    button.disabled = false;
+  }
+});
+
+/* DRAWER */
+function openDrawer() {
+  drawer.classList.add("show");
+  drawerOverlay.classList.add("show");
+  $("menuBtn").setAttribute("aria-expanded", "true");
+}
+
+function closeDrawer() {
+  drawer.classList.remove("show");
+  drawerOverlay.classList.remove("show");
+  $("menuBtn").setAttribute("aria-expanded", "false");
+}
+
+$("menuBtn").addEventListener("click", openDrawer);
+$("bottomMenuBtn").addEventListener("click", openDrawer);
+$("closeDrawer").addEventListener("click", closeDrawer);
+drawerOverlay.addEventListener("click", closeDrawer);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeDrawer();
+});
+
+/* MODULES NOT YET CONNECTED */
+document.querySelectorAll("[data-feature]").forEach(button => {
+  button.addEventListener("click", () => {
+    const feature = button.dataset.feature;
+
+    if (feature === "Home") {
+      closeDrawer();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (feature === "Wallet") {
+      closeDrawer();
+      document.querySelector(".wallet-card").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+      return;
+    }
+
+    alert(feature + " module is not connected yet.");
+  });
+});
+
+/* START */
+checkSession();
+</script>
 </body>
 </html>
