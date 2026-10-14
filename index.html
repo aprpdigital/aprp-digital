@@ -2,1262 +2,599 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#070b17">
-  <title>APRP Digital</title>
-  <meta name="description" content="APRP Digital user dashboard and transaction history.">
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #070b17;
-      --panel: #0e1627;
-      --panel2: #121e32;
-      --border: #24334a;
-      --text: #edf4ff;
-      --muted: #91a2bc;
-      --green: #20d5a0;
-      --green-dark: #063e32;
-      --red: #ff8796;
-      --yellow: #ffd27a;
-      --radius: 19px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        radial-gradient(ellipse at top left, rgba(18, 91, 81, .16), transparent 36%),
-        var(--bg);
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-      font-size: 14px;
-    }
-
-    button, input {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: wait;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .app-shell {
-      width: min(100%, 760px);
-      margin: 0 auto;
-      padding: 16px 15px 100px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 0 22px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 43px;
-      height: 43px;
-      display: grid;
-      place-items: center;
-      border-radius: 14px;
-      background: linear-gradient(145deg, #20d5a0, #08775d);
-      color: #031c17;
-      font-weight: 950;
-      font-size: 17px;
-      box-shadow: 0 7px 25px rgba(32, 213, 160, .14);
-    }
-
-    .brand-name {
-      font-size: 17px;
-      font-weight: 850;
-      letter-spacing: -.4px;
-    }
-
-    .brand-subtitle {
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 3px;
-    }
-
-    .icon-button {
-      width: 43px;
-      height: 43px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
-      color: var(--text);
-      font-size: 20px;
-    }
-
-    .welcome {
-      padding: 10px 0 21px;
-    }
-
-    .eyebrow {
-      color: var(--green);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      margin-bottom: 9px;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(24px, 6vw, 31px);
-      letter-spacing: -1px;
-      line-height: 1.2;
-      overflow-wrap: anywhere;
-    }
-
-    h2 {
-      font-size: 19px;
-      letter-spacing: -.4px;
-      margin: 0;
-    }
-
-    h3 {
-      font-size: 14px;
-      margin: 0;
-    }
-
-    .welcome p {
-      margin: 9px 0 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .section {
-      margin-top: 23px;
-    }
-
-    .section-heading {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 13px;
-    }
-
-    .section-heading p {
-      color: var(--muted);
-      font-size: 12px;
-      margin: 6px 0 0;
-    }
-
-    .wallet-card {
-      padding: 22px;
-      border: 1px solid #1d6858;
-      border-radius: 23px;
-      background:
-        radial-gradient(circle at 100% 0%, rgba(32, 213, 160, .17), transparent 44%),
-        linear-gradient(135deg, #102c30, #0d192a 70%);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, .17);
-    }
-
-    .wallet-label {
-      color: #b4d4d0;
-      font-size: 12px;
-      font-weight: 650;
-    }
-
-    .balance {
-      font-size: clamp(29px, 7vw, 37px);
-      font-weight: 850;
-      letter-spacing: -1.1px;
-      margin: 10px 0 20px;
-      overflow-wrap: anywhere;
-    }
-
-    .balance-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 11px;
-    }
-
-    .balance-box {
-      min-width: 0;
-      padding: 13px;
-      background: rgba(4, 12, 23, .42);
-      border: 1px solid rgba(162, 198, 202, .13);
-      border-radius: 14px;
-    }
-
-    .balance-box span {
-      display: block;
-      color: #a6bdc8;
-      font-size: 11px;
-      margin-bottom: 7px;
-    }
-
-    .balance-box strong {
-      display: block;
-      font-size: 16px;
-      overflow-wrap: anywhere;
-    }
-
-    .wallet-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 17px;
-      color: #a6bdc8;
-      font-size: 12px;
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      margin-right: 6px;
-      border-radius: 50%;
-      background: var(--green);
-    }
-
-    .action-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .action-card {
-      text-align: left;
-      min-width: 0;
-      padding: 17px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: linear-gradient(145deg, #111c30, #0c1322);
-      color: var(--text);
-      transition: border-color .15s, transform .15s;
-    }
-
-    .action-card:hover {
-      border-color: #277a66;
-      transform: translateY(-1px);
-    }
-
-    .action-icon {
-      display: grid;
-      place-items: center;
-      width: 39px;
-      height: 39px;
-      margin-bottom: 15px;
-      border-radius: 13px;
-      background: #10352f;
-      color: #55e8bb;
-      font-size: 19px;
-    }
-
-    .action-card strong {
-      display: block;
-      font-size: 14px;
-    }
-
-    .action-card small {
-      display: block;
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .panel {
-      padding: 17px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      background: linear-gradient(145deg, #0f1728, #0a1120);
-    }
-
-    .btn {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 11px 14px;
-      background: var(--panel2);
-      color: var(--text);
-      font-weight: 750;
-    }
-
-    .btn-primary {
-      background: var(--green-dark);
-      border-color: #087d61;
-      color: #65f0c1;
-    }
-
-    .btn-block {
-      width: 100%;
-    }
-
-    .message {
-      padding: 15px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #101a2b;
-      color: #b8c7dc;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    .message.error {
-      border-color: #713442;
-      color: #ffabb6;
-      background: #26131c;
-    }
-
-    .message.success {
-      border-color: #17684e;
-      color: #78edc1;
-      background: #0b241f;
-    }
-
-    .transaction-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .transaction-item {
-      min-width: 0;
-      padding: 15px;
-      border: 1px solid #25344b;
-      border-radius: 17px;
-      background: linear-gradient(145deg, #111c30, #0b1221);
-    }
-
-    .transaction-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .transaction-type {
-      font-size: 14px;
-      font-weight: 800;
-      overflow-wrap: anywhere;
-    }
-
-    .transaction-id {
-      margin-top: 7px;
-      color: #a7b8d0;
-      font-size: 11px;
-      overflow-wrap: anywhere;
-    }
-
-    .transaction-date {
-      margin-top: 6px;
-      color: #899bb5;
-      font-size: 11px;
-    }
-
-    .transaction-right {
-      text-align: right;
-      min-width: 0;
-    }
-
-    .transaction-amount {
-      font-size: 16px;
-      font-weight: 850;
-      overflow-wrap: anywhere;
-    }
-
-    .transaction-status {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 5px 9px;
-      border: 1px solid #34445c;
-      border-radius: 999px;
-      background: #1b293c;
-      color: #d2dced;
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: capitalize;
-    }
-
-    .transaction-status.completed {
-      background: #073b2d;
-      color: #68efb9;
-      border-color: #17684e;
-    }
-
-    .transaction-status.pending {
-      background: #3b2b0b;
-      color: #ffd780;
-      border-color: #75551a;
-    }
-
-    .transaction-status.failed {
-      background: #3d1820;
-      color: #ff9eaa;
-      border-color: #75303c;
-    }
-
-    .transaction-description {
-      margin-top: 11px;
-      color: #aebdd2;
-      font-size: 12px;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      z-index: 10;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(100%, 760px);
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 5px;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border);
-      background: rgba(7, 11, 23, .96);
-      backdrop-filter: blur(16px);
-    }
-
-    .nav-button {
-      border: 0;
-      border-radius: 13px;
-      padding: 9px 4px;
-      background: transparent;
-      color: #899bb5;
-      font-size: 11px;
-      font-weight: 750;
-    }
-
-    .nav-button span {
-      display: block;
-      font-size: 19px;
-      margin-bottom: 4px;
-    }
-
-    .nav-button.active {
-      color: var(--green);
-      background: #10251f;
-    }
-
-    .auth-wrap {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
-
-    .auth-card {
-      width: min(100%, 420px);
-      padding: 24px;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: linear-gradient(145deg, #111b2d, #0a1120);
-      box-shadow: 0 20px 70px rgba(0, 0, 0, .3);
-    }
-
-    .auth-card h1 {
-      font-size: 27px;
-      margin: 22px 0 8px;
-    }
-
-    .auth-card p {
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .field {
-      display: grid;
-      gap: 7px;
-      margin-top: 16px;
-    }
-
-    .field label {
-      color: #c8d5e7;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      outline: none;
-      background: #080f1d;
-      color: var(--text);
-    }
-
-    .field input:focus {
-      border-color: #1aa982;
-      box-shadow: 0 0 0 3px rgba(32, 213, 160, .08);
-    }
-
-    .auth-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .auth-message {
-      margin-top: 15px;
-      overflow-wrap: anywhere;
-    }
-
-    .drawer {
-      position: fixed;
-      z-index: 30;
-      inset: 0;
-      background: rgba(0, 0, 0, .6);
-    }
-
-    .drawer-card {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: min(85%, 340px);
-      height: 100%;
-      padding: 24px;
-      background: #0c1424;
-      border-left: 1px solid var(--border);
-    }
-
-    .drawer-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 25px;
-    }
-
-    .drawer-item {
-      width: 100%;
-      margin-bottom: 9px;
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 13px;
-      background: #111b2d;
-      color: var(--text);
-      text-align: left;
-    }
-
-    @media (max-width: 420px) {
-      .app-shell {
-        padding-left: 12px;
-        padding-right: 12px;
-      }
-
-      .wallet-card {
-        padding: 17px;
-      }
-
-      .action-card {
-        padding: 14px;
-      }
-
-      .transaction-item {
-        padding: 12px;
-      }
-
-      .transaction-amount {
-        font-size: 14px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b17">
+<title>APRP Digital</title>
+<meta name="description" content="APRP Digital — wallet, products, referrals and account services.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{color-scheme:dark;--bg:#070b17;--panel:#0e1627;--panel2:#121e32;--border:#24334a;--text:#edf4ff;--muted:#91a2bc;--green:#20d5a0;--greenDark:#063e32;--red:#ff8796;--yellow:#ffd27a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top left,rgba(18,91,81,.16),transparent 36%),var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
+button,input,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:wait}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.app-shell{width:min(100%,760px);margin:0 auto;padding:15px 14px 100px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 20px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand-mark{width:43px;height:43px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#20d5a0,#08775d);color:#031c17;font-weight:950;font-size:17px;flex-shrink:0}
+.brand-name{font-size:17px;font-weight:850;letter-spacing:-.4px}
+.brand-subtitle{color:var(--muted);font-size:11px;margin-top:3px}
+.icon-button{width:43px;height:43px;border:1px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);font-size:21px}
+.welcome{padding:8px 0 20px}
+.eyebrow{color:var(--green);font-size:10px;font-weight:850;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.welcome h1{font-size:clamp(20px,5.3vw,28px);letter-spacing:-.7px;line-height:1.25;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.welcome p{margin:8px 0 0;color:var(--muted);line-height:1.55}
+.section{margin-top:22px}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}
+.section-heading h2{font-size:18px;letter-spacing:-.4px;margin:0}
+.section-heading p{color:var(--muted);font-size:12px;margin:5px 0 0}
+.wallet-card{padding:21px;border:1px solid #1d6858;border-radius:23px;background:radial-gradient(circle at 100% 0%,rgba(32,213,160,.17),transparent 44%),linear-gradient(135deg,#102c30,#0d192a 70%);box-shadow:0 15px 40px rgba(0,0,0,.17)}
+.wallet-label{color:#b4d4d0;font-size:12px;font-weight:650}
+.balance{font-size:clamp(29px,7vw,37px);font-weight:850;letter-spacing:-1px;margin:10px 0 20px;overflow-wrap:anywhere}
+.balance-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.balance-box{min-width:0;padding:13px;background:rgba(4,12,23,.42);border:1px solid rgba(162,198,202,.13);border-radius:14px}
+.balance-box span{display:block;color:#a6bdc8;font-size:11px;margin-bottom:7px}
+.balance-box strong{display:block;font-size:15px;overflow-wrap:anywhere}
+.wallet-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:17px;color:#a6bdc8;font-size:12px}
+.status-dot{display:inline-block;width:7px;height:7px;margin-right:6px;border-radius:50%;background:var(--green)}
+.btn{border:1px solid var(--border);border-radius:12px;padding:10px 13px;background:var(--panel2);color:var(--text);font-weight:750}
+.btn-primary{background:var(--greenDark);border-color:#087d61;color:#65f0c1}
+.btn-block{width:100%}
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.quick-card{min-width:0;text-align:left;padding:17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#111c30,#0c1322);color:var(--text);transition:border-color .15s,transform .15s}
+.quick-card:hover{border-color:#277a66;transform:translateY(-1px)}
+.quick-icon{display:grid;place-items:center;width:40px;height:40px;margin-bottom:13px;border-radius:13px;background:#10352f;color:#55e8bb;font-size:20px}
+.quick-card strong{display:block;font-size:14px}
+.quick-card small{display:block;margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
+.panel{padding:16px;border:1px solid var(--border);border-radius:19px;background:linear-gradient(145deg,#0f1728,#0a1120)}
+.message{padding:14px;border:1px solid var(--border);border-radius:13px;background:#101a2b;color:#b8c7dc;line-height:1.6;overflow-wrap:anywhere}
+.message.error{border-color:#713442;color:#ffabb6;background:#26131c}
+.message.success{border-color:#17684e;color:#78edc1;background:#0b241f}
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.product-card{min-width:0;overflow:hidden;border:1px solid var(--border);border-radius:17px;background:linear-gradient(145deg,#111c30,#0b1221)}
+.product-image{width:100%;aspect-ratio:1/1;display:grid;place-items:center;background:#111b2c;color:#69809e;font-size:12px;overflow:hidden}
+.product-image img{width:100%;height:100%;object-fit:cover}
+.product-info{padding:12px}
+.product-name{font-weight:750;line-height:1.45;overflow-wrap:anywhere}
+.product-price{color:#65f0c1;font-size:16px;font-weight:850;margin-top:8px}
+.product-meta{color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}
+.product-card .btn{width:100%;margin-top:10px;padding:9px 8px;font-size:12px}
+.transaction-list{display:grid;gap:11px}
+.transaction-item{min-width:0;padding:14px;border:1px solid #25344b;border-radius:16px;background:linear-gradient(145deg,#111c30,#0b1221)}
+.transaction-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.transaction-type{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.transaction-id,.transaction-date{margin-top:6px;color:#91a2bc;font-size:11px;overflow-wrap:anywhere}
+.transaction-right{text-align:right;min-width:0}
+.transaction-amount{font-size:15px;font-weight:850;overflow-wrap:anywhere}
+.transaction-status{display:inline-block;margin-top:8px;padding:5px 8px;border:1px solid #34445c;border-radius:999px;background:#1b293c;color:#d2dced;font-size:10px;font-weight:800;text-transform:capitalize}
+.transaction-status.completed{background:#073b2d;color:#68efb9;border-color:#17684e}
+.transaction-status.pending{background:#3b2b0b;color:#ffd780;border-color:#75551a}
+.transaction-status.failed{background:#3d1820;color:#ff9eaa;border-color:#75303c}
+.transaction-description{margin-top:10px;color:#aebdd2;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.field{display:grid;gap:7px;margin-top:15px}
+.field label{color:#c8d5e7;font-size:12px;font-weight:750}
+.field input,.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;outline:none;background:#080f1d;color:var(--text)}
+.field input:focus,.field select:focus{border-color:#1aa982}
+.bottom-nav{position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:rgba(7,11,23,.97);backdrop-filter:blur(16px)}
+.nav-button{border:0;border-radius:13px;padding:8px 4px;background:transparent;color:#899bb5;font-size:11px;font-weight:750}
+.nav-button span{display:block;font-size:19px;margin-bottom:4px}
+.nav-button.active{color:var(--green);background:#10251f}
+.auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}
+.auth-card{width:min(100%,420px);padding:24px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,#111b2d,#0a1120);box-shadow:0 20px 70px rgba(0,0,0,.3)}
+.auth-card h1{font-size:27px;margin:22px 0 8px}
+.auth-card p{color:var(--muted);line-height:1.6}
+.auth-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.auth-message{margin-top:15px}
+.drawer{position:fixed;z-index:30;inset:0;background:rgba(0,0,0,.65)}
+.drawer-card{position:absolute;top:0;right:0;width:min(88%,370px);height:100%;overflow:auto;padding:20px 17px 30px;background:#0b1323;border-left:1px solid var(--border)}
+.drawer-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.drawer-heading h2{margin:0;font-size:19px}
+.menu-group-title{margin:19px 5px 9px;color:#69819f;font-size:10px;font-weight:850;letter-spacing:1.4px;text-transform:uppercase}
+.drawer-item{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:7px;padding:12px;border:1px solid transparent;border-radius:13px;background:#101a2b;color:var(--text);text-align:left}
+.drawer-item:hover{border-color:#285c52}
+.menu-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#17332f;color:#65f0c1;font-size:15px;flex-shrink:0}
+.drawer-item strong{display:block;font-size:13px}
+.drawer-item small{display:block;margin-top:3px;color:var(--muted);font-size:10px;line-height:1.4}
+.drawer-item.danger .menu-icon{background:#3a1822;color:#ff9eaa}
+@media(max-width:420px){.app-shell{padding-left:12px;padding-right:12px}.wallet-card{padding:17px}.quick-card{padding:14px}.product-info{padding:10px}.transaction-item{padding:12px}}
+</style>
 </head>
 
 <body>
-  <section id="authView" class="auth-wrap">
-    <div class="auth-card">
-      <div class="brand">
-        <div class="brand-mark">A</div>
-        <div>
-          <div class="brand-name">APRP Digital</div>
-          <div class="brand-subtitle">Your digital account</div>
-        </div>
+<section id="authView" class="auth-wrap">
+  <div class="auth-card">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div><div class="brand-name">APRP Digital</div><div class="brand-subtitle">Your digital account</div></div>
+    </div>
+    <h1 id="authHeading">Welcome back</h1>
+    <p>Sign in to access your account and wallet.</p>
+    <form id="authForm">
+      <div class="field"><label for="authEmail">Email address</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+      <div class="field"><label for="authPassword">Password</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Enter password" required></div>
+      <div class="auth-actions">
+        <button class="btn btn-primary" id="loginButton" type="submit">Sign In</button>
+        <button class="btn" id="signupButton" type="button">Create Account</button>
       </div>
+    </form>
+    <div id="authMessage" class="message auth-message hidden" role="status" aria-live="polite"></div>
+  </div>
+</section>
 
-      <h1 id="authHeading">Welcome back</h1>
-      <p id="authSubtitle">Sign in to access your account and wallet.</p>
+<main id="appView" class="app-shell hidden">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div><div class="brand-name">APRP Digital</div><div class="brand-subtitle">Your digital account</div></div>
+    </div>
+    <button class="icon-button" id="menuButton" aria-label="Open menu">⋮</button>
+  </header>
 
-      <form id="authForm">
-        <div class="field">
-          <label for="authEmail">Email address</label>
-          <input id="authEmail" type="email" autocomplete="email"
-                 placeholder="you@example.com" required>
-        </div>
+  <section id="homePage">
+    <div class="welcome">
+      <div class="eyebrow" data-i18n="welcome">Welcome Back</div>
+      <h1 id="userName">Mohammad Jubol Official</h1>
+      <p data-i18n="homeSubtitle">Your wallet, products and account services.</p>
+    </div>
 
-        <div class="field">
-          <label for="authPassword">Password</label>
-          <input id="authPassword" type="password"
-                 autocomplete="current-password"
-                 minlength="6" placeholder="Enter password" required>
-        </div>
+    <section class="wallet-card">
+      <div class="wallet-label" data-i18n="available">Available Balance</div>
+      <div class="balance" id="availableBalance">BDT ৳ —</div>
+      <div class="balance-grid">
+        <div class="balance-box"><span data-i18n="reserved">Reserved Balance</span><strong id="reservedBalance">BDT ৳ —</strong></div>
+        <div class="balance-box"><span data-i18n="walletStatus">Wallet Status</span><strong id="walletStatus">Loading</strong></div>
+      </div>
+      <div class="wallet-footer">
+        <span><i class="status-dot"></i><span data-i18n="walletOverview">Wallet overview</span></span>
+        <button class="btn" id="refreshWalletButton" data-i18n="refresh">Refresh</button>
+      </div>
+    </section>
 
-        <div class="auth-actions">
-          <button class="btn btn-primary" type="submit" id="loginButton">
-            Sign In
-          </button>
-          <button class="btn" type="button" id="signupButton">
-            Create Account
-          </button>
-        </div>
-      </form>
+    <section class="section">
+      <div class="section-heading"><div><h2 data-i18n="quickActions">Quick Actions</h2><p data-i18n="quickSubtitle">Your most-used services.</p></div></div>
+      <div class="quick-grid">
+        <button class="quick-card" data-page="depositPage"><span class="quick-icon">＋</span><strong data-i18n="deposit">Deposit</strong><small data-i18n="depositSubtitle">Add funds to your wallet</small></button>
+        <button class="quick-card" data-page="withdrawPage"><span class="quick-icon">↗</span><strong data-i18n="withdraw">Withdraw</strong><small data-i18n="withdrawSubtitle">Withdrawal services</small></button>
+      </div>
+    </section>
 
-      <div id="authMessage" class="message auth-message hidden"
-           role="status" aria-live="polite"></div>
+    <section class="section">
+      <div class="section-heading">
+        <div><h2 data-i18n="topProducts">Top-Selling Products</h2><p data-i18n="topProductsSubtitle">Products from the product catalogue.</p></div>
+        <button class="btn" data-page="productsPage" data-i18n="viewAll">View All</button>
+      </div>
+      <div id="topProductsMessage" class="message">Loading products...</div>
+      <div id="topProductsGrid" class="product-grid"></div>
+    </section>
+  </section>
+
+  <section id="productsPage" class="hidden">
+    <div class="welcome"><div class="eyebrow" data-i18n="shop">Shop</div><h1 data-i18n="products">Products</h1><p data-i18n="productsSubtitle">Explore available products.</p></div>
+    <div class="field"><label for="productSearch" data-i18n="searchProducts">Search products</label><input id="productSearch" type="search" placeholder="Search by product name"></div>
+    <div id="allProductsMessage" class="message" style="margin-top:12px">Loading products...</div>
+    <div id="allProductsGrid" class="product-grid" style="margin-top:12px"></div>
+  </section>
+
+  <section id="accountPage" class="hidden">
+    <div class="welcome"><div class="eyebrow" data-i18n="account">Account</div><h1 data-i18n="myAccount">My Account</h1><p data-i18n="accountSubtitle">Manage your account.</p></div>
+    <div class="panel">
+      <div class="muted">Email address</div><p id="accountEmail" style="overflow-wrap:anywhere"></p>
+      <div class="muted" style="margin-top:15px">User ID</div><p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px"></p>
+      <button class="btn btn-block" data-page="settingsPage" data-i18n="settings">Settings</button>
+      <button class="btn btn-block" id="accountLogoutButton" style="margin-top:10px" data-i18n="signOut">Sign Out</button>
     </div>
   </section>
 
-  <main id="appView" class="app-shell hidden">
-    <header class="topbar">
-      <div class="brand">
-        <div class="brand-mark">A</div>
-        <div>
-          <div class="brand-name">APRP Digital</div>
-          <div class="brand-subtitle">Your account dashboard</div>
-        </div>
-      </div>
-      <button class="icon-button" id="menuButton"
-              aria-label="Open menu">☰</button>
-    </header>
-
-    <section id="homePage">
-      <div class="welcome">
-        <div class="eyebrow">Your dashboard</div>
-        <h1>Welcome back, <span id="userName">User</span></h1>
-        <p>Your wallet and recent activity, in one place.</p>
-      </div>
-
-      <section class="wallet-card">
-        <div class="wallet-label">Available Balance</div>
-        <div class="balance" id="availableBalance">BDT ৳ —</div>
-
-        <div class="balance-grid">
-          <div class="balance-box">
-            <span>Reserved Balance</span>
-            <strong id="reservedBalance">BDT ৳ —</strong>
-          </div>
-          <div class="balance-box">
-            <span>Wallet Status</span>
-            <strong id="walletStatus">Loading</strong>
-          </div>
-        </div>
-
-        <div class="wallet-footer">
-          <span><i class="status-dot"></i>Wallet overview</span>
-          <button class="btn" id="refreshWalletButton" type="button">
-            Refresh
-          </button>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h2>Quick Actions</h2>
-            <p>Choose a section to continue.</p>
-          </div>
-        </div>
-
-        <div class="action-grid">
-          <button class="action-card" data-action="transactions">
-            <span class="action-icon">↕</span>
-            <strong>Transactions</strong>
-            <small>Review your transaction history</small>
-          </button>
-
-          <button class="action-card" data-action="deposit">
-            <span class="action-icon">＋</span>
-            <strong>Add Balance</strong>
-            <small>Deposit module</small>
-          </button>
-
-          <button class="action-card" data-action="withdraw">
-            <span class="action-icon">↗</span>
-            <strong>Withdraw</strong>
-            <small>Withdrawal module</small>
-          </button>
-
-          <button class="action-card" data-action="products">
-            <span class="action-icon">▦</span>
-            <strong>Products</strong>
-            <small>Product module</small>
-          </button>
-        </div>
-      </section>
-
-      <section class="section panel">
-        <div class="section-heading">
-          <div>
-            <h2>Account</h2>
-            <p id="accountEmail">Loading account...</p>
-          </div>
-        </div>
-        <button class="btn btn-block" id="openTransactionsButton">
-          View Transaction History
-        </button>
-      </section>
-    </section>
-
-    <section id="transactionsPage" class="hidden">
-      <div class="welcome">
-        <div class="eyebrow">Account activity</div>
-        <h1>Transaction History</h1>
-        <p>View the latest activity recorded for your account.</p>
-      </div>
-
-      <section class="panel" id="transactionPanel">
-        <div class="section-heading">
-          <div>
-            <h2>All Transactions</h2>
-            <p id="transactionCount">Your latest transactions</p>
-          </div>
-          <button class="btn btn-primary" id="refreshTransactions"
-                  type="button">Refresh</button>
-        </div>
-
-        <div id="transactionMessage" class="message"
-             role="status" aria-live="polite">
-          Open Transaction History to load your transactions.
-        </div>
-
-        <div id="transactionList" class="transaction-list"></div>
-      </section>
-
-      <button class="btn btn-block" id="backHomeButton"
-              style="margin-top:14px">← Back to Dashboard</button>
-    </section>
-
-    <section id="accountPage" class="hidden">
-      <div class="welcome">
-        <div class="eyebrow">Account settings</div>
-        <h1>My Account</h1>
-        <p>Signed-in account details.</p>
-      </div>
-
-      <div class="panel">
-        <div class="muted">Email address</div>
-        <p id="accountEmailDetails" style="overflow-wrap:anywhere"></p>
-        <button class="btn btn-block" id="logoutButton" type="button">
-          Sign Out
-        </button>
-      </div>
-    </section>
-  </main>
-
-  <nav id="bottomNav" class="bottom-nav hidden" aria-label="Main navigation">
-    <button class="nav-button active" data-page="homePage">
-      <span>⌂</span>Home
-    </button>
-    <button class="nav-button" data-page="transactionsPage">
-      <span>↕</span>Transactions
-    </button>
-    <button class="nav-button" data-page="accountPage">
-      <span>◉</span>Account
-    </button>
-  </nav>
-
-  <div id="drawer" class="drawer hidden">
-    <div class="drawer-card">
-      <div class="drawer-heading">
-        <h2>Menu</h2>
-        <button class="icon-button" id="closeDrawerButton"
-                aria-label="Close menu">×</button>
-      </div>
-      <button class="drawer-item" data-page="homePage">⌂ &nbsp; Dashboard</button>
-      <button class="drawer-item" data-page="transactionsPage">↕ &nbsp; Transaction History</button>
-      <button class="drawer-item" data-page="accountPage">◉ &nbsp; My Account</button>
-      <button class="drawer-item" id="drawerLogoutButton">Sign Out</button>
+  <section id="transactionsPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Account Activity</div><h1 data-i18n="transactions">Transaction History</h1><p data-i18n="transactionsSubtitle">Review your recorded transactions.</p></div>
+    <div class="panel">
+      <div class="section-heading"><h2 data-i18n="allTransactions">All Transactions</h2><button class="btn btn-primary" id="refreshTransactions" data-i18n="refresh">Refresh</button></div>
+      <p id="transactionCount" class="muted">Your latest transactions</p>
+      <div id="transactionMessage" class="message">Loading transactions...</div>
+      <div id="transactionList" class="transaction-list"></div>
     </div>
-  </div>
-
-  <script>
-    "use strict";
-
-    // Existing APRP Digital Supabase project configuration.
-    const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
-    const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
-
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-
-    let user = null;
-    let transactionRequestNumber = 0;
-
-    const $ = (id) => document.getElementById(id);
-
-    function showMessage(element, text, type = "") {
-      element.textContent = text;
-      element.className = "message" + (type ? " " + type : "");
-      element.hidden = false;
-    }
-
-    function formatMoney(value, currency = "BDT") {
-      const number = Number(value);
-      if (!Number.isFinite(number)) return currency + " —";
-
-      return currency + " " + number.toLocaleString("en-BD", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
-
-    function readableLabel(value) {
-      return String(value || "Unknown")
-        .replace(/[_-]+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .replace(/\b\w/g, (character) => character.toUpperCase());
-    }
-
-    function showAuth(message = "") {
-      $("authView").classList.remove("hidden");
-      $("appView").classList.add("hidden");
-      $("bottomNav").classList.add("hidden");
-
-      if (message) {
-        showMessage($("authMessage"), message, "error");
-      }
-    }
-
-    function showApp() {
-      $("authView").classList.add("hidden");
-      $("appView").classList.remove("hidden");
-      $("bottomNav").classList.remove("hidden");
-
-      $("userName").textContent =
-        user?.user_metadata?.full_name ||
-        user?.user_metadata?.name ||
-        (user?.email ? user.email.split("@")[0] : "User");
-
-      $("accountEmail").textContent = user?.email || "Email unavailable";
-      $("accountEmailDetails").textContent = user?.email || "Email unavailable";
-
-      showPage("homePage");
-      loadWallet();
-    }
-
-    function showPage(pageId) {
-      const validPages = ["homePage", "transactionsPage", "accountPage"];
-      if (!validPages.includes(pageId)) return;
-
-      for (const id of validPages) {
-        $(id).classList.toggle("hidden", id !== pageId);
-      }
-
-      document.querySelectorAll(".nav-button").forEach((button) => {
-        button.classList.toggle("active", button.dataset.page === pageId);
-      });
-
-      $("drawer").classList.add("hidden");
-
-      if (pageId === "transactionsPage") {
-        loadTransactions();
-      }
-
-      if (pageId === "homePage") {
-        loadWallet();
-      }
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    async function loadWallet() {
-      if (!user?.id) return;
-
-      $("availableBalance").textContent = "BDT ৳ …";
-      $("reservedBalance").textContent = "BDT ৳ …";
-      $("walletStatus").textContent = "Loading";
-
-      try {
-        const { data, error } = await supabaseClient
-          .from("wallets")
-          .select("currency, available_balance, reserved_balance, status")
-          .eq("user_id", user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (!data) {
-          $("availableBalance").textContent = "BDT ৳ 0.00";
-          $("reservedBalance").textContent = "BDT ৳ 0.00";
-          $("walletStatus").textContent = "Not found";
-          return;
-        }
-
-        const currency = data.currency || "BDT";
-        $("availableBalance").textContent =
-          formatMoney(data.available_balance, currency);
-        $("reservedBalance").textContent =
-          formatMoney(data.reserved_balance, currency);
-        $("walletStatus").textContent = readableLabel(data.status || "Unknown");
-      } catch (error) {
-        console.error("Wallet loading error:", error);
-        $("availableBalance").textContent = "Unavailable";
-        $("reservedBalance").textContent = "Unavailable";
-        $("walletStatus").textContent = "Error";
-      }
-    }
-
-    async function loadTransactions() {
-      const requestNumber = ++transactionRequestNumber;
-      const list = $("transactionList");
-      const message = $("transactionMessage");
-      const button = $("refreshTransactions");
-      const count = $("transactionCount");
-
-      list.replaceChildren();
-      count.textContent = "Loading transactions";
-      showMessage(message, "Loading transactions...");
-
-      if (!user?.id) {
-        showMessage(message, "Please sign in to view your transactions.", "error");
-        count.textContent = "Sign-in required";
-        return;
-      }
-
-      button.disabled = true;
-      button.textContent = "Loading...";
-
-      try {
-        const { data, error } = await supabaseClient
-          .from("transactions")
-          .select(
-            "transaction_id, transaction_type, status, amount, currency, description, created_at, provider_name, service_name"
-          )
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(100);
-
-        if (requestNumber !== transactionRequestNumber) return;
-
-        if (error) {
-          console.error("Transaction History error:", error);
-          count.textContent = "Could not load transactions";
-          showMessage(
-            message,
-            "Could not load transactions: " + error.message,
-            "error"
-          );
-          return;
-        }
-
-        if (!Array.isArray(data) || data.length === 0) {
-          count.textContent = "0 transactions";
-          showMessage(message, "No transactions found yet.");
-          return;
-        }
-
-        const fragment = document.createDocumentFragment();
-
-        data.forEach((tx) => {
-          const card = document.createElement("article");
-          card.className = "transaction-item";
-
-          const top = document.createElement("div");
-          top.className = "transaction-top";
-
-          const left = document.createElement("div");
-
-          const type = document.createElement("h3");
-          type.className = "transaction-type";
-          type.textContent = readableLabel(tx.transaction_type);
-          left.appendChild(type);
-
-          const transactionId = document.createElement("div");
-          transactionId.className = "transaction-id";
-          transactionId.textContent =
-            "ID: " + (tx.transaction_id || "Unavailable");
-          left.appendChild(transactionId);
-
-          const date = document.createElement("div");
-          date.className = "transaction-date";
-
-          const parsedDate = tx.created_at ? new Date(tx.created_at) : null;
-          date.textContent =
-            parsedDate && !Number.isNaN(parsedDate.getTime())
-              ? parsedDate.toLocaleString("en-GB", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                  timeZone: "Asia/Dhaka"
-                }) + " (Dhaka)"
-              : "Date unavailable";
-
-          left.appendChild(date);
-
-          const right = document.createElement("div");
-          right.className = "transaction-right";
-
-          const amount = document.createElement("div");
-          amount.className = "transaction-amount";
-          amount.textContent = formatMoney(tx.amount, tx.currency || "BDT");
-          right.appendChild(amount);
-
-          const status = document.createElement("span");
-          const normalizedStatus = String(tx.status || "unknown").toLowerCase();
-          status.className = "transaction-status";
-
-          if (normalizedStatus === "completed") {
-            status.classList.add("completed");
-          } else if (
-            ["pending", "created", "processing"].includes(normalizedStatus)
-          ) {
-            status.classList.add("pending");
-          } else if (
-            ["failed", "rejected", "cancelled"].includes(normalizedStatus)
-          ) {
-            status.classList.add("failed");
-          }
-
-          status.textContent = readableLabel(tx.status);
-          right.appendChild(status);
-
-          top.append(left, right);
-          card.appendChild(top);
-
-          const details = [
-            tx.description,
-            tx.provider_name,
-            tx.service_name
-          ].filter((value) => typeof value === "string" && value.trim());
-
-          if (details.length) {
-            const description = document.createElement("div");
-            description.className = "transaction-description";
-            description.textContent = [...new Set(details)].join(" · ");
-            card.appendChild(description);
-          }
-
-          fragment.appendChild(card);
-        });
-
-        list.replaceChildren(fragment);
-        message.hidden = true;
-        count.textContent = data.length + " transaction" +
-          (data.length === 1 ? "" : "s") + " shown";
-      } catch (error) {
-        if (requestNumber !== transactionRequestNumber) return;
-
-        console.error("Unexpected Transaction History error:", error);
-        count.textContent = "Could not load transactions";
-        showMessage(
-          message,
-          "Something went wrong. Please refresh and try again.",
-          "error"
-        );
-      } finally {
-        if (requestNumber === transactionRequestNumber) {
-          button.disabled = false;
-          button.textContent = "Refresh";
-        }
-      }
-    }
-
-    async function signIn() {
-      const email = $("authEmail").value.trim();
-      const password = $("authPassword").value;
-
-      $("loginButton").disabled = true;
-      $("signupButton").disabled = true;
-      showMessage($("authMessage"), "Signing in...");
-
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) throw error;
-
-        user = data.user;
-        showApp();
-      } catch (error) {
-        console.error("Sign-in error:", error);
-        showMessage($("authMessage"), error.message || "Sign-in failed.", "error");
-      } finally {
-        $("loginButton").disabled = false;
-        $("signupButton").disabled = false;
-      }
-    }
-
-    async function signUp() {
-      const email = $("authEmail").value.trim();
-      const password = $("authPassword").value;
-
-      if (password.length < 6) {
-        showMessage(
-          $("authMessage"),
-          "Please use a password with at least 6 characters.",
-          "error"
-        );
-        return;
-      }
-
-      $("loginButton").disabled = true;
-      $("signupButton").disabled = true;
-      showMessage($("authMessage"), "Creating your account...");
-
-      try {
-        const { data, error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: APRP_REDIRECT_URL
-          }
-        });
-
-        if (error) throw error;
-
-        if (data.session && data.user) {
-          user = data.user;
-          showApp();
-        } else {
-          showMessage(
-            $("authMessage"),
-            "Account created. Check your email to confirm your account before signing in.",
-            "success"
-          );
-        }
-      } catch (error) {
-        console.error("Sign-up error:", error);
-        showMessage($("authMessage"), error.message || "Sign-up failed.", "error");
-      } finally {
-        $("loginButton").disabled = false;
-        $("signupButton").disabled = false;
-      }
-    }
-
-    async function signOut() {
-      const { error } = await supabaseClient.auth.signOut();
-
-      if (error) {
-        console.error("Sign-out error:", error);
-        alert("Could not sign out: " + error.message);
-        return;
-      }
-
-      user = null;
-      showAuth();
-    }
-
-    $("authForm").addEventListener("submit", (event) => {
-      event.preventDefault();
-      signIn();
+  </section>
+
+  <section id="depositPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Wallet Service</div><h1 data-i18n="deposit">Deposit</h1><p data-i18n="depositSubtitle">Add funds to your wallet.</p></div>
+    <div class="panel"><div class="message" data-i18n="depositNotReady">Deposit requests are not connected in this version. No payment has been initiated.</div></div>
+  </section>
+
+  <section id="withdrawPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Wallet Service</div><h1 data-i18n="withdraw">Withdraw</h1><p data-i18n="withdrawSubtitle">Withdrawal services.</p></div>
+    <div class="panel"><div class="message" data-i18n="withdrawNotReady">Withdrawal requests are not connected in this version. No funds have been moved.</div></div>
+  </section>
+
+  <section id="kycPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Identity</div><h1 data-i18n="kyc">KYC Verification</h1><p>Identity verification status and instructions.</p></div>
+    <div class="panel"><div id="kycMessage" class="message">KYC status has not been connected to the verified database schema.</div></div>
+  </section>
+
+  <section id="referralPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Grow Together</div><h1 data-i18n="referral">Referral & Rewards</h1><p>Invite friends and review your referral programme.</p></div>
+    <div class="panel">
+      <div class="message">Referral programme information and rewards will appear here when the referral system is connected.</div>
+      <div class="field"><label for="referralCode">Your referral code</label><input id="referralCode" readonly placeholder="Not available yet"></div>
+      <button class="btn btn-block" id="copyReferralButton" style="margin-top:12px">Copy Referral Code</button>
+    </div>
+  </section>
+
+  <section id="downloadPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">APRP Digital</div><h1 data-i18n="downloadApp">Download App</h1><p>Access APRP Digital on your device.</p></div>
+    <div class="panel">
+      <div class="message">Official app download links will appear here when the Android app package and official download URL are published.</div>
+      <button class="btn btn-block" style="margin-top:12px" id="installWebAppButton">Install Web App (if supported)</button>
+    </div>
+  </section>
+
+  <section id="languagePage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Preferences</div><h1 data-i18n="language">Language</h1><p>Choose your preferred interface language.</p></div>
+    <div class="panel">
+      <div class="field"><label for="languageSelect">App Language / অ্যাপের ভাষা</label>
+        <select id="languageSelect"><option value="en">English</option><option value="bn">বাংলা</option></select>
+      </div>
+      <button class="btn btn-primary btn-block" id="saveLanguageButton" style="margin-top:14px">Apply Language</button>
+      <p class="muted">Language preference is saved on this device.</p>
+    </div>
+  </section>
+
+  <section id="settingsPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Preferences</div><h1 data-i18n="settings">Settings</h1><p>Account preferences and security.</p></div>
+    <div class="panel">
+      <button class="drawer-item" data-page="languagePage"><span class="menu-icon">文</span><span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span></button>
+      <button class="drawer-item" data-page="downloadPage"><span class="menu-icon">↓</span><span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span></button>
+      <button class="drawer-item" data-page="helpPage"><span class="menu-icon">?</span><span><strong data-i18n="helpLegal">Help & Legal</strong><small>Help, privacy and terms</small></span></button>
+    </div>
+  </section>
+
+  <section id="notificationsPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Updates</div><h1 data-i18n="notifications">Notifications</h1><p>Important account updates.</p></div>
+    <div class="panel"><div class="message">Notifications will appear here when connected to the notification service.</div></div>
+  </section>
+
+  <section id="supportPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">We can help</div><h1 data-i18n="support">Support Center</h1><p>Get help with your APRP Digital account.</p></div>
+    <div class="panel">
+      <div class="message">Official support contact details have not been configured yet. Please do not trust unofficial numbers claiming to represent APRP Digital.</div>
+    </div>
+  </section>
+
+  <section id="helpPage" class="hidden">
+    <div class="welcome"><div class="eyebrow">Information</div><h1 data-i18n="helpLegal">Help & Legal</h1><p>Important information for users.</p></div>
+    <div class="panel">
+      <h3>Help & FAQ</h3><p class="muted">Help articles will be published here.</p>
+      <hr style="border-color:var(--border);margin:18px 0">
+      <h3>Privacy Policy</h3><p class="muted">The official privacy policy URL has not been configured.</p>
+      <hr style="border-color:var(--border);margin:18px 0">
+      <h3>Terms & Conditions</h3><p class="muted">The official terms URL has not been configured.</p>
+    </div>
+  </section>
+</main>
+
+<nav id="bottomNav" class="bottom-nav hidden" aria-label="Main navigation">
+  <button class="nav-button active" data-page="homePage"><span>⌂</span><span data-i18n="home">Home</span></button>
+  <button class="nav-button" data-page="productsPage"><span>▣</span><span data-i18n="products">Products</span></button>
+  <button class="nav-button" data-page="accountPage"><span>◉</span><span data-i18n="account">Account</span></button>
+</nav>
+
+<div id="drawer" class="drawer hidden">
+  <aside class="drawer-card">
+    <div class="drawer-heading"><div class="brand"><div class="brand-mark">A</div><div><div class="brand-name">APRP Digital</div><div class="brand-subtitle">App Menu</div></div></div><button class="icon-button" id="closeDrawerButton" aria-label="Close menu">×</button></div>
+
+    <div class="menu-group-title">Account & Wallet</div>
+    <button class="drawer-item" data-page="kycPage"><span class="menu-icon">✓</span><span><strong data-i18n="kyc">KYC Verification</strong><small>Identity verification</small></span></button>
+    <button class="drawer-item" data-page="transactionsPage"><span class="menu-icon">↕</span><span><strong data-i18n="transactions">Transaction History</strong><small>Review wallet activity</small></span></button>
+    <button class="drawer-item" data-page="depositPage"><span class="menu-icon">＋</span><span><strong data-i18n="deposit">Deposit</strong><small>Add funds to your wallet</small></span></button>
+    <button class="drawer-item" data-page="withdrawPage"><span class="menu-icon">↗</span><span><strong data-i18n="withdraw">Withdraw</strong><small>Withdrawal service</small></span></button>
+
+    <div class="menu-group-title">Growth & Discovery</div>
+    <button class="drawer-item" data-page="referralPage"><span class="menu-icon">♧</span><span><strong data-i18n="referral">Referral & Rewards</strong><small>Invitations and referral programme</small></span></button>
+    <button class="drawer-item" data-page="productsPage"><span class="menu-icon">▣</span><span><strong data-i18n="products">Products</strong><small>Browse available products</small></span></button>
+    <button class="drawer-item" data-page="downloadPage"><span class="menu-icon">↓</span><span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span></button>
+
+    <div class="menu-group-title">Preferences & Help</div>
+    <button class="drawer-item" data-page="notificationsPage"><span class="menu-icon">♧</span><span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span></button>
+    <button class="drawer-item" data-page="languagePage"><span class="menu-icon">文</span><span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span></button>
+    <button class="drawer-item" data-page="settingsPage"><span class="menu-icon">⚙</span><span><strong data-i18n="settings">Settings</strong><small>Account preferences</small></span></button>
+    <button class="drawer-item" data-page="supportPage"><span class="menu-icon">?</span><span><strong data-i18n="support">Support Center</strong><small>Help and contact</small></span></button>
+    <button class="drawer-item" data-page="helpPage"><span class="menu-icon">i</span><span><strong data-i18n="helpLegal">Help & Legal</strong><small>FAQ, privacy and terms</small></span></button>
+    <button class="drawer-item danger" id="drawerLogoutButton"><span class="menu-icon">↪</span><span><strong data-i18n="signOut">Sign Out</strong><small>Sign out of your account</small></span></button>
+  </aside>
+</div>
+
+<script>
+"use strict";
+
+const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
+const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let user = null;
+let transactionRequestNumber = 0;
+let productRequestNumber = 0;
+let productsCache = [];
+let deferredInstallPrompt = null;
+const $ = id => document.getElementById(id);
+
+const translations = {
+  en:{
+    welcome:"Welcome Back",homeSubtitle:"Your wallet, products and account services.",
+    available:"Available Balance",reserved:"Reserved Balance",walletStatus:"Wallet Status",
+    walletOverview:"Wallet overview",refresh:"Refresh",quickActions:"Quick Actions",
+    quickSubtitle:"Your most-used services.",deposit:"Deposit",depositSubtitle:"Add funds to your wallet",
+    withdraw:"Withdraw",withdrawSubtitle:"Withdrawal services",topProducts:"Top-Selling Products",
+    topProductsSubtitle:"Products from the product catalogue.",viewAll:"View All",shop:"Shop",
+    products:"Products",productsSubtitle:"Explore available products.",searchProducts:"Search products",
+    account:"Account",myAccount:"My Account",accountSubtitle:"Manage your account.",
+    transactions:"Transaction History",transactionsSubtitle:"Review your recorded transactions.",
+    allTransactions:"All Transactions",settings:"Settings",signOut:"Sign Out",
+    kyc:"KYC Verification",referral:"Referral & Rewards",downloadApp:"Download App",
+    language:"Language",notifications:"Notifications",support:"Support Center",helpLegal:"Help & Legal",
+    home:"Home",depositNotReady:"Deposit requests are not connected in this version. No payment has been initiated.",
+    withdrawNotReady:"Withdrawal requests are not connected in this version. No funds have been moved."
+  },
+  bn:{
+    welcome:"স্বাগতম",homeSubtitle:"আপনার ওয়ালেট, পণ্য ও অ্যাকাউন্ট সেবা।",
+    available:"ব্যবহারযোগ্য ব্যালেন্স",reserved:"সংরক্ষিত ব্যালেন্স",walletStatus:"ওয়ালেটের অবস্থা",
+    walletOverview:"ওয়ালেটের সারাংশ",refresh:"রিফ্রেশ",quickActions:"দ্রুত সেবা",
+    quickSubtitle:"আপনার বেশি ব্যবহৃত সেবাগুলো।",deposit:"ডিপোজিট",depositSubtitle:"ওয়ালেটে টাকা যোগ করুন",
+    withdraw:"উইথড্র",withdrawSubtitle:"টাকা উত্তোলন",topProducts:"সর্বাধিক বিক্রিত পণ্য",
+    topProductsSubtitle:"পণ্য ক্যাটালগ থেকে পণ্য।",viewAll:"সব দেখুন",shop:"শপ",
+    products:"প্রোডাক্ট",productsSubtitle:"উপলভ্য পণ্য দেখুন।",searchProducts:"পণ্য খুঁজুন",
+    account:"অ্যাকাউন্ট",myAccount:"আমার অ্যাকাউন্ট",accountSubtitle:"অ্যাকাউন্ট পরিচালনা করুন।",
+    transactions:"লেনদেনের ইতিহাস",transactionsSubtitle:"আপনার লেনদেন দেখুন।",
+    allTransactions:"সব লেনদেন",settings:"সেটিংস",signOut:"সাইন আউট",
+    kyc:"KYC যাচাই",referral:"রেফারেল ও রিওয়ার্ড",downloadApp:"অ্যাপ ডাউনলোড",
+    language:"ভাষা",notifications:"নোটিফিকেশন",support:"সাপোর্ট সেন্টার",helpLegal:"সহায়তা ও আইনি তথ্য",
+    home:"হোম",depositNotReady:"এই সংস্করণে ডিপোজিট আবেদন সংযুক্ত নয়। কোনো পেমেন্ট শুরু হয়নি।",
+    withdrawNotReady:"এই সংস্করণে উইথড্র আবেদন সংযুক্ত নয়। কোনো টাকা স্থানান্তর হয়নি।"
+  }
+};
+
+function t(key){return (translations[localStorage.getItem("aprp_language")||"en"]||translations.en)[key]||translations.en[key]||key}
+function applyLanguage(){
+  const lang=localStorage.getItem("aprp_language")||"en";
+  document.documentElement.lang=lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=t(el.dataset.i18n));
+  $("languageSelect").value=lang;
+}
+function showMessage(element,text,type=""){
+  element.textContent=text;element.className="message"+(type?" "+type:"");element.hidden=false;
+}
+function formatMoney(value,currency="BDT"){
+  const number=Number(value);
+  if(!Number.isFinite(number))return currency+" —";
+  return currency+" "+number.toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function readableLabel(value){
+  return String(value||"Unknown").replace(/[_-]+/g," ").replace(/\s+/g," ").trim().replace(/\b\w/g,c=>c.toUpperCase());
+}
+function showAuth(message=""){
+  $("authView").classList.remove("hidden");$("appView").classList.add("hidden");$("bottomNav").classList.add("hidden");
+  if(message)showMessage($("authMessage"),message,"error");
+}
+function showApp(){
+  $("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("bottomNav").classList.remove("hidden");
+  $("userName").textContent=user?.user_metadata?.full_name||user?.user_metadata?.name||"Mohammad Jubol Official";
+  $("accountEmail").textContent=user?.email||"Unavailable";
+  $("accountUserId").textContent=user?.id||"Unavailable";
+  showPage("homePage");loadWallet();loadProducts();
+}
+const pageIds=["homePage","productsPage","accountPage","transactionsPage","depositPage","withdrawPage","kycPage","referralPage","downloadPage","languagePage","settingsPage","notificationsPage","supportPage","helpPage"];
+function showPage(pageId){
+  if(!pageIds.includes(pageId))return;
+  pageIds.forEach(id=>$(id).classList.toggle("hidden",id!==pageId));
+  document.querySelectorAll(".nav-button").forEach(b=>b.classList.toggle("active",b.dataset.page===pageId));
+  $("drawer").classList.add("hidden");
+  if(pageId==="transactionsPage")loadTransactions();
+  if(pageId==="productsPage")loadProducts();
+  if(pageId==="homePage"){loadWallet();loadProducts();}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+async function loadWallet(){
+  if(!user?.id)return;
+  $("availableBalance").textContent="BDT ৳ …";$("reservedBalance").textContent="BDT ৳ …";$("walletStatus").textContent="Loading";
+  try{
+    const {data,error}=await supabaseClient.from("wallets").select("currency, available_balance, reserved_balance, status").eq("user_id",user.id).maybeSingle();
+    if(error)throw error;
+    if(!data){$("availableBalance").textContent="BDT ৳ 0.00";$("reservedBalance").textContent="BDT ৳ 0.00";$("walletStatus").textContent="Not found";return}
+    const currency=data.currency||"BDT";
+    $("availableBalance").textContent=formatMoney(data.available_balance,currency);
+    $("reservedBalance").textContent=formatMoney(data.reserved_balance,currency);
+    $("walletStatus").textContent=readableLabel(data.status);
+  }catch(error){
+    console.error("Wallet error:",error);
+    $("availableBalance").textContent="Unavailable";$("reservedBalance").textContent="Unavailable";$("walletStatus").textContent="Error";
+  }
+}
+async function loadTransactions(){
+  const request=++transactionRequestNumber;
+  const list=$("transactionList"),message=$("transactionMessage"),button=$("refreshTransactions");
+  list.replaceChildren();$("transactionCount").textContent="Loading transactions";showMessage(message,"Loading transactions...");
+  if(!user?.id){showMessage(message,"Please sign in to view transactions.","error");return}
+  button.disabled=true;button.textContent="Loading...";
+  try{
+    const {data,error}=await supabaseClient.from("transactions")
+      .select("transaction_id, transaction_type, status, amount, currency, description, created_at, provider_name, service_name")
+      .eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);
+    if(request!==transactionRequestNumber)return;
+    if(error)throw error;
+    if(!data||!data.length){$("transactionCount").textContent="0 transactions";showMessage(message,"No transactions found yet.");return}
+    const fragment=document.createDocumentFragment();
+    data.forEach(tx=>{
+      const card=document.createElement("article");card.className="transaction-item";
+      const top=document.createElement("div");top.className="transaction-top";
+      const left=document.createElement("div");
+      const type=document.createElement("div");type.className="transaction-type";type.textContent=readableLabel(tx.transaction_type);left.appendChild(type);
+      const id=document.createElement("div");id.className="transaction-id";id.textContent="ID: "+(tx.transaction_id||"Unavailable");left.appendChild(id);
+      const date=document.createElement("div");date.className="transaction-date";
+      const parsed=tx.created_at?new Date(tx.created_at):null;
+      date.textContent=parsed&&!Number.isNaN(parsed.getTime())?parsed.toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short",timeZone:"Asia/Dhaka"})+" (Dhaka)":"Date unavailable";
+      left.appendChild(date);
+      const right=document.createElement("div");right.className="transaction-right";
+      const amount=document.createElement("div");amount.className="transaction-amount";amount.textContent=formatMoney(tx.amount,tx.currency||"BDT");right.appendChild(amount);
+      const status=document.createElement("span");const state=String(tx.status||"unknown").toLowerCase();status.className="transaction-status";
+      if(state==="completed")status.classList.add("completed");else if(["pending","created","processing"].includes(state))status.classList.add("pending");else if(["failed","rejected","cancelled"].includes(state))status.classList.add("failed");
+      status.textContent=readableLabel(tx.status);right.appendChild(status);top.append(left,right);card.appendChild(top);
+      const details=[tx.description,tx.provider_name,tx.service_name].filter(v=>typeof v==="string"&&v.trim());
+      if(details.length){const d=document.createElement("div");d.className="transaction-description";d.textContent=[...new Set(details)].join(" · ");card.appendChild(d)}
+      fragment.appendChild(card);
     });
+    list.replaceChildren(fragment);message.hidden=true;$("transactionCount").textContent=data.length+" transaction(s) shown";
+  }catch(error){
+    if(request!==transactionRequestNumber)return;
+    console.error("Transaction history error:",error);$("transactionCount").textContent="Unable to load";
+    showMessage(message,"Could not load transactions: "+(error.message||"Please try again."),"error");
+  }finally{if(request===transactionRequestNumber){button.disabled=false;button.textContent=t("refresh")}}
+}
 
-    $("signupButton").addEventListener("click", signUp);
-    $("refreshWalletButton").addEventListener("click", loadWallet);
-    $("refreshTransactions").addEventListener("click", loadTransactions);
-
-    $("openTransactionsButton").addEventListener("click", () => {
-      showPage("transactionsPage");
-    });
-
-    $("backHomeButton").addEventListener("click", () => {
-      showPage("homePage");
-    });
-
-    $("menuButton").addEventListener("click", () => {
-      $("drawer").classList.remove("hidden");
-    });
-
-    $("closeDrawerButton").addEventListener("click", () => {
-      $("drawer").classList.add("hidden");
-    });
-
-    $("drawer").addEventListener("click", (event) => {
-      if (event.target === $("drawer")) {
-        $("drawer").classList.add("hidden");
-      }
-    });
-
-    $("logoutButton").addEventListener("click", signOut);
-    $("drawerLogoutButton").addEventListener("click", signOut);
-
-    document.querySelectorAll("[data-page]").forEach((button) => {
-      button.addEventListener("click", () => {
-        showPage(button.dataset.page);
-      });
-    });
-
-    document.querySelectorAll("[data-action]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const action = button.dataset.action;
-
-        if (action === "transactions") {
-          showPage("transactionsPage");
-          return;
-        }
-
-        alert(
-          "The " + readableLabel(action) +
-          " module is not connected in this version."
-        );
-      });
-    });
-
-    async function initializeApp() {
-      try {
-        const { data, error } = await supabaseClient.auth.getSession();
-
-        if (error) throw error;
-
-        user = data.session?.user || null;
-
-        if (user) {
-          showApp();
-        } else {
-          showAuth();
-        }
-      } catch (error) {
-        console.error("Session initialization error:", error);
-        showAuth("Could not restore your session. Please sign in again.");
-      }
+/*
+ * Product catalogue integration:
+ * The catalogue table and column names have not been verified here.
+ * This routine tries common table names, uses only discovered columns,
+ * and displays a clear message if no compatible catalogue is available.
+ * It never invents products or sales counts.
+ */
+function renderProducts(items,grid,messageId,limit=null){
+  const gridElement=$(grid),message=$(messageId);gridElement.replaceChildren();
+  if(!items.length){showMessage(message,"No products are available to display yet.");return}
+  message.hidden=true;
+  const fragment=document.createDocumentFragment();
+  items.slice(0,limit||items.length).forEach(product=>{
+    const card=document.createElement("article");card.className="product-card";
+    const imageBox=document.createElement("div");imageBox.className="product-image";
+    const imageUrl=product.image_url||product.image||product.image_path||product.thumbnail_url||"";
+    if(typeof imageUrl==="string"&&/^https?:\/\//i.test(imageUrl)){
+      const img=document.createElement("img");img.src=imageUrl;img.alt=product.name||product.title||"Product";img.loading="lazy";img.onerror=()=>{img.remove();imageBox.textContent="Product image unavailable"};imageBox.appendChild(img);
+    }else imageBox.textContent="Product";
+    card.appendChild(imageBox);
+    const info=document.createElement("div");info.className="product-info";
+    const name=document.createElement("div");name.className="product-name";name.textContent=product.name||product.title||product.product_name||"Unnamed product";info.appendChild(name);
+    const priceValue=product.price??product.selling_price??product.sale_price;
+    const price=document.createElement("div");price.className="product-price";price.textContent=priceValue!==undefined&&priceValue!==null?formatMoney(priceValue,product.currency||"BDT"):"Price unavailable";info.appendChild(price);
+    if(product.sold_count!==undefined||product.total_sold!==undefined||product.sales_count!==undefined){
+      const sold=document.createElement("div");sold.className="product-meta";sold.textContent="Sold: "+Number(product.sold_count??product.total_sold??product.sales_count);info.appendChild(sold);
     }
+    const btn=document.createElement("button");btn.className="btn";btn.textContent="View Details";
+    btn.addEventListener("click",()=>alert("Product details and checkout are not connected until the actual product schema and secure purchase flow are verified."));
+    info.appendChild(btn);card.appendChild(info);fragment.appendChild(card);
+  });
+  gridElement.replaceChildren(fragment);
+}
+async function loadProducts(){
+  const request=++productRequestNumber;
+  showMessage($("topProductsMessage"),"Loading products...");
+  showMessage($("allProductsMessage"),"Loading products...");
+  const candidates=["products","product_catalog","store_products"];
+  let found=null,lastError=null;
+  try{
+    for(const table of candidates){
+      const result=await supabaseClient.from(table).select("*").limit(100);
+      if(request!==productRequestNumber)return;
+      if(!result.error&&Array.isArray(result.data)){found=result.data;break}
+      lastError=result.error;
+    }
+    if(found===null){
+      const msg="Product catalogue could not be loaded. Configure the correct product table and its read permissions before showing products.";
+      showMessage($("topProductsMessage"),msg,"error");showMessage($("allProductsMessage"),msg,"error");
+      console.warn("Product catalogue not found:",lastError);return;
+    }
+    productsCache=found;
+    if(!found.length){
+      showMessage($("topProductsMessage"),"No products found in the catalogue.");
+      showMessage($("allProductsMessage"),"No products found in the catalogue.");
+      $("topProductsGrid").replaceChildren();$("allProductsGrid").replaceChildren();return;
+    }
+    const sorted=[...found].sort((a,b)=>Number(b.sold_count??b.total_sold??b.sales_count??0)-Number(a.sold_count??a.total_sold??a.sales_count??0));
+    renderProducts(sorted,"topProductsGrid","topProductsMessage",4);
+    renderProducts(found,"allProductsGrid","allProductsMessage");
+    filterProducts();
+  }catch(error){
+    console.error("Products error:",error);
+    showMessage($("topProductsMessage"),"Products could not be loaded.","error");
+    showMessage($("allProductsMessage"),"Products could not be loaded.","error");
+  }
+}
+function filterProducts(){
+  const query=$("productSearch").value.trim().toLowerCase();
+  const filtered=productsCache.filter(p=>String(p.name||p.title||p.product_name||"").toLowerCase().includes(query));
+  renderProducts(filtered,"allProductsGrid","allProductsMessage");
+}
 
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-      user = session?.user || null;
+async function signIn(){
+  $("loginButton").disabled=true;$("signupButton").disabled=true;
+  showMessage($("authMessage"),"Signing in...");
+  try{
+    const {data,error}=await supabaseClient.auth.signInWithPassword({email:$("authEmail").value.trim(),password:$("authPassword").value});
+    if(error)throw error;user=data.user;showApp();
+  }catch(error){console.error(error);showMessage($("authMessage"),error.message||"Sign-in failed.","error")}
+  finally{$("loginButton").disabled=false;$("signupButton").disabled=false}
+}
+async function signUp(){
+  const email=$("authEmail").value.trim(),password=$("authPassword").value;
+  if(password.length<6){showMessage($("authMessage"),"Password must be at least 6 characters.","error");return}
+  $("loginButton").disabled=true;$("signupButton").disabled=true;showMessage($("authMessage"),"Creating account...");
+  try{
+    const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:APRP_REDIRECT_URL}});
+    if(error)throw error;
+    if(data.session&&data.user){user=data.user;showApp()}
+    else showMessage($("authMessage"),"Account created. Check your email to confirm your account.","success");
+  }catch(error){console.error(error);showMessage($("authMessage"),error.message||"Sign-up failed.","error")}
+  finally{$("loginButton").disabled=false;$("signupButton").disabled=false}
+}
+async function signOut(){
+  const {error}=await supabaseClient.auth.signOut();
+  if(error){alert("Could not sign out: "+error.message);return}
+  user=null;showAuth();
+}
 
-      if (user) {
-        showApp();
-      } else {
-        $("appView").classList.add("hidden");
-        $("bottomNav").classList.add("hidden");
-        $("authView").classList.remove("hidden");
-      }
-    });
+$("authForm").addEventListener("submit",e=>{e.preventDefault();signIn()});
+$("signupButton").addEventListener("click",signUp);
+$("refreshWalletButton").addEventListener("click",loadWallet);
+$("refreshTransactions").addEventListener("click",loadTransactions);
+$("menuButton").addEventListener("click",()=>$("drawer").classList.remove("hidden"));
+$("closeDrawerButton").addEventListener("click",()=>$("drawer").classList.add("hidden"));
+$("drawer").addEventListener("click",e=>{if(e.target===$("drawer"))$("drawer").classList.add("hidden")});
+$("accountLogoutButton").addEventListener("click",signOut);
+$("drawerLogoutButton").addEventListener("click",signOut);
+$("productSearch").addEventListener("input",filterProducts);
+$("saveLanguageButton").addEventListener("click",()=>{
+  localStorage.setItem("aprp_language",$("languageSelect").value);applyLanguage();
+  alert($("languageSelect").value==="bn"?"ভাষা পরিবর্তন করা হয়েছে।":"Language preference applied.");
+});
+$("copyReferralButton").addEventListener("click",async()=>{
+  const value=$("referralCode").value;
+  if(!value||value==="Not available yet"){alert("Your referral code is not available yet.");return}
+  try{await navigator.clipboard.writeText(value);alert("Referral code copied.")}
+  catch(e){alert("Unable to copy automatically. Please copy the code manually.")}
+});
+$("installWebAppButton").addEventListener("click",async()=>{
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;
+  }else alert("If your browser supports installation, open its menu and choose Add to Home screen. An Android APK download is not published yet.");
+});
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();deferredInstallPrompt=event});
 
-    initializeApp();
-  </script>
+document.querySelectorAll("[data-page]").forEach(button=>button.addEventListener("click",()=>showPage(button.dataset.page)));
+
+async function initializeApp(){
+  applyLanguage();
+  try{
+    const {data,error}=await supabaseClient.auth.getSession();if(error)throw error;
+    user=data.session?.user||null;if(user)showApp();else showAuth();
+  }catch(error){console.error(error);showAuth("Could not restore your session. Please sign in again.")}
+}
+supabaseClient.auth.onAuthStateChange((_event,session)=>{
+  user=session?.user||null;
+  if(user){showApp()}else{ $("appView").classList.add("hidden");$("bottomNav").classList.add("hidden");$("authView").classList.remove("hidden"); }
+});
+initializeApp();
+</script>
 </body>
 </html>
