@@ -321,7 +321,7 @@ button:disabled{opacity:.55;cursor:wait}
 
           <div class="field">
             <label for="depositAmount">Amount / টাকার পরিমাণ</label>
-            <input id="depositAmount" type="number" min="0.01" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
+            <input id="depositAmount" type="number" min="500" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
             <div id="depositAmountHint" class="muted"></div>
           </div>
 
@@ -486,8 +486,9 @@ button:disabled{opacity:.55;cursor:wait}
 
         <div class="field">
           <label for="withdrawalAmount" data-i18n="withdrawAmount">Amount</label>
-          <input id="withdrawalAmount" type="number" min="0.01" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
+          <input id="withdrawalAmount" type="number" min="1000" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
           <div id="withdrawalAmountHint" class="muted"></div>
+          <div class="muted" data-i18n="withdrawMainOnly">Only your available (main) balance can be withdrawn. Reserved balance cannot be withdrawn.</div>
         </div>
 
         <div class="field">
@@ -799,6 +800,16 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 
 /* =========================================================
+   LIMITS (minimum amounts per service)
+   ========================================================= */
+
+const MIN_BY_SERVICE = {
+  deposit: 500,
+  withdrawal: 1000
+};
+
+
+/* =========================================================
    STATE
    ========================================================= */
 
@@ -855,6 +866,7 @@ const translations = {
     withdrawMethod:"Withdrawal Method",
     selectWithdrawalMethod:"Select withdrawal method",
     withdrawAmount:"Amount",
+    withdrawMainOnly:"Only your available (main) balance can be withdrawn. Reserved balance cannot be withdrawn.",
     withdrawDestination:"Destination Account",
     withdrawDestinationName:"Account Name",
     withdrawNote:"Note (optional)",
@@ -929,6 +941,7 @@ const translations = {
     withdrawMethod:"উইথড্র পদ্ধতি",
     selectWithdrawalMethod:"উইথড্র পদ্ধতি নির্বাচন করুন",
     withdrawAmount:"টাকার পরিমাণ",
+    withdrawMainOnly:"শুধুমাত্র আপনার ব্যবহারযোগ্য (মেইন) ব্যালেন্স উইথড্র করা যাবে। সংরক্ষিত ব্যালেন্স উইথড্র করা যাবে না।",
     withdrawDestination:"গন্তব্য অ্যাকাউন্ট",
     withdrawDestinationName:"অ্যাকাউন্টের নাম",
     withdrawNote:"নোট (ঐচ্ছিক)",
@@ -1576,10 +1589,12 @@ function filterProducts(){
 
 
 /* =========================================================
-   DEPOSIT PAGE — providers → channels → popup form
+   LIMITS — deposit min 500, withdrawal min 1000
    ========================================================= */
 
 function getLimits(option){
+
+  const floor = MIN_BY_SERVICE[option.service?.service_code] || 0.01;
 
   const mins = [option.service?.minimum_amount, option.channel?.minimum_amount]
     .map(Number).filter(v => Number.isFinite(v) && v > 0);
@@ -1588,11 +1603,16 @@ function getLimits(option){
     .map(Number).filter(v => Number.isFinite(v) && v > 0);
 
   return {
-    min: mins.length ? Math.max(0.01, ...mins) : 0.01,
+    min: Math.max(floor, ...mins),
     max: maxs.length ? Math.min(...maxs) : null
   };
 
 }
+
+
+/* =========================================================
+   DEPOSIT PAGE — providers → channels → popup form
+   ========================================================= */
 
 function getSelectedDepositOption(){
   if(!selectedDepositId) return null;
@@ -1627,6 +1647,8 @@ function updateDepositUI(){
   $("depositSummaryMethod").textContent = option.providerName + " — " + option.channelName;
 
   const limits = getLimits(option);
+
+  $("depositAmount").min = String(limits.min);
 
   let hint = "Minimum: " + formatMoney(limits.min, option.currency || "BDT");
 
@@ -1999,6 +2021,8 @@ async function handleDepositSubmit(event){
 
 /* =========================================================
    WITHDRAWAL SYSTEM
+   Only available_balance (main balance) can be withdrawn.
+   reserved_balance is never counted.
    ========================================================= */
 
 function makeRequestId(prefix="WD"){
@@ -2053,6 +2077,8 @@ function updateWithdrawalAmountUI(){
   }
 
   const limits = getLimits(option);
+
+  $("withdrawalAmount").min = String(limits.min);
 
   let hint = `Minimum: ${formatMoney(limits.min, currency)}`;
 
@@ -2270,6 +2296,7 @@ async function submitWithdrawal(event){
 
   try{
 
+    /* only available_balance is read — reserved_balance is never used */
     const { data:wallet, error:walletError } = await supabaseClient
       .from("wallets")
       .select("currency, available_balance, status")
@@ -2300,7 +2327,7 @@ async function submitWithdrawal(event){
     if(!Number.isFinite(available) || available < amount){
       showMessage(
         $("withdrawalMessage"),
-        `Insufficient available balance. Available: ${formatMoney(available || 0, walletCurrency)}.`,
+        `Insufficient available balance. Available (main) balance: ${formatMoney(available || 0, walletCurrency)}. Reserved balance cannot be withdrawn.`,
         "error"
       );
       return;
