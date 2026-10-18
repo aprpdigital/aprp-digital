@@ -87,12 +87,31 @@ button:disabled{opacity:.55;cursor:wait}
 .deposit-summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(36,51,74,.65)}
 .deposit-summary-row:last-child{border-bottom:0}
 .deposit-summary-row span:first-child{color:var(--muted)}
+.deposit-summary-row strong{text-align:right;overflow-wrap:anywhere}
 .deposit-details{margin-top:15px}
 .deposit-details-box{padding:14px;border:1px solid #17684e;border-radius:13px;background:#0b241f;color:#bdeadd;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
-.bottom-nav{position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:rgba(7,11,23,.97);backdrop-filter:blur(16px)}
-.nav-button{border:0;border-radius:13px;padding:8px 4px;background:transparent;color:#899bb5;font-size:10px;font-weight:750;min-width:0}
-.nav-button span{display:block;font-size:18px;margin-bottom:4px}
+
+/* ---- Deposit page: providers & channels ---- */
+.deposit-count{margin:0 0 4px;color:var(--muted);font-size:12px}
+.provider-group{margin-top:18px}
+.provider-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.provider-head strong{font-size:14px;overflow-wrap:anywhere}
+.provider-head span{color:var(--muted);font-size:11px;flex-shrink:0}
+.channel-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.channel-card{min-width:0;text-align:left;padding:12px;border:1px solid var(--border);border-radius:14px;background:#0b1424;color:var(--text);transition:border-color .15s,background .15s}
+.channel-card:hover{border-color:#277a66}
+.channel-card.selected{border-color:#1aa982;background:#0d2a26}
+.channel-card strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.channel-card small{display:block;margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.45;overflow-wrap:anywhere}
+.deposit-form-wrap{margin-top:22px;padding-top:6px;border-top:1px solid var(--border)}
+
+/* ---- Bottom navigation ---- */
+.bottom-nav{position:fixed;z-index:10;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,760px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:9px 12px calc(9px + env(safe-area-inset-bottom));border-top:1px solid var(--border);background:rgba(7,11,23,.97);backdrop-filter:blur(16px)}
+.nav-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:13px;padding:8px 2px;background:transparent;color:#899bb5;min-width:0}
+.nav-icon{display:block;font-size:18px;line-height:1}
+.nav-label{display:block;max-width:100%;font-size:10px;font-weight:750;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav-button.active{color:var(--green);background:#10251f}
+
 .auth-wrap{min-height:100vh;display:grid;place-items:center;padding:20px}
 .auth-card{width:min(100%,420px);padding:24px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,#111b2d,#0a1120);box-shadow:0 20px 70px rgba(0,0,0,.3)}
 .auth-card h1{font-size:27px;margin:22px 0 8px}
@@ -112,7 +131,7 @@ button:disabled{opacity:.55;cursor:wait}
 .drawer-item.danger .menu-icon{background:#3a1822;color:#ff9eaa}
 @media(max-width:520px){
   .account-top-button{padding:0 10px;font-size:11px}
-  .nav-button{font-size:9px}
+  .nav-label{font-size:9.5px}
 }
 @media(max-width:420px){
   .app-shell{padding-left:12px;padding-right:12px}
@@ -120,7 +139,8 @@ button:disabled{opacity:.55;cursor:wait}
   .quick-card{padding:14px}
   .product-info{padding:10px}
   .transaction-item{padding:12px}
-  .bottom-nav{padding-left:7px;padding-right:7px}
+  .bottom-nav{padding-left:7px;padding-right:7px;gap:3px}
+  .channel-list{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -165,7 +185,6 @@ button:disabled{opacity:.55;cursor:wait}
 <main id="appView" class="app-shell hidden">
 
   <header class="topbar">
-
     <div class="brand">
       <div class="brand-mark">A</div>
       <div>
@@ -175,917 +194,319 @@ button:disabled{opacity:.55;cursor:wait}
     </div>
 
     <div class="topbar-actions">
-
-      <!-- TOP ACCOUNT -->
-      <button
-        class="account-top-button"
-        id="topAccountButton"
-        type="button"
-        aria-label="Open Account"
-      >
-        Account
-      </button>
-
-      <!-- EXISTING THREE-DOT MENU -->
-      <button
-        class="icon-button"
-        id="menuButton"
-        aria-label="Open menu"
-        type="button"
-      >
-        ⋮
-      </button>
-
+      <button class="account-top-button" id="topAccountButton" type="button" aria-label="Open Account">Account</button>
+      <button class="icon-button" id="menuButton" aria-label="Open menu" type="button">⋮</button>
     </div>
-
   </header>
 
 
-  <!-- =====================================================
-       HOME
-       ===================================================== -->
-
+  <!-- ===================== HOME ===================== -->
   <section id="homePage">
 
     <div class="welcome">
       <div class="eyebrow" data-i18n="welcome">Welcome Back</div>
       <h1 id="userName">Mohammad Jubol Official</h1>
-      <p data-i18n="homeSubtitle">
-        Your wallet, products and account services.
-      </p>
+      <p data-i18n="homeSubtitle">Your wallet, products and account services.</p>
     </div>
 
-
-    <!-- BALANCE SECTION — UNCHANGED -->
-
     <section class="wallet-card">
-
-      <div class="wallet-label" data-i18n="available">
-        Available Balance
-      </div>
-
-      <div class="balance" id="availableBalance">
-        BDT ৳ —
-      </div>
+      <div class="wallet-label" data-i18n="available">Available Balance</div>
+      <div class="balance" id="availableBalance">BDT ৳ —</div>
 
       <div class="balance-grid">
-
         <div class="balance-box">
-          <span data-i18n="reserved">
-            Reserved Balance
-          </span>
-
-          <strong id="reservedBalance">
-            BDT ৳ —
-          </strong>
+          <span data-i18n="reserved">Reserved Balance</span>
+          <strong id="reservedBalance">BDT ৳ —</strong>
         </div>
-
         <div class="balance-box">
-          <span data-i18n="walletStatus">
-            Wallet Status
-          </span>
-
-          <strong id="walletStatus">
-            Loading
-          </strong>
+          <span data-i18n="walletStatus">Wallet Status</span>
+          <strong id="walletStatus">Loading</strong>
         </div>
-
       </div>
 
       <div class="wallet-footer">
-
         <span>
           <i class="status-dot"></i>
-          <span data-i18n="walletOverview">
-            Wallet overview
-          </span>
+          <span data-i18n="walletOverview">Wallet overview</span>
         </span>
-
-        <button
-          class="btn"
-          id="refreshWalletButton"
-          data-i18n="refresh"
-          type="button"
-        >
-          Refresh
-        </button>
-
+        <button class="btn" id="refreshWalletButton" data-i18n="refresh" type="button">Refresh</button>
       </div>
-
     </section>
 
-
-    <!-- QUICK ACTIONS -->
-
     <section class="section">
-
       <div class="section-heading">
         <div>
-          <h2 data-i18n="quickActions">
-            Quick Actions
-          </h2>
-
-          <p data-i18n="quickSubtitle">
-            Your most-used services.
-          </p>
+          <h2 data-i18n="quickActions">Quick Actions</h2>
+          <p data-i18n="quickSubtitle">Your most-used services.</p>
         </div>
       </div>
-
 
       <div class="quick-grid">
-
-        <!-- DEPOSIT NOW OPENS INLINE HOME PANEL -->
-        <button
-          class="quick-card"
-          id="openDepositQuick"
-          type="button"
-        >
+        <!-- Deposit now opens its OWN page -->
+        <button class="quick-card" data-page="depositPage" type="button">
           <span class="quick-icon">＋</span>
-
-          <strong data-i18n="deposit">
-            Deposit
-          </strong>
-
-          <small data-i18n="depositSubtitle">
-            Add funds to your wallet
-          </small>
+          <strong data-i18n="deposit">Deposit</strong>
+          <small data-i18n="depositSubtitle">Add funds to your wallet</small>
         </button>
 
-
-        <!-- WITHDRAWAL REMAINS THE EXISTING SYSTEM -->
-        <button
-          class="quick-card"
-          data-page="withdrawPage"
-          type="button"
-        >
+        <button class="quick-card" data-page="withdrawPage" type="button">
           <span class="quick-icon">↗</span>
-
-          <strong data-i18n="withdraw">
-            Withdraw
-          </strong>
-
-          <small data-i18n="withdrawSubtitle">
-            Withdrawal services
-          </small>
+          <strong data-i18n="withdraw">Withdraw</strong>
+          <small data-i18n="withdrawSubtitle">Withdrawal services</small>
         </button>
-
       </div>
-
     </section>
-
-
-    <!-- =================================================
-         INLINE DEPOSIT PANEL
-         Home → Quick Action → Deposit
-         ================================================= -->
-
-    <section
-      id="homeDepositPanel"
-      class="section hidden"
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <h2 data-i18n="deposit">
-            Deposit
-          </h2>
-
-          <p data-i18n="depositSubtitle">
-            Add funds to your wallet
-          </p>
-        </div>
-
-        <button
-          class="btn"
-          id="closeDepositPanel"
-          type="button"
-        >
-          ×
-        </button>
-
-      </div>
-
-
-      <div class="panel">
-
-        <div
-          id="depositMessage"
-          class="message"
-          role="status"
-          aria-live="polite"
-        >
-          Deposit request setup is being prepared.
-        </div>
-
-
-        <form id="depositForm">
-
-          <div class="field">
-
-            <label for="depositMethod">
-              Deposit Method
-            </label>
-
-            <select
-              id="depositMethod"
-              required
-            >
-              <option value="">
-                Select deposit method
-              </option>
-            </select>
-
-          </div>
-
-
-          <div
-            id="depositDetails"
-            class="deposit-details hidden"
-          >
-
-            <div class="muted">
-              Payment details
-            </div>
-
-            <div
-              id="depositDetailsBox"
-              class="deposit-details-box"
-            ></div>
-
-          </div>
-
-
-          <div class="field">
-
-            <label for="depositAmount">
-              Amount
-            </label>
-
-            <input
-              id="depositAmount"
-              type="number"
-              min="0.01"
-              step="0.01"
-              inputmode="decimal"
-              autocomplete="off"
-              placeholder="0.00"
-              required
-            >
-
-            <div
-              id="depositAmountHint"
-              class="muted"
-            ></div>
-
-          </div>
-
-
-          <div class="field">
-
-            <label for="depositReference">
-              Payment Reference ID
-            </label>
-
-            <input
-              id="depositReference"
-              type="text"
-              maxlength="150"
-              autocomplete="off"
-              placeholder="Enter transaction/reference ID"
-              required
-            >
-
-          </div>
-
-
-          <div class="field">
-
-            <label for="depositNote">
-              Note (optional)
-            </label>
-
-            <textarea
-              id="depositNote"
-              maxlength="500"
-              placeholder="Optional note"
-            ></textarea>
-
-          </div>
-
-
-          <div class="deposit-summary">
-
-            <div class="deposit-summary-row">
-              <span>Method</span>
-              <strong id="depositSummaryMethod">—</strong>
-            </div>
-
-            <div class="deposit-summary-row">
-              <span>Amount</span>
-              <strong id="depositSummaryAmount">BDT 0.00</strong>
-            </div>
-
-            <div class="deposit-summary-row">
-              <span>Reference</span>
-              <strong id="depositSummaryReference">—</strong>
-            </div>
-
-          </div>
-
-
-          <!--
-            IMPORTANT:
-            Deposit INSERT RLS/schema has not been verified.
-            Therefore this button does not submit a fake request.
-          -->
-
-          <button
-            class="btn btn-primary btn-block"
-            id="submitDepositButton"
-            type="submit"
-            style="margin-top:15px"
-            disabled
-          >
-            Submit Deposit Request
-          </button>
-
-
-          <div
-            class="message"
-            style="margin-top:12px"
-          >
-            Deposit submission is currently waiting for the secure
-            database INSERT/RLS workflow to be connected. No payment
-            is initiated and no wallet balance is changed from this form.
-          </div>
-
-        </form>
-
-      </div>
-
-    </section>
-
-
-    <!-- TOP PRODUCTS -->
 
     <section class="section">
-
       <div class="section-heading">
-
         <div>
-          <h2 data-i18n="topProducts">
-            Top-Selling Products
-          </h2>
-
-          <p data-i18n="topProductsSubtitle">
-            Products from the product catalogue.
-          </p>
+          <h2 data-i18n="topProducts">Top-Selling Products</h2>
+          <p data-i18n="topProductsSubtitle">Products from the product catalogue.</p>
         </div>
-
-        <button
-          class="btn"
-          data-page="productsPage"
-          data-i18n="viewAll"
-          type="button"
-        >
-          View All
-        </button>
-
+        <button class="btn" data-page="productsPage" data-i18n="viewAll" type="button">View All</button>
       </div>
 
-      <div
-        id="topProductsMessage"
-        class="message"
-      >
-        Loading products...
-      </div>
-
-      <div
-        id="topProductsGrid"
-        class="product-grid"
-      ></div>
-
+      <div id="topProductsMessage" class="message">Loading products...</div>
+      <div id="topProductsGrid" class="product-grid"></div>
     </section>
 
   </section>
 
 
-  <!-- =====================================================
-       PRODUCTS
-       ===================================================== -->
+  <!-- ===================== DEPOSIT (separate page) ===================== -->
+  <section id="depositPage" class="hidden">
 
+    <div class="welcome">
+      <div class="eyebrow" data-i18n="walletService">Wallet Service</div>
+      <h1 data-i18n="deposit">Deposit</h1>
+      <p data-i18n="depositSubtitle">Add funds to your wallet</p>
+    </div>
+
+    <div class="panel">
+
+      <div id="depositMessage" class="message" role="status" aria-live="polite">Loading available deposit methods...</div>
+
+      <div id="depositChannelsWrap" class="hidden">
+        <div class="section-heading" style="margin-bottom:0">
+          <div>
+            <h2 data-i18n="chooseChannel">Choose a deposit channel</h2>
+            <p id="depositCount" class="deposit-count"></p>
+          </div>
+        </div>
+
+        <div id="depositChannelList"></div>
+      </div>
+
+      <form id="depositForm" class="deposit-form-wrap hidden">
+
+        <div class="muted" data-i18n="selectedChannel">Selected channel</div>
+        <div id="depositSelectedLabel" style="font-weight:800;margin-top:5px;overflow-wrap:anywhere">—</div>
+
+        <div id="depositDetails" class="deposit-details hidden">
+          <div class="muted" data-i18n="paymentDetails">Payment details</div>
+          <div id="depositDetailsBox" class="deposit-details-box"></div>
+        </div>
+
+        <div class="field">
+          <label for="depositAmount" data-i18n="withdrawAmount">Amount</label>
+          <input id="depositAmount" type="number" min="0.01" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
+          <div id="depositAmountHint" class="muted"></div>
+        </div>
+
+        <div class="field">
+          <label for="depositReference" data-i18n="paymentReference">Payment Reference ID</label>
+          <input id="depositReference" type="text" maxlength="150" autocomplete="off" placeholder="Enter transaction/reference ID" required>
+        </div>
+
+        <div class="field">
+          <label for="depositNote" data-i18n="withdrawNote">Note (optional)</label>
+          <textarea id="depositNote" maxlength="500" placeholder="Optional note"></textarea>
+        </div>
+
+        <div class="deposit-summary">
+          <div class="deposit-summary-row"><span data-i18n="method">Method</span><strong id="depositSummaryMethod">—</strong></div>
+          <div class="deposit-summary-row"><span data-i18n="withdrawAmount">Amount</span><strong id="depositSummaryAmount">BDT 0.00</strong></div>
+          <div class="deposit-summary-row"><span data-i18n="reference">Reference</span><strong id="depositSummaryReference">—</strong></div>
+        </div>
+
+        <!--
+          Deposit INSERT RLS/schema has not been verified,
+          so this button does not submit a fake request.
+        -->
+        <button class="btn btn-primary btn-block" id="submitDepositButton" type="submit" style="margin-top:15px" disabled>
+          Submit Deposit Request
+        </button>
+
+        <div id="depositFormMessage" class="message" style="margin-top:12px">
+          Deposit submission is currently waiting for the secure database INSERT/RLS workflow to be connected. No payment is initiated and no wallet balance is changed from this form.
+        </div>
+
+      </form>
+
+    </div>
+
+  </section>
+
+
+  <!-- ===================== PRODUCTS ===================== -->
   <section id="productsPage" class="hidden">
 
     <div class="welcome">
-
-      <div class="eyebrow" data-i18n="shop">
-        Shop
-      </div>
-
-      <h1 data-i18n="products">
-        Products
-      </h1>
-
-      <p data-i18n="productsSubtitle">
-        Explore available products.
-      </p>
-
+      <div class="eyebrow" data-i18n="shop">Shop</div>
+      <h1 data-i18n="products">Products</h1>
+      <p data-i18n="productsSubtitle">Explore available products.</p>
     </div>
-
 
     <div class="field">
-
-      <label
-        for="productSearch"
-        data-i18n="searchProducts"
-      >
-        Search products
-      </label>
-
-      <input
-        id="productSearch"
-        type="search"
-        placeholder="Search by product name"
-      >
-
+      <label for="productSearch" data-i18n="searchProducts">Search products</label>
+      <input id="productSearch" type="search" placeholder="Search by product name">
     </div>
 
-
-    <div
-      id="allProductsMessage"
-      class="message"
-      style="margin-top:12px"
-    >
-      Loading products...
-    </div>
-
-    <div
-      id="allProductsGrid"
-      class="product-grid"
-      style="margin-top:12px"
-    ></div>
+    <div id="allProductsMessage" class="message" style="margin-top:12px">Loading products...</div>
+    <div id="allProductsGrid" class="product-grid" style="margin-top:12px"></div>
 
   </section>
 
 
-  <!-- =====================================================
-       ACCOUNT
-       ===================================================== -->
-
+  <!-- ===================== ACCOUNT ===================== -->
   <section id="accountPage" class="hidden">
 
     <div class="welcome">
-
-      <div class="eyebrow" data-i18n="account">
-        Account
-      </div>
-
-      <h1 data-i18n="myAccount">
-        My Account
-      </h1>
-
-      <p data-i18n="accountSubtitle">
-        Manage your account.
-      </p>
-
+      <div class="eyebrow" data-i18n="account">Account</div>
+      <h1 data-i18n="myAccount">My Account</h1>
+      <p data-i18n="accountSubtitle">Manage your account.</p>
     </div>
 
-
     <div class="panel">
+      <div class="muted">Email address</div>
+      <p id="accountEmail" style="overflow-wrap:anywhere"></p>
 
-      <div class="muted">
-        Email address
-      </div>
+      <div class="muted" style="margin-top:15px">User ID</div>
+      <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px"></p>
 
-      <p
-        id="accountEmail"
-        style="overflow-wrap:anywhere"
-      ></p>
-
-
-      <div
-        class="muted"
-        style="margin-top:15px"
-      >
-        User ID
-      </div>
-
-      <p
-        id="accountUserId"
-        style="overflow-wrap:anywhere;font-size:11px"
-      ></p>
-
-
-      <button
-        class="btn btn-block"
-        data-page="settingsPage"
-        data-i18n="settings"
-        type="button"
-      >
-        Settings
-      </button>
-
-
-      <button
-        class="btn btn-block"
-        id="accountLogoutButton"
-        style="margin-top:10px"
-        data-i18n="signOut"
-        type="button"
-      >
-        Sign Out
-      </button>
-
+      <button class="btn btn-block" data-page="settingsPage" data-i18n="settings" type="button">Settings</button>
+      <button class="btn btn-block" id="accountLogoutButton" style="margin-top:10px" data-i18n="signOut" type="button">Sign Out</button>
     </div>
 
   </section>
 
 
-  <!-- =====================================================
-       ORDER
-       ===================================================== -->
-
+  <!-- ===================== ORDER ===================== -->
   <section id="orderPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        APRP Digital
-      </div>
-
-      <h1>
-        Orders
-      </h1>
-
-      <p>
-        Review and manage your product orders.
-      </p>
-
+      <div class="eyebrow">APRP Digital</div>
+      <h1 data-i18n="order">Order</h1>
+      <p>Review and manage your product orders.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Order management will appear here when the secure
-        product purchase and order database workflow is connected.
-      </div>
-
+      <div class="message">Order management will appear here when the secure product purchase and order database workflow is connected.</div>
     </div>
-
   </section>
 
 
-  <!-- =====================================================
-       BUYBACK
-       ===================================================== -->
-
+  <!-- ===================== BUYBACK ===================== -->
   <section id="buybackPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        APRP Digital
-      </div>
-
-      <h1>
-        Buyback
-      </h1>
-
-      <p>
-        Buyback services and requests.
-      </p>
-
+      <div class="eyebrow">APRP Digital</div>
+      <h1 data-i18n="buyback">Buyback</h1>
+      <p>Buyback services and requests.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Buyback services will appear here when the secure
-        buyback workflow is connected.
-      </div>
-
+      <div class="message">Buyback services will appear here when the secure buyback workflow is connected.</div>
     </div>
-
   </section>
 
 
-  <!-- =====================================================
-       COMMUNITY
-       ===================================================== -->
-
+  <!-- ===================== COMMUNITY ===================== -->
   <section id="communityPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        APRP Digital
-      </div>
-
-      <h1>
-        Community
-      </h1>
-
-      <p>
-        Community updates, discussions and member activities.
-      </p>
-
+      <div class="eyebrow">APRP Digital</div>
+      <h1 data-i18n="community">Community</h1>
+      <p>Community updates, discussions and member activities.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Community features will appear here when the community
-        system is connected.
-      </div>
-
+      <div class="message">Community features will appear here when the community system is connected.</div>
     </div>
-
   </section>
 
 
-  <!-- =====================================================
-       TRANSACTIONS
-       ===================================================== -->
-
+  <!-- ===================== TRANSACTIONS ===================== -->
   <section id="transactionsPage" class="hidden">
 
     <div class="welcome">
-
-      <div class="eyebrow">
-        Account Activity
-      </div>
-
-      <h1 data-i18n="transactions">
-        Transaction History
-      </h1>
-
-      <p data-i18n="transactionsSubtitle">
-        Review your recorded transactions.
-      </p>
-
+      <div class="eyebrow">Account Activity</div>
+      <h1 data-i18n="transactions">Transaction History</h1>
+      <p data-i18n="transactionsSubtitle">Review your recorded transactions.</p>
     </div>
 
-
     <div class="panel">
-
       <div class="section-heading">
-
-        <h2 data-i18n="allTransactions">
-          All Transactions
-        </h2>
-
-        <button
-          class="btn btn-primary"
-          id="refreshTransactions"
-          data-i18n="refresh"
-          type="button"
-        >
-          Refresh
-        </button>
-
+        <h2 data-i18n="allTransactions">All Transactions</h2>
+        <button class="btn btn-primary" id="refreshTransactions" data-i18n="refresh" type="button">Refresh</button>
       </div>
 
-
-      <p
-        id="transactionCount"
-        class="muted"
-      >
-        Your latest transactions
-      </p>
-
-
-      <div
-        id="transactionMessage"
-        class="message"
-      >
-        Loading transactions...
-      </div>
-
-
-      <div
-        id="transactionList"
-        class="transaction-list"
-      ></div>
-
+      <p id="transactionCount" class="muted">Your latest transactions</p>
+      <div id="transactionMessage" class="message">Loading transactions...</div>
+      <div id="transactionList" class="transaction-list"></div>
     </div>
 
   </section>
 
 
-  <!-- =====================================================
-       WITHDRAWAL — EXISTING FUNCTIONAL SECTION
-       ===================================================== -->
-
+  <!-- ===================== WITHDRAWAL ===================== -->
   <section id="withdrawPage" class="hidden">
 
     <div class="welcome">
-
-      <div class="eyebrow">
-        Wallet Service
-      </div>
-
-      <h1 data-i18n="withdraw">
-        Withdraw
-      </h1>
-
-      <p data-i18n="withdrawSubtitle">
-        Withdrawal services.
-      </p>
-
+      <div class="eyebrow" data-i18n="walletService">Wallet Service</div>
+      <h1 data-i18n="withdraw">Withdraw</h1>
+      <p data-i18n="withdrawSubtitle">Withdrawal services.</p>
     </div>
-
 
     <div class="panel">
 
-      <div
-        id="withdrawalMessage"
-        class="message"
-        role="status"
-        aria-live="polite"
-      >
-        Loading withdrawal services...
-      </div>
+      <div id="withdrawalMessage" class="message" role="status" aria-live="polite">Loading withdrawal services...</div>
 
-
-      <form
-        id="withdrawalForm"
-        class="hidden"
-      >
+      <form id="withdrawalForm" class="hidden">
 
         <div class="field">
-
-          <label
-            for="withdrawalMethod"
-            data-i18n="withdrawMethod"
-          >
-            Withdrawal Method
-          </label>
-
-          <select
-            id="withdrawalMethod"
-            required
-          >
-
-            <option
-              value=""
-              data-i18n="selectWithdrawalMethod"
-            >
-              Select withdrawal method
-            </option>
-
+          <label for="withdrawalMethod" data-i18n="withdrawMethod">Withdrawal Method</label>
+          <select id="withdrawalMethod" required>
+            <option value="" data-i18n="selectWithdrawalMethod">Select withdrawal method</option>
           </select>
-
         </div>
-
 
         <div class="field">
-
-          <label
-            for="withdrawalAmount"
-            data-i18n="withdrawAmount"
-          >
-            Amount
-          </label>
-
-          <input
-            id="withdrawalAmount"
-            type="number"
-            min="0.01"
-            step="0.01"
-            inputmode="decimal"
-            autocomplete="off"
-            placeholder="0.00"
-            required
-          >
-
-          <div
-            id="withdrawalAmountHint"
-            class="muted"
-          ></div>
-
+          <label for="withdrawalAmount" data-i18n="withdrawAmount">Amount</label>
+          <input id="withdrawalAmount" type="number" min="0.01" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
+          <div id="withdrawalAmountHint" class="muted"></div>
         </div>
-
 
         <div class="field">
-
-          <label
-            for="withdrawalDestination"
-            data-i18n="withdrawDestination"
-          >
-            Destination Account
-          </label>
-
-          <input
-            id="withdrawalDestination"
-            type="text"
-            maxlength="100"
-            autocomplete="off"
-            placeholder="Enter account / wallet number"
-            required
-          >
-
-          <div
-            class="muted"
-            data-i18n="destinationHint"
-          >
-            Enter the account or wallet number where you want to receive the funds.
-          </div>
-
+          <label for="withdrawalDestination" data-i18n="withdrawDestination">Destination Account</label>
+          <input id="withdrawalDestination" type="text" maxlength="100" autocomplete="off" placeholder="Enter account / wallet number" required>
+          <div class="muted" data-i18n="destinationHint">Enter the account or wallet number where you want to receive the funds.</div>
         </div>
-
 
         <div class="field">
-
-          <label
-            for="withdrawalDestinationName"
-            data-i18n="withdrawDestinationName"
-          >
-            Account Name
-          </label>
-
-          <input
-            id="withdrawalDestinationName"
-            type="text"
-            maxlength="120"
-            autocomplete="name"
-            placeholder="Account holder name"
-          >
-
+          <label for="withdrawalDestinationName" data-i18n="withdrawDestinationName">Account Name</label>
+          <input id="withdrawalDestinationName" type="text" maxlength="120" autocomplete="name" placeholder="Account holder name">
         </div>
-
 
         <div class="field">
-
-          <label
-            for="withdrawalNote"
-            data-i18n="withdrawNote"
-          >
-            Note (optional)
-          </label>
-
-          <input
-            id="withdrawalNote"
-            type="text"
-            maxlength="250"
-            placeholder="Optional note"
-          >
-
+          <label for="withdrawalNote" data-i18n="withdrawNote">Note (optional)</label>
+          <input id="withdrawalNote" type="text" maxlength="250" placeholder="Optional note">
         </div>
 
-
-        <div
-          class="message"
-          style="margin-top:15px"
-        >
-
-          <div>
-
-            <span data-i18n="fee">
-              Fee
-            </span>:
-
-            <strong id="withdrawalFee">
-              BDT 0.00
-            </strong>
-
-          </div>
-
-
-          <div style="margin-top:6px">
-
-            <span data-i18n="netAmount">
-              Net Amount
-            </span>:
-
-            <strong id="withdrawalNetAmount">
-              BDT 0.00
-            </strong>
-
-          </div>
-
+        <div class="message" style="margin-top:15px">
+          <div><span data-i18n="fee">Fee</span>: <strong id="withdrawalFee">BDT 0.00</strong></div>
+          <div style="margin-top:6px"><span data-i18n="netAmount">Net Amount</span>: <strong id="withdrawalNetAmount">BDT 0.00</strong></div>
         </div>
 
-
-        <button
-          class="btn btn-primary btn-block"
-          id="submitWithdrawalButton"
-          type="submit"
-          style="margin-top:15px"
-          data-i18n="submitWithdrawal"
-        >
+        <button class="btn btn-primary btn-block" id="submitWithdrawalButton" type="submit" style="margin-top:15px" data-i18n="submitWithdrawal">
           Submit Withdrawal Request
         </button>
 
-
-        <div
-          class="message"
-          style="margin-top:12px"
-          data-i18n="withdrawalReviewNote"
-        >
+        <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
           Your request will be sent for review. No wallet balance is moved from this page.
         </div>
 
@@ -1096,469 +517,170 @@ button:disabled{opacity:.55;cursor:wait}
   </section>
 
 
-  <!-- =====================================================
-       OTHER EXISTING PAGES
-       ===================================================== -->
-
+  <!-- ===================== OTHER PAGES ===================== -->
   <section id="kycPage" class="hidden">
-
     <div class="welcome">
       <div class="eyebrow">Identity</div>
-
-      <h1 data-i18n="kyc">
-        KYC Verification
-      </h1>
-
-      <p>
-        Identity verification status and instructions.
-      </p>
+      <h1 data-i18n="kyc">KYC Verification</h1>
+      <p>Identity verification status and instructions.</p>
     </div>
-
     <div class="panel">
-
-      <div
-        id="kycMessage"
-        class="message"
-      >
-        KYC status has not been connected to the verified database schema.
-      </div>
-
+      <div id="kycMessage" class="message">KYC status has not been connected to the verified database schema.</div>
     </div>
-
   </section>
 
 
   <section id="referralPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        Grow Together
-      </div>
-
-      <h1 data-i18n="referral">
-        Referral & Rewards
-      </h1>
-
-      <p>
-        Invite friends and review your referral programme.
-      </p>
-
+      <div class="eyebrow">Grow Together</div>
+      <h1 data-i18n="referral">Referral & Rewards</h1>
+      <p>Invite friends and review your referral programme.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Referral programme information and rewards will appear here when the referral system is connected.
-      </div>
-
+      <div class="message">Referral programme information and rewards will appear here when the referral system is connected.</div>
 
       <div class="field">
-
-        <label for="referralCode">
-          Your referral code
-        </label>
-
-        <input
-          id="referralCode"
-          readonly
-          placeholder="Not available yet"
-        >
-
+        <label for="referralCode">Your referral code</label>
+        <input id="referralCode" readonly placeholder="Not available yet">
       </div>
 
-
-      <button
-        class="btn btn-block"
-        id="copyReferralButton"
-        style="margin-top:12px"
-        type="button"
-      >
-        Copy Referral Code
-      </button>
-
+      <button class="btn btn-block" id="copyReferralButton" style="margin-top:12px" type="button">Copy Referral Code</button>
     </div>
-
   </section>
 
 
   <section id="downloadPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        APRP Digital
-      </div>
-
-      <h1 data-i18n="downloadApp">
-        Download App
-      </h1>
-
-      <p>
-        Access APRP Digital on your device.
-      </p>
-
+      <div class="eyebrow">APRP Digital</div>
+      <h1 data-i18n="downloadApp">Download App</h1>
+      <p>Access APRP Digital on your device.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Official app download links will appear here when the Android app package and official download URL are published.
-      </div>
-
-
-      <button
-        class="btn btn-block"
-        style="margin-top:12px"
-        id="installWebAppButton"
-        type="button"
-      >
-        Install Web App (if supported)
-      </button>
-
+      <div class="message">Official app download links will appear here when the Android app package and official download URL are published.</div>
+      <button class="btn btn-block" style="margin-top:12px" id="installWebAppButton" type="button">Install Web App (if supported)</button>
     </div>
-
   </section>
 
 
   <section id="languagePage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        Preferences
-      </div>
-
-      <h1 data-i18n="language">
-        Language
-      </h1>
-
-      <p>
-        Choose your preferred interface language.
-      </p>
-
+      <div class="eyebrow">Preferences</div>
+      <h1 data-i18n="language">Language</h1>
+      <p>Choose your preferred interface language.</p>
     </div>
-
-
     <div class="panel">
-
       <div class="field">
-
-        <label for="languageSelect">
-          App Language / অ্যাপের ভাষা
-        </label>
-
+        <label for="languageSelect">App Language / অ্যাপের ভাষা</label>
         <select id="languageSelect">
-
-          <option value="en">
-            English
-          </option>
-
-          <option value="bn">
-            বাংলা
-          </option>
-
+          <option value="en">English</option>
+          <option value="bn">বাংলা</option>
         </select>
-
       </div>
-
-
-      <button
-        class="btn btn-primary btn-block"
-        id="saveLanguageButton"
-        style="margin-top:14px"
-        type="button"
-      >
-        Apply Language
-      </button>
-
-
-      <p class="muted">
-        Language preference is saved on this device.
-      </p>
-
+      <button class="btn btn-primary btn-block" id="saveLanguageButton" style="margin-top:14px" type="button">Apply Language</button>
+      <p class="muted">Language preference is saved on this device.</p>
     </div>
-
   </section>
 
 
   <section id="settingsPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        Preferences
-      </div>
-
-      <h1 data-i18n="settings">
-        Settings
-      </h1>
-
-      <p>
-        Account preferences and security.
-      </p>
-
+      <div class="eyebrow">Preferences</div>
+      <h1 data-i18n="settings">Settings</h1>
+      <p>Account preferences and security.</p>
     </div>
-
-
     <div class="panel">
-
-      <button
-        class="drawer-item"
-        data-page="languagePage"
-        type="button"
-      >
-
-        <span class="menu-icon">
-          文
-        </span>
-
-        <span>
-
-          <strong data-i18n="language">
-            Language
-          </strong>
-
-          <small>
-            English / বাংলা
-          </small>
-
-        </span>
-
+      <button class="drawer-item" data-page="languagePage" type="button">
+        <span class="menu-icon">文</span>
+        <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
       </button>
 
-
-      <button
-        class="drawer-item"
-        data-page="downloadPage"
-        type="button"
-      >
-
-        <span class="menu-icon">
-          ↓
-        </span>
-
-        <span>
-
-          <strong data-i18n="downloadApp">
-            Download App
-          </strong>
-
-          <small>
-            Official app availability
-          </small>
-
-        </span>
-
+      <button class="drawer-item" data-page="downloadPage" type="button">
+        <span class="menu-icon">↓</span>
+        <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
       </button>
 
-
-      <button
-        class="drawer-item"
-        data-page="helpPage"
-        type="button"
-      >
-
-        <span class="menu-icon">
-          ?
-        </span>
-
-        <span>
-
-          <strong data-i18n="helpLegal">
-            Help & Legal
-          </strong>
-
-          <small>
-            Help, privacy and terms
-          </small>
-
-        </span>
-
+      <button class="drawer-item" data-page="helpPage" type="button">
+        <span class="menu-icon">?</span>
+        <span><strong data-i18n="helpLegal">Help & Legal</strong><small>Help, privacy and terms</small></span>
       </button>
-
     </div>
-
   </section>
 
 
   <section id="notificationsPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        Updates
-      </div>
-
-      <h1 data-i18n="notifications">
-        Notifications
-      </h1>
-
-      <p>
-        Important account updates.
-      </p>
-
+      <div class="eyebrow">Updates</div>
+      <h1 data-i18n="notifications">Notifications</h1>
+      <p>Important account updates.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Notifications will appear here when connected to the notification service.
-      </div>
-
+      <div class="message">Notifications will appear here when connected to the notification service.</div>
     </div>
-
   </section>
 
 
   <section id="supportPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        We can help
-      </div>
-
-      <h1 data-i18n="support">
-        Support Center
-      </h1>
-
-      <p>
-        Get help with your APRP Digital account.
-      </p>
-
+      <div class="eyebrow">We can help</div>
+      <h1 data-i18n="support">Support Center</h1>
+      <p>Get help with your APRP Digital account.</p>
     </div>
-
-
     <div class="panel">
-
-      <div class="message">
-        Official support contact details have not been configured yet. Please do not trust unofficial numbers claiming to represent APRP Digital.
-      </div>
-
+      <div class="message">Official support contact details have not been configured yet. Please do not trust unofficial numbers claiming to represent APRP Digital.</div>
     </div>
-
   </section>
 
 
   <section id="helpPage" class="hidden">
-
     <div class="welcome">
-
-      <div class="eyebrow">
-        Information
-      </div>
-
-      <h1 data-i18n="helpLegal">
-        Help & Legal
-      </h1>
-
-      <p>
-        Important information for users.
-      </p>
-
+      <div class="eyebrow">Information</div>
+      <h1 data-i18n="helpLegal">Help & Legal</h1>
+      <p>Important information for users.</p>
     </div>
-
-
     <div class="panel">
-
-      <h3>
-        Help & FAQ
-      </h3>
-
-      <p class="muted">
-        Help articles will be published here.
-      </p>
-
+      <h3>Help & FAQ</h3>
+      <p class="muted">Help articles will be published here.</p>
       <hr style="border-color:var(--border);margin:18px 0">
-
-      <h3>
-        Privacy Policy
-      </h3>
-
-      <p class="muted">
-        The official privacy policy URL has not been configured.
-      </p>
-
+      <h3>Privacy Policy</h3>
+      <p class="muted">The official privacy policy URL has not been configured.</p>
       <hr style="border-color:var(--border);margin:18px 0">
-
-      <h3>
-        Terms & Conditions
-      </h3>
-
-      <p class="muted">
-        The official terms URL has not been configured.
-      </p>
-
+      <h3>Terms & Conditions</h3>
+      <p class="muted">The official terms URL has not been configured.</p>
     </div>
-
   </section>
 
 </main>
 
 
 <!-- =========================================================
-     BOTTOM NAVIGATION
-     ONLY:
-     HOME / PRODUCT / ORDER / BUYBACK / COMMUNITY
+     BOTTOM NAVIGATION — Home / Product / Order / Buyback / Community
+     Icon and label are separate elements so they never overlap.
      ========================================================= -->
+<nav id="bottomNav" class="bottom-nav hidden" aria-label="Main navigation">
 
-<nav
-  id="bottomNav"
-  class="bottom-nav hidden"
-  aria-label="Main navigation"
->
-
-  <button
-    class="nav-button active"
-    data-page="homePage"
-    type="button"
-  >
-    <span>⌂</span>
-    <span data-i18n="home">Home</span>
+  <button class="nav-button active" data-page="homePage" type="button">
+    <span class="nav-icon">⌂</span>
+    <span class="nav-label" data-i18n="home">Home</span>
   </button>
 
-
-  <button
-    class="nav-button"
-    data-page="productsPage"
-    type="button"
-  >
-    <span>▣</span>
-    <span data-i18n="products">Product</span>
+  <button class="nav-button" data-page="productsPage" type="button">
+    <span class="nav-icon">▣</span>
+    <span class="nav-label" data-i18n="navProduct">Product</span>
   </button>
 
-
-  <button
-    class="nav-button"
-    data-page="orderPage"
-    type="button"
-  >
-    <span>▤</span>
-    <span>Order</span>
+  <button class="nav-button" data-page="orderPage" type="button">
+    <span class="nav-icon">▤</span>
+    <span class="nav-label" data-i18n="order">Order</span>
   </button>
 
-
-  <button
-    class="nav-button"
-    data-page="buybackPage"
-    type="button"
-  >
-    <span>↻</span>
-    <span>Buyback</span>
+  <button class="nav-button" data-page="buybackPage" type="button">
+    <span class="nav-icon">↻</span>
+    <span class="nav-label" data-i18n="buyback">Buyback</span>
   </button>
 
-
-  <button
-    class="nav-button"
-    data-page="communityPage"
-    type="button"
-  >
-    <span>♧</span>
-    <span>Community</span>
+  <button class="nav-button" data-page="communityPage" type="button">
+    <span class="nav-icon">♧</span>
+    <span class="nav-label" data-i18n="community">Community</span>
   </button>
 
 </nav>
@@ -1567,390 +689,91 @@ button:disabled{opacity:.55;cursor:wait}
 <!-- =========================================================
      THREE DOT MENU
      ========================================================= -->
-
-<div
-  id="drawer"
-  class="drawer hidden"
->
+<div id="drawer" class="drawer hidden">
 
   <aside class="drawer-card">
 
     <div class="drawer-heading">
-
       <div class="brand">
-
-        <div class="brand-mark">
-          A
-        </div>
-
+        <div class="brand-mark">A</div>
         <div>
-
-          <div class="brand-name">
-            APRP Digital
-          </div>
-
-          <div class="brand-subtitle">
-            App Menu
-          </div>
-
+          <div class="brand-name">APRP Digital</div>
+          <div class="brand-subtitle">App Menu</div>
         </div>
-
       </div>
-
-
-      <button
-        class="icon-button"
-        id="closeDrawerButton"
-        aria-label="Close menu"
-        type="button"
-      >
-        ×
-      </button>
-
+      <button class="icon-button" id="closeDrawerButton" aria-label="Close menu" type="button">×</button>
     </div>
 
+    <div class="menu-group-title">Account & Wallet</div>
 
-    <div class="menu-group-title">
-      Account & Wallet
-    </div>
-
-
-    <button
-      class="drawer-item"
-      data-page="kycPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ✓
-      </span>
-
-      <span>
-
-        <strong data-i18n="kyc">
-          KYC Verification
-        </strong>
-
-        <small>
-          Identity verification
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="kycPage" type="button">
+      <span class="menu-icon">✓</span>
+      <span><strong data-i18n="kyc">KYC Verification</strong><small>Identity verification</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="transactionsPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ↕
-      </span>
-
-      <span>
-
-        <strong data-i18n="transactions">
-          Transaction History
-        </strong>
-
-        <small>
-          Review wallet activity
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="transactionsPage" type="button">
+      <span class="menu-icon">↕</span>
+      <span><strong data-i18n="transactions">Transaction History</strong><small>Review wallet activity</small></span>
     </button>
 
-
-    <!-- DEPOSIT STILL EXISTS IN THREE-DOT MENU -->
-    <!-- It now opens the inline Home Deposit panel -->
-
-    <button
-      class="drawer-item"
-      id="drawerDepositButton"
-      data-action="deposit"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ＋
-      </span>
-
-      <span>
-
-        <strong data-i18n="deposit">
-          Deposit
-        </strong>
-
-        <small>
-          Add funds to your wallet
-        </small>
-
-      </span>
-
+    <!-- Deposit opens the separate Deposit page -->
+    <button class="drawer-item" data-page="depositPage" type="button">
+      <span class="menu-icon">＋</span>
+      <span><strong data-i18n="deposit">Deposit</strong><small>Add funds to your wallet</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="withdrawPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ↗
-      </span>
-
-      <span>
-
-        <strong data-i18n="withdraw">
-          Withdraw
-        </strong>
-
-        <small>
-          Withdrawal service
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="withdrawPage" type="button">
+      <span class="menu-icon">↗</span>
+      <span><strong data-i18n="withdraw">Withdraw</strong><small>Withdrawal service</small></span>
     </button>
 
+    <div class="menu-group-title">Growth & Discovery</div>
 
-    <div class="menu-group-title">
-      Growth & Discovery
-    </div>
-
-
-    <button
-      class="drawer-item"
-      data-page="referralPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ♧
-      </span>
-
-      <span>
-
-        <strong data-i18n="referral">
-          Referral & Rewards
-        </strong>
-
-        <small>
-          Invitations and referral programme
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="referralPage" type="button">
+      <span class="menu-icon">♧</span>
+      <span><strong data-i18n="referral">Referral & Rewards</strong><small>Invitations and referral programme</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="productsPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ▣
-      </span>
-
-      <span>
-
-        <strong data-i18n="products">
-          Products
-        </strong>
-
-        <small>
-          Browse available products
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="productsPage" type="button">
+      <span class="menu-icon">▣</span>
+      <span><strong data-i18n="products">Products</strong><small>Browse available products</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="downloadPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ↓
-      </span>
-
-      <span>
-
-        <strong data-i18n="downloadApp">
-          Download App
-        </strong>
-
-        <small>
-          Official app availability
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="downloadPage" type="button">
+      <span class="menu-icon">↓</span>
+      <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
     </button>
 
+    <div class="menu-group-title">Preferences & Help</div>
 
-    <div class="menu-group-title">
-      Preferences & Help
-    </div>
-
-
-    <button
-      class="drawer-item"
-      data-page="notificationsPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ♧
-      </span>
-
-      <span>
-
-        <strong data-i18n="notifications">
-          Notifications
-        </strong>
-
-        <small>
-          Account updates
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="notificationsPage" type="button">
+      <span class="menu-icon">♧</span>
+      <span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="languagePage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        文
-      </span>
-
-      <span>
-
-        <strong data-i18n="language">
-          Language
-        </strong>
-
-        <small>
-          English / বাংলা
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="languagePage" type="button">
+      <span class="menu-icon">文</span>
+      <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="settingsPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ⚙
-      </span>
-
-      <span>
-
-        <strong data-i18n="settings">
-          Settings
-        </strong>
-
-        <small>
-          Account preferences
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="settingsPage" type="button">
+      <span class="menu-icon">⚙</span>
+      <span><strong data-i18n="settings">Settings</strong><small>Account preferences</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="supportPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ?
-      </span>
-
-      <span>
-
-        <strong data-i18n="support">
-          Support Center
-        </strong>
-
-        <small>
-          Help and contact
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="supportPage" type="button">
+      <span class="menu-icon">?</span>
+      <span><strong data-i18n="support">Support Center</strong><small>Help and contact</small></span>
     </button>
 
-
-    <button
-      class="drawer-item"
-      data-page="helpPage"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        i
-      </span>
-
-      <span>
-
-        <strong data-i18n="helpLegal">
-          Help & Legal
-        </strong>
-
-        <small>
-          FAQ, privacy and terms
-        </small>
-
-      </span>
-
+    <button class="drawer-item" data-page="helpPage" type="button">
+      <span class="menu-icon">i</span>
+      <span><strong data-i18n="helpLegal">Help & Legal</strong><small>FAQ, privacy and terms</small></span>
     </button>
 
-
-    <button
-      class="drawer-item danger"
-      id="drawerLogoutButton"
-      type="button"
-    >
-
-      <span class="menu-icon">
-        ↪
-      </span>
-
-      <span>
-
-        <strong data-i18n="signOut">
-          Sign Out
-        </strong>
-
-        <small>
-          Sign out of your account
-        </small>
-
-      </span>
-
+    <button class="drawer-item danger" id="drawerLogoutButton" type="button">
+      <span class="menu-icon">↪</span>
+      <span><strong data-i18n="signOut">Sign Out</strong><small>Sign out of your account</small></span>
     </button>
 
   </aside>
@@ -1961,25 +784,15 @@ button:disabled{opacity:.55;cursor:wait}
 <script>
 "use strict";
 
-
 /* =========================================================
    SUPABASE
    ========================================================= */
 
-const SUPABASE_URL =
-  "https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
+const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
 
-const SUPABASE_ANON_KEY =
-  "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
-
-const APRP_REDIRECT_URL =
-  "https://aprpdigital.github.io/aprp-digital/";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 
 /* =========================================================
@@ -1987,26 +800,20 @@ const supabaseClient =
    ========================================================= */
 
 let user = null;
-
+let appShownForUser = null;          // prevents re-initialising the app (and jumping to Home) on token refresh
 let transactionRequestNumber = 0;
-
 let productRequestNumber = 0;
-
 let withdrawalRequestNumber = 0;
-
 let depositRequestNumber = 0;
-
 let productsCache = [];
-
 let withdrawalOptions = [];
-
 let depositOptions = [];
-
+let selectedDepositId = null;
 let deferredInstallPrompt = null;
 
+const LAST_PAGE_KEY = "aprp_last_page";
 
-const $ =
-  id => document.getElementById(id);
+const $ = id => document.getElementById(id);
 
 
 /* =========================================================
@@ -2016,367 +823,177 @@ const $ =
 const translations = {
 
   en:{
-
     welcome:"Welcome Back",
-
-    homeSubtitle:
-      "Your wallet, products and account services.",
-
-    available:
-      "Available Balance",
-
-    reserved:
-      "Reserved Balance",
-
-    walletStatus:
-      "Wallet Status",
-
-    walletOverview:
-      "Wallet overview",
-
-    refresh:
-      "Refresh",
-
-    quickActions:
-      "Quick Actions",
-
-    quickSubtitle:
-      "Your most-used services.",
-
-    deposit:
-      "Deposit",
-
-    depositSubtitle:
-      "Add funds to your wallet",
-
-    withdraw:
-      "Withdraw",
-
-    withdrawSubtitle:
-      "Withdrawal services",
-
-    withdrawMethod:
-      "Withdrawal Method",
-
-    selectWithdrawalMethod:
-      "Select withdrawal method",
-
-    withdrawAmount:
-      "Amount",
-
-    withdrawDestination:
-      "Destination Account",
-
-    withdrawDestinationName:
-      "Account Name",
-
-    withdrawNote:
-      "Note (optional)",
-
-    destinationHint:
-      "Enter the account or wallet number where you want to receive the funds.",
-
-    fee:
-      "Fee",
-
-    netAmount:
-      "Net Amount",
-
-    submitWithdrawal:
-      "Submit Withdrawal Request",
-
-    withdrawalReviewNote:
-      "Your request will be sent for review. No wallet balance is moved from this page.",
-
-    loadingWithdrawalMethods:
-      "Loading withdrawal services...",
-
-    noWithdrawalMethods:
-      "No withdrawal service is currently available.",
-
-    withdrawalUnavailable:
-      "Withdrawal service is not available yet. Please try again later.",
-
-    withdrawalRequestCreated:
-      "Withdrawal request created successfully.",
-
-    topProducts:
-      "Top-Selling Products",
-
-    topProductsSubtitle:
-      "Products from the product catalogue.",
-
-    viewAll:
-      "View All",
-
-    shop:
-      "Shop",
-
-    products:
-      "Products",
-
-    productsSubtitle:
-      "Explore available products.",
-
-    searchProducts:
-      "Search products",
-
-    account:
-      "Account",
-
-    myAccount:
-      "My Account",
-
-    accountSubtitle:
-      "Manage your account.",
-
-    transactions:
-      "Transaction History",
-
-    transactionsSubtitle:
-      "Review your recorded transactions.",
-
-    allTransactions:
-      "All Transactions",
-
-    settings:
-      "Settings",
-
-    signOut:
-      "Sign Out",
-
-    kyc:
-      "KYC Verification",
-
-    referral:
-      "Referral & Rewards",
-
-    downloadApp:
-      "Download App",
-
-    language:
-      "Language",
-
-    notifications:
-      "Notifications",
-
-    support:
-      "Support Center",
-
-    helpLegal:
-      "Help & Legal",
-
-    home:
-      "Home",
-
-    depositNotReady:
-      "Deposit requests are not connected in this version. No payment has been initiated.",
-
-    withdrawNotReady:
-      "Withdrawal requests are not connected in this version. No funds have been moved."
-
+    homeSubtitle:"Your wallet, products and account services.",
+    available:"Available Balance",
+    reserved:"Reserved Balance",
+    walletStatus:"Wallet Status",
+    walletOverview:"Wallet overview",
+    refresh:"Refresh",
+    quickActions:"Quick Actions",
+    quickSubtitle:"Your most-used services.",
+    deposit:"Deposit",
+    depositSubtitle:"Add funds to your wallet",
+    walletService:"Wallet Service",
+    chooseChannel:"Choose a deposit channel",
+    selectedChannel:"Selected channel",
+    paymentDetails:"Payment details",
+    paymentReference:"Payment Reference ID",
+    method:"Method",
+    reference:"Reference",
+    loadingDeposit:"Loading available deposit methods...",
+    noDeposit:"No deposit service is currently available.",
+    noDepositChannel:"No active deposit channel is currently available.",
+    depositProviders:"providers",
+    depositChannelsWord:"channels",
+    channelsWord:"channels",
+    withdraw:"Withdraw",
+    withdrawSubtitle:"Withdrawal services",
+    withdrawMethod:"Withdrawal Method",
+    selectWithdrawalMethod:"Select withdrawal method",
+    withdrawAmount:"Amount",
+    withdrawDestination:"Destination Account",
+    withdrawDestinationName:"Account Name",
+    withdrawNote:"Note (optional)",
+    destinationHint:"Enter the account or wallet number where you want to receive the funds.",
+    fee:"Fee",
+    netAmount:"Net Amount",
+    submitWithdrawal:"Submit Withdrawal Request",
+    withdrawalReviewNote:"Your request will be sent for review. No wallet balance is moved from this page.",
+    loadingWithdrawalMethods:"Loading withdrawal services...",
+    noWithdrawalMethods:"No withdrawal service is currently available.",
+    withdrawalUnavailable:"Withdrawal service is not available yet. Please try again later.",
+    withdrawalRequestCreated:"Withdrawal request created successfully.",
+    topProducts:"Top-Selling Products",
+    topProductsSubtitle:"Products from the product catalogue.",
+    viewAll:"View All",
+    shop:"Shop",
+    products:"Products",
+    productsSubtitle:"Explore available products.",
+    searchProducts:"Search products",
+    account:"Account",
+    myAccount:"My Account",
+    accountSubtitle:"Manage your account.",
+    transactions:"Transaction History",
+    transactionsSubtitle:"Review your recorded transactions.",
+    allTransactions:"All Transactions",
+    settings:"Settings",
+    signOut:"Sign Out",
+    kyc:"KYC Verification",
+    referral:"Referral & Rewards",
+    downloadApp:"Download App",
+    language:"Language",
+    notifications:"Notifications",
+    support:"Support Center",
+    helpLegal:"Help & Legal",
+    home:"Home",
+    navProduct:"Product",
+    order:"Order",
+    buyback:"Buyback",
+    community:"Community",
+    depositNotReady:"Deposit requests are not connected in this version. No payment has been initiated.",
+    withdrawNotReady:"Withdrawal requests are not connected in this version. No funds have been moved."
   },
 
 
   bn:{
-
-    welcome:
-      "স্বাগতম",
-
-    homeSubtitle:
-      "আপনার ওয়ালেট, পণ্য ও অ্যাকাউন্ট সেবা।",
-
-    available:
-      "ব্যবহারযোগ্য ব্যালেন্স",
-
-    reserved:
-      "সংরক্ষিত ব্যালেন্স",
-
-    walletStatus:
-      "ওয়ালেটের অবস্থা",
-
-    walletOverview:
-      "ওয়ালেটের সারাংশ",
-
-    refresh:
-      "রিফ্রেশ",
-
-    quickActions:
-      "দ্রুত সেবা",
-
-    quickSubtitle:
-      "আপনার বেশি ব্যবহৃত সেবাগুলো।",
-
-    deposit:
-      "ডিপোজিট",
-
-    depositSubtitle:
-      "ওয়ালেটে টাকা যোগ করুন",
-
-    withdraw:
-      "উইথড্র",
-
-    withdrawSubtitle:
-      "টাকা উত্তোলন",
-
-    withdrawMethod:
-      "উইথড্র পদ্ধতি",
-
-    selectWithdrawalMethod:
-      "উইথড্র পদ্ধতি নির্বাচন করুন",
-
-    withdrawAmount:
-      "টাকার পরিমাণ",
-
-    withdrawDestination:
-      "গন্তব্য অ্যাকাউন্ট",
-
-    withdrawDestinationName:
-      "অ্যাকাউন্টের নাম",
-
-    withdrawNote:
-      "নোট (ঐচ্ছিক)",
-
-    destinationHint:
-      "যে অ্যাকাউন্ট বা ওয়ালেটে টাকা নিতে চান তার নম্বর দিন।",
-
-    fee:
-      "ফি",
-
-    netAmount:
-      "প্রাপ্তির পরিমাণ",
-
-    submitWithdrawal:
-      "উইথড্র আবেদন পাঠান",
-
-    withdrawalReviewNote:
-      "আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। এই পেজ থেকে ওয়ালেট ব্যালেন্স কাটা হবে না।",
-
-    loadingWithdrawalMethods:
-      "উইথড্র সেবা লোড হচ্ছে...",
-
-    noWithdrawalMethods:
-      "বর্তমানে কোনো উইথড্র সেবা উপলভ্য নেই।",
-
-    withdrawalUnavailable:
-      "উইথড্র সেবা এখনো চালু করা হয়নি। পরে আবার চেষ্টা করুন।",
-
-    withdrawalRequestCreated:
-      "উইথড্র আবেদন সফলভাবে তৈরি হয়েছে।",
-
-    topProducts:
-      "সর্বাধিক বিক্রিত পণ্য",
-
-    topProductsSubtitle:
-      "পণ্য ক্যাটালগ থেকে পণ্য।",
-
-    viewAll:
-      "সব দেখুন",
-
-    shop:
-      "শপ",
-
-    products:
-      "প্রোডাক্ট",
-
-    productsSubtitle:
-      "উপলভ্য পণ্য দেখুন।",
-
-    searchProducts:
-      "পণ্য খুঁজুন",
-
-    account:
-      "অ্যাকাউন্ট",
-
-    myAccount:
-      "আমার অ্যাকাউন্ট",
-
-    accountSubtitle:
-      "অ্যাকাউন্ট পরিচালনা করুন।",
-
-    transactions:
-      "লেনদেনের ইতিহাস",
-
-    transactionsSubtitle:
-      "আপনার লেনদেন দেখুন।",
-
-    allTransactions:
-      "সব লেনদেন",
-
-    settings:
-      "সেটিংস",
-
-    signOut:
-      "সাইন আউট",
-
-    kyc:
-      "KYC যাচাই",
-
-    referral:
-      "রেফারেল ও রিওয়ার্ড",
-
-    downloadApp:
-      "অ্যাপ ডাউনলোড",
-
-    language:
-      "ভাষা",
-
-    notifications:
-      "নোটিফিকেশন",
-
-    support:
-      "সাপোর্ট সেন্টার",
-
-    helpLegal:
-      "সহায়তা ও আইনি তথ্য",
-
-    home:
-      "হোম",
-
-    depositNotReady:
-      "এই সংস্করণে ডিপোজিট আবেদন সংযুক্ত নয়। কোনো পেমেন্ট শুরু হয়নি।",
-
-    withdrawNotReady:
-      "এই সংস্করণে উইথড্র আবেদন সংযুক্ত নয়। কোনো টাকা স্থানান্তর হয়নি।"
-
+    welcome:"স্বাগতম",
+    homeSubtitle:"আপনার ওয়ালেট, পণ্য ও অ্যাকাউন্ট সেবা।",
+    available:"ব্যবহারযোগ্য ব্যালেন্স",
+    reserved:"সংরক্ষিত ব্যালেন্স",
+    walletStatus:"ওয়ালেটের অবস্থা",
+    walletOverview:"ওয়ালেটের সারাংশ",
+    refresh:"রিফ্রেশ",
+    quickActions:"দ্রুত সেবা",
+    quickSubtitle:"আপনার বেশি ব্যবহৃত সেবাগুলো।",
+    deposit:"ডিপোজিট",
+    depositSubtitle:"ওয়ালেটে টাকা যোগ করুন",
+    walletService:"ওয়ালেট সেবা",
+    chooseChannel:"ডিপোজিট চ্যানেল বেছে নিন",
+    selectedChannel:"নির্বাচিত চ্যানেল",
+    paymentDetails:"পেমেন্টের তথ্য",
+    paymentReference:"পেমেন্ট রেফারেন্স আইডি",
+    method:"পদ্ধতি",
+    reference:"রেফারেন্স",
+    loadingDeposit:"ডিপোজিট পদ্ধতি লোড হচ্ছে...",
+    noDeposit:"বর্তমানে কোনো ডিপোজিট সেবা উপলভ্য নেই।",
+    noDepositChannel:"বর্তমানে কোনো সক্রিয় ডিপোজিট চ্যানেল নেই।",
+    depositProviders:"টি প্রোভাইডার",
+    depositChannelsWord:"টি চ্যানেল",
+    channelsWord:"টি চ্যানেল",
+    withdraw:"উইথড্র",
+    withdrawSubtitle:"টাকা উত্তোলন",
+    withdrawMethod:"উইথড্র পদ্ধতি",
+    selectWithdrawalMethod:"উইথড্র পদ্ধতি নির্বাচন করুন",
+    withdrawAmount:"টাকার পরিমাণ",
+    withdrawDestination:"গন্তব্য অ্যাকাউন্ট",
+    withdrawDestinationName:"অ্যাকাউন্টের নাম",
+    withdrawNote:"নোট (ঐচ্ছিক)",
+    destinationHint:"যে অ্যাকাউন্ট বা ওয়ালেটে টাকা নিতে চান তার নম্বর দিন।",
+    fee:"ফি",
+    netAmount:"প্রাপ্তির পরিমাণ",
+    submitWithdrawal:"উইথড্র আবেদন পাঠান",
+    withdrawalReviewNote:"আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। এই পেজ থেকে ওয়ালেট ব্যালেন্স কাটা হবে না।",
+    loadingWithdrawalMethods:"উইথড্র সেবা লোড হচ্ছে...",
+    noWithdrawalMethods:"বর্তমানে কোনো উইথড্র সেবা উপলভ্য নেই।",
+    withdrawalUnavailable:"উইথড্র সেবা এখনো চালু করা হয়নি। পরে আবার চেষ্টা করুন।",
+    withdrawalRequestCreated:"উইথড্র আবেদন সফলভাবে তৈরি হয়েছে।",
+    topProducts:"সর্বাধিক বিক্রিত পণ্য",
+    topProductsSubtitle:"পণ্য ক্যাটালগ থেকে পণ্য।",
+    viewAll:"সব দেখুন",
+    shop:"শপ",
+    products:"প্রোডাক্ট",
+    productsSubtitle:"উপলভ্য পণ্য দেখুন।",
+    searchProducts:"পণ্য খুঁজুন",
+    account:"অ্যাকাউন্ট",
+    myAccount:"আমার অ্যাকাউন্ট",
+    accountSubtitle:"অ্যাকাউন্ট পরিচালনা করুন।",
+    transactions:"লেনদেনের ইতিহাস",
+    transactionsSubtitle:"আপনার লেনদেন দেখুন।",
+    allTransactions:"সব লেনদেন",
+    settings:"সেটিংস",
+    signOut:"সাইন আউট",
+    kyc:"KYC যাচাই",
+    referral:"রেফারেল ও রিওয়ার্ড",
+    downloadApp:"অ্যাপ ডাউনলোড",
+    language:"ভাষা",
+    notifications:"নোটিফিকেশন",
+    support:"সাপোর্ট সেন্টার",
+    helpLegal:"সহায়তা ও আইনি তথ্য",
+    home:"হোম",
+    navProduct:"প্রোডাক্ট",
+    order:"অর্ডার",
+    buyback:"বায়ব্যাক",
+    community:"কমিউনিটি",
+    depositNotReady:"এই সংস্করণে ডিপোজিট আবেদন সংযুক্ত নয়। কোনো পেমেন্ট শুরু হয়নি।",
+    withdrawNotReady:"এই সংস্করণে উইথড্র আবেদন সংযুক্ত নয়। কোনো টাকা স্থানান্তর হয়নি।"
   }
 
 };
 
 
-function t(key){
-
-  return (
-    translations[
-      localStorage.getItem("aprp_language") || "en"
-    ]
-    || translations.en
-  )[key]
-
-  || translations.en[key]
-
-  || key;
+function currentLang(){
+  try{ return localStorage.getItem("aprp_language") || "en"; }
+  catch(e){ return "en"; }
 }
 
+function t(key){
+  return (translations[currentLang()] || translations.en)[key]
+    || translations.en[key]
+    || key;
+}
 
 function applyLanguage(){
-
-  const lang =
-    localStorage.getItem("aprp_language") || "en";
-
+  const lang = currentLang();
   document.documentElement.lang = lang;
 
-  document
-    .querySelectorAll("[data-i18n]")
-    .forEach(el=>{
-      el.textContent =
-        t(el.dataset.i18n);
-    });
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    el.textContent = t(el.dataset.i18n);
+  });
 
   if($("languageSelect")){
-    $("languageSelect").value=lang;
+    $("languageSelect").value = lang;
   }
-
 }
 
 
@@ -2384,119 +1001,29 @@ function applyLanguage(){
    HELPERS
    ========================================================= */
 
-function showMessage(
-  element,
-  text,
-  type=""
-){
-
-  element.textContent=text;
-
-  element.className =
-    "message"
-    +(type?" "+type:"");
-
-  element.hidden=false;
-
+function showMessage(element, text, type=""){
+  element.textContent = text;
+  element.className = "message" + (type ? " " + type : "");
+  element.hidden = false;
 }
 
-
-function formatMoney(
-  value,
-  currency="BDT"
-){
-
-  const number=Number(value);
-
+function formatMoney(value, currency="BDT"){
+  const number = Number(value);
   if(!Number.isFinite(number)){
-    return currency+" —";
+    return currency + " —";
   }
-
-  return currency+" "+
-    number.toLocaleString(
-      "en-BD",
-      {
-        minimumFractionDigits:2,
-        maximumFractionDigits:2
-      }
-    );
-
+  return currency + " " + number.toLocaleString("en-BD",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  });
 }
-
 
 function readableLabel(value){
-
-  return String(value||"Unknown")
+  return String(value || "Unknown")
     .replace(/[_-]+/g," ")
     .replace(/\s+/g," ")
     .trim()
-    .replace(/\b\w/g,c=>c.toUpperCase());
-
-}
-
-
-/* =========================================================
-   AUTH UI
-   ========================================================= */
-
-function showAuth(message=""){
-
-  $("authView")
-    .classList.remove("hidden");
-
-  $("appView")
-    .classList.add("hidden");
-
-  $("bottomNav")
-    .classList.add("hidden");
-
-  if(message){
-
-    showMessage(
-      $("authMessage"),
-      message,
-      "error"
-    );
-
-  }
-
-}
-
-
-function showApp(){
-
-  $("authView")
-    .classList.add("hidden");
-
-  $("appView")
-    .classList.remove("hidden");
-
-  $("bottomNav")
-    .classList.remove("hidden");
-
-
-  $("userName").textContent =
-    user?.user_metadata?.full_name
-    || user?.user_metadata?.name
-    || "Mohammad Jubol Official";
-
-
-  $("accountEmail").textContent =
-    user?.email
-    || "Unavailable";
-
-
-  $("accountUserId").textContent =
-    user?.id
-    || "Unavailable";
-
-
-  showPage("homePage");
-
-  loadWallet();
-
-  loadProducts();
-
+    .replace(/\b\w/g, c => c.toUpperCase());
 }
 
 
@@ -2504,164 +1031,150 @@ function showApp(){
    PAGE SYSTEM
    ========================================================= */
 
-const pageIds=[
-
+const pageIds = [
   "homePage",
-
   "productsPage",
-
   "accountPage",
-
   "orderPage",
-
   "buybackPage",
-
   "communityPage",
-
   "transactionsPage",
-
+  "depositPage",
   "withdrawPage",
-
   "kycPage",
-
   "referralPage",
-
   "downloadPage",
-
   "languagePage",
-
   "settingsPage",
-
   "notificationsPage",
-
   "supportPage",
-
   "helpPage"
-
 ];
 
+function savePage(pageId){
+  try{ localStorage.setItem(LAST_PAGE_KEY, pageId); }catch(e){}
+}
 
-function showPage(pageId){
+function clearSavedPage(){
+  try{ localStorage.removeItem(LAST_PAGE_KEY); }catch(e){}
+}
+
+/* Which page to open when the app starts / is reopened */
+function getStartPage(){
+  const fromHash = (location.hash || "").replace("#","");
+  if(pageIds.includes(fromHash)) return fromHash;
+
+  try{
+    const saved = localStorage.getItem(LAST_PAGE_KEY);
+    if(pageIds.includes(saved)) return saved;
+  }catch(e){}
+
+  return "homePage";
+}
+
+function showPage(pageId, opts={}){
 
   if(!pageIds.includes(pageId)){
-    return;
+    pageId = "homePage";
   }
-
 
   pageIds.forEach(id=>{
-
-    const element=$(id);
-
+    const element = $(id);
     if(element){
-      element.classList.toggle(
-        "hidden",
-        id!==pageId
-      );
+      element.classList.toggle("hidden", id !== pageId);
     }
-
   });
 
+  /* Only the 5 bottom-nav pages can be highlighted. Account is top-nav only. */
+  document.querySelectorAll("#bottomNav .nav-button").forEach(button=>{
+    button.classList.toggle("active", button.dataset.page === pageId);
+  });
 
-  /*
-   * ONLY BOTTOM NAV ITEMS CAN BE ACTIVE.
-   * ACCOUNT IS TOP NAV ONLY.
-   */
+  $("drawer").classList.add("hidden");
 
-  document
-    .querySelectorAll("#bottomNav .nav-button")
-    .forEach(button=>{
+  /* remember the page, so refresh / reopening keeps the user here */
+  savePage(pageId);
 
-      button.classList.toggle(
-        "active",
-        button.dataset.page===pageId
-      );
+  /* browser history (so the phone Back button moves between pages) */
+  try{
+    const hash = "#" + pageId;
+    if(opts.fromPop){
+      /* nothing to push */
+    }else if(opts.replace){
+      history.replaceState({page:pageId}, "", hash);
+    }else if(!history.state || history.state.page !== pageId){
+      history.pushState({page:pageId}, "", hash);
+    }
+  }catch(e){}
 
-    });
+  if(pageId === "transactionsPage") loadTransactions();
+  if(pageId === "productsPage")     loadProducts();
+  if(pageId === "withdrawPage")     loadWithdrawalMethods();
+  if(pageId === "depositPage")      loadDepositChannels();
 
-
-  $("drawer")
-    .classList.add("hidden");
-
-
-  if(pageId!=="homePage"){
-
-    $("homeDepositPanel")
-      .classList.add("hidden");
-
-  }
-
-
-  if(pageId==="transactionsPage"){
-    loadTransactions();
-  }
-
-
-  if(pageId==="productsPage"){
-    loadProducts();
-  }
-
-
-  if(pageId==="withdrawPage"){
-    loadWithdrawalMethods();
-  }
-
-
-  if(pageId==="homePage"){
-
+  if(pageId === "homePage"){
     loadWallet();
-
     loadProducts();
-
   }
 
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-
+  window.scrollTo({ top:0, behavior:"smooth" });
 }
+
+window.addEventListener("popstate", e=>{
+  if(!user) return;
+  const page = (e.state && e.state.page)
+    || (location.hash || "").replace("#","")
+    || "homePage";
+  showPage(page, { fromPop:true });
+});
 
 
 /* =========================================================
-   INLINE DEPOSIT NAVIGATION
+   AUTH UI
    ========================================================= */
 
-function openDepositPanel(){
+function showAuth(message=""){
+  appShownForUser = null;
 
-  /*
-   * Deposit is NOT a separate page.
-   * It is part of Home.
-   */
+  $("authView").classList.remove("hidden");
+  $("appView").classList.add("hidden");
+  $("bottomNav").classList.add("hidden");
 
-  showPage("homePage");
-
-
-  $("homeDepositPanel")
-    .classList.remove("hidden");
-
-
-  loadDepositMethods();
-
-
-  setTimeout(()=>{
-
-    $("homeDepositPanel")
-      .scrollIntoView({
-        behavior:"smooth",
-        block:"start"
-      });
-
-  },50);
-
+  if(message){
+    showMessage($("authMessage"), message, "error");
+  }
 }
 
+function showApp(){
 
-function closeDepositPanel(){
+  if(!user) return;
 
-  $("homeDepositPanel")
-    .classList.add("hidden");
+  $("userName").textContent =
+    user?.user_metadata?.full_name
+    || user?.user_metadata?.name
+    || "Mohammad Jubol Official";
 
+  $("accountEmail").textContent  = user?.email || "Unavailable";
+  $("accountUserId").textContent = user?.id || "Unavailable";
+
+  /*
+   * If the app is already open for this same user (for example the
+   * auth token was just refreshed when the tab came back into focus),
+   * do NOT rebuild the screen and do NOT jump back to Home.
+   */
+  const alreadyOpen =
+    appShownForUser === user.id
+    && !$("appView").classList.contains("hidden");
+
+  if(alreadyOpen) return;
+
+  appShownForUser = user.id;
+
+  $("authView").classList.add("hidden");
+  $("appView").classList.remove("hidden");
+  $("bottomNav").classList.remove("hidden");
+
+  showPage(getStartPage(), { replace:true });
 }
 
 
@@ -2671,96 +1184,42 @@ function closeDepositPanel(){
 
 async function loadWallet(){
 
-  if(!user?.id)return;
+  if(!user?.id) return;
 
-
-  $("availableBalance").textContent =
-    "BDT ৳ …";
-
-  $("reservedBalance").textContent =
-    "BDT ৳ …";
-
-  $("walletStatus").textContent =
-    "Loading";
-
+  $("availableBalance").textContent = "BDT ৳ …";
+  $("reservedBalance").textContent  = "BDT ৳ …";
+  $("walletStatus").textContent     = "Loading";
 
   try{
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient
-        .from("wallets")
-        .select(
-          "currency, available_balance, reserved_balance, status"
-        )
-        .eq(
-          "user_id",
-          user.id
-        )
-        .maybeSingle();
+    const { data, error } = await supabaseClient
+      .from("wallets")
+      .select("currency, available_balance, reserved_balance, status")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-
-    if(error)throw error;
-
+    if(error) throw error;
 
     if(!data){
-
-      $("availableBalance").textContent =
-        "BDT ৳ 0.00";
-
-      $("reservedBalance").textContent =
-        "BDT ৳ 0.00";
-
-      $("walletStatus").textContent =
-        "Not found";
-
+      $("availableBalance").textContent = "BDT ৳ 0.00";
+      $("reservedBalance").textContent  = "BDT ৳ 0.00";
+      $("walletStatus").textContent     = "Not found";
       return;
-
     }
 
+    const currency = data.currency || "BDT";
 
-    const currency =
-      data.currency||"BDT";
-
-
-    $("availableBalance").textContent =
-      formatMoney(
-        data.available_balance,
-        currency
-      );
-
-
-    $("reservedBalance").textContent =
-      formatMoney(
-        data.reserved_balance,
-        currency
-      );
-
-
-    $("walletStatus").textContent =
-      readableLabel(
-        data.status
-      );
-
+    $("availableBalance").textContent = formatMoney(data.available_balance, currency);
+    $("reservedBalance").textContent  = formatMoney(data.reserved_balance, currency);
+    $("walletStatus").textContent     = readableLabel(data.status);
 
   }catch(error){
 
-    console.error(
-      "Wallet error:",
-      error
-    );
+    console.error("Wallet error:", error);
 
-
-    $("availableBalance").textContent =
-      "Unavailable";
-
-    $("reservedBalance").textContent =
-      "Unavailable";
-
-    $("walletStatus").textContent =
-      "Error";
+    $("availableBalance").textContent = "Unavailable";
+    $("reservedBalance").textContent  = "Unavailable";
+    $("walletStatus").textContent     = "Error";
 
   }
 
@@ -2773,347 +1232,144 @@ async function loadWallet(){
 
 async function loadTransactions(){
 
-  const request =
-    ++transactionRequestNumber;
+  const request = ++transactionRequestNumber;
 
-
-  const list =
-    $("transactionList");
-
-  const message =
-    $("transactionMessage");
-
-  const button =
-    $("refreshTransactions");
-
+  const list    = $("transactionList");
+  const message = $("transactionMessage");
+  const button  = $("refreshTransactions");
 
   list.replaceChildren();
-
-  $("transactionCount").textContent =
-    "Loading transactions";
-
-
-  showMessage(
-    message,
-    "Loading transactions..."
-  );
-
+  $("transactionCount").textContent = "Loading transactions";
+  showMessage(message, "Loading transactions...");
 
   if(!user?.id){
-
-    showMessage(
-      message,
-      "Please sign in to view transactions.",
-      "error"
-    );
-
+    showMessage(message, "Please sign in to view transactions.", "error");
     return;
-
   }
 
-
-  button.disabled=true;
-
-  button.textContent =
-    "Loading...";
-
+  button.disabled = true;
+  button.textContent = "Loading...";
 
   try{
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient
-        .from("transactions")
-        .select(
-          "transaction_id, transaction_type, status, amount, currency, description, created_at, provider_name, service_name"
-        )
-        .eq(
-          "user_id",
-          user.id
-        )
-        .order(
-          "created_at",
-          {ascending:false}
-        )
-        .limit(100);
+    const { data, error } = await supabaseClient
+      .from("transactions")
+      .select("transaction_id, transaction_type, status, amount, currency, description, created_at, provider_name, service_name")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending:false })
+      .limit(100);
 
+    if(request !== transactionRequestNumber) return;
+    if(error) throw error;
 
-    if(request!==transactionRequestNumber){
+    if(!data || !data.length){
+      $("transactionCount").textContent = "0 transactions";
+      showMessage(message, "No transactions found yet.");
       return;
     }
 
-
-    if(error)throw error;
-
-
-    if(!data||!data.length){
-
-      $("transactionCount").textContent =
-        "0 transactions";
-
-      showMessage(
-        message,
-        "No transactions found yet."
-      );
-
-      return;
-
-    }
-
-
-    const fragment =
-      document.createDocumentFragment();
-
+    const fragment = document.createDocumentFragment();
 
     data.forEach(tx=>{
 
-      const card =
-        document.createElement("article");
+      const card = document.createElement("article");
+      card.className = "transaction-item";
 
-      card.className =
-        "transaction-item";
+      const top = document.createElement("div");
+      top.className = "transaction-top";
 
+      const left = document.createElement("div");
 
-      const top =
-        document.createElement("div");
-
-      top.className =
-        "transaction-top";
-
-
-      const left =
-        document.createElement("div");
-
-
-      const type =
-        document.createElement("div");
-
-      type.className =
-        "transaction-type";
-
-      type.textContent =
-        readableLabel(
-          tx.transaction_type
-        );
-
+      const type = document.createElement("div");
+      type.className = "transaction-type";
+      type.textContent = readableLabel(tx.transaction_type);
       left.appendChild(type);
 
-
-      const id =
-        document.createElement("div");
-
-      id.className =
-        "transaction-id";
-
-      id.textContent =
-        "ID: "
-        +(tx.transaction_id||"Unavailable");
-
+      const id = document.createElement("div");
+      id.className = "transaction-id";
+      id.textContent = "ID: " + (tx.transaction_id || "Unavailable");
       left.appendChild(id);
 
+      const date = document.createElement("div");
+      date.className = "transaction-date";
 
-      const date =
-        document.createElement("div");
-
-      date.className =
-        "transaction-date";
-
-
-      const parsed =
-        tx.created_at
-        ?new Date(tx.created_at)
-        :null;
-
+      const parsed = tx.created_at ? new Date(tx.created_at) : null;
 
       date.textContent =
-        parsed
-        &&!Number.isNaN(
-          parsed.getTime()
-        )
-
-        ?parsed.toLocaleString(
-          "en-GB",
-          {
-            dateStyle:"medium",
-            timeStyle:"short",
-            timeZone:"Asia/Dhaka"
-          }
-        )+" (Dhaka)"
-
-        :"Date unavailable";
-
+        parsed && !Number.isNaN(parsed.getTime())
+          ? parsed.toLocaleString("en-GB",{
+              dateStyle:"medium",
+              timeStyle:"short",
+              timeZone:"Asia/Dhaka"
+            }) + " (Dhaka)"
+          : "Date unavailable";
 
       left.appendChild(date);
 
+      const right = document.createElement("div");
+      right.className = "transaction-right";
 
-      const right =
-        document.createElement("div");
-
-      right.className =
-        "transaction-right";
-
-
-      const amount =
-        document.createElement("div");
-
-      amount.className =
-        "transaction-amount";
-
-      amount.textContent =
-        formatMoney(
-          tx.amount,
-          tx.currency||"BDT"
-        );
-
+      const amount = document.createElement("div");
+      amount.className = "transaction-amount";
+      amount.textContent = formatMoney(tx.amount, tx.currency || "BDT");
       right.appendChild(amount);
 
+      const status = document.createElement("span");
+      const state = String(tx.status || "unknown").toLowerCase();
 
-      const status =
-        document.createElement("span");
+      status.className = "transaction-status";
 
-      const state =
-        String(
-          tx.status||"unknown"
-        ).toLowerCase();
-
-
-      status.className =
-        "transaction-status";
-
-
-      if(state==="completed"){
-
-        status.classList.add(
-          "completed"
-        );
-
-      }else if(
-        ["pending","created","processing"]
-          .includes(state)
-      ){
-
-        status.classList.add(
-          "pending"
-        );
-
-      }else if(
-        ["failed","rejected","cancelled"]
-          .includes(state)
-      ){
-
-        status.classList.add(
-          "failed"
-        );
-
+      if(state === "completed"){
+        status.classList.add("completed");
+      }else if(["pending","created","processing"].includes(state)){
+        status.classList.add("pending");
+      }else if(["failed","rejected","cancelled"].includes(state)){
+        status.classList.add("failed");
       }
 
-
-      status.textContent =
-        readableLabel(
-          tx.status
-        );
-
-
+      status.textContent = readableLabel(tx.status);
       right.appendChild(status);
 
-
-      top.append(
-        left,
-        right
-      );
-
-
+      top.append(left, right);
       card.appendChild(top);
 
-
-      const details=[
-
-        tx.description,
-
-        tx.provider_name,
-
-        tx.service_name
-
-      ].filter(
-        v=>
-          typeof v==="string"
-          &&v.trim()
-      );
-
+      const details = [tx.description, tx.provider_name, tx.service_name]
+        .filter(v => typeof v === "string" && v.trim());
 
       if(details.length){
-
-        const d =
-          document.createElement("div");
-
-        d.className =
-          "transaction-description";
-
-        d.textContent =
-          [...new Set(details)]
-            .join(" · ");
-
+        const d = document.createElement("div");
+        d.className = "transaction-description";
+        d.textContent = [...new Set(details)].join(" · ");
         card.appendChild(d);
-
       }
-
 
       fragment.appendChild(card);
 
     });
 
-
-    list.replaceChildren(
-      fragment
-    );
-
-
-    message.hidden=true;
-
-
-    $("transactionCount").textContent =
-      data.length
-      +" transaction(s) shown";
-
+    list.replaceChildren(fragment);
+    message.hidden = true;
+    $("transactionCount").textContent = data.length + " transaction(s) shown";
 
   }catch(error){
 
-    if(request!==transactionRequestNumber){
-      return;
-    }
+    if(request !== transactionRequestNumber) return;
 
+    console.error("Transaction history error:", error);
 
-    console.error(
-      "Transaction history error:",
-      error
-    );
-
-
-    $("transactionCount").textContent =
-      "Unable to load";
-
+    $("transactionCount").textContent = "Unable to load";
 
     showMessage(
       message,
-      "Could not load transactions: "
-      +(error.message||"Please try again."),
+      "Could not load transactions: " + (error.message || "Please try again."),
       "error"
     );
 
-
   }finally{
 
-    if(
-      request===transactionRequestNumber
-    ){
-
-      button.disabled=false;
-
-      button.textContent =
-        t("refresh");
-
+    if(request === transactionRequestNumber){
+      button.disabled = false;
+      button.textContent = t("refresh");
     }
 
   }
@@ -3125,1017 +1381,529 @@ async function loadTransactions(){
    PRODUCTS
    ========================================================= */
 
-function renderProducts(
-  items,
-  grid,
-  messageId,
-  limit=null
-){
+function renderProducts(items, grid, messageId, limit=null){
 
-  const gridElement =
-    $(grid);
-
-  const message =
-    $(messageId);
-
+  const gridElement = $(grid);
+  const message = $(messageId);
 
   gridElement.replaceChildren();
 
-
   if(!items.length){
-
-    showMessage(
-      message,
-      "No products are available to display yet."
-    );
-
+    showMessage(message, "No products are available to display yet.");
     return;
-
   }
 
-
-  message.hidden=true;
-
-
-  const fragment =
-    document.createDocumentFragment();
-
-
-  items
-    .slice(
-      0,
-      limit||items.length
-    )
-    .forEach(product=>{
-
-      const card =
-        document.createElement("article");
-
-      card.className =
-        "product-card";
-
-
-      const imageBox =
-        document.createElement("div");
-
-      imageBox.className =
-        "product-image";
-
-
-      const imageUrl =
-        product.image_url
-        ||product.image
-        ||product.image_path
-        ||product.thumbnail_url
-        ||"";
-
-
-      if(
-        typeof imageUrl==="string"
-        &&/^https?:\/\//i.test(
-          imageUrl
-        )
-      ){
-
-        const img =
-          document.createElement("img");
-
-        img.src =
-          imageUrl;
-
-        img.alt =
-          product.name
-          ||product.title
-          ||"Product";
-
-        img.loading =
-          "lazy";
-
-
-        img.onerror=()=>{
-
-          img.remove();
-
-          imageBox.textContent =
-            "Product image unavailable";
-
-        };
-
-
-        imageBox.appendChild(img);
-
-      }else{
-
-        imageBox.textContent =
-          "Product";
-
-      }
-
-
-      card.appendChild(
-        imageBox
-      );
-
-
-      const info =
-        document.createElement("div");
-
-      info.className =
-        "product-info";
-
-
-      const name =
-        document.createElement("div");
-
-      name.className =
-        "product-name";
-
-      name.textContent =
-        product.name
-        ||product.title
-        ||product.product_name
-        ||"Unnamed product";
-
-
-      info.appendChild(name);
-
-
-      const priceValue =
-        product.price
-        ??product.selling_price
-        ??product.sale_price;
-
-
-      const price =
-        document.createElement("div");
-
-      price.className =
-        "product-price";
-
-
-      price.textContent =
-        priceValue!==undefined
-        &&priceValue!==null
-
-        ?formatMoney(
-          priceValue,
-          product.currency||"BDT"
-        )
-
-        :"Price unavailable";
-
-
-      info.appendChild(price);
-
-
-      if(
-        product.sold_count!==undefined
-        ||product.total_sold!==undefined
-        ||product.sales_count!==undefined
-      ){
-
-        const sold =
-          document.createElement("div");
-
-        sold.className =
-          "product-meta";
-
-        sold.textContent =
-          "Sold: "
-          +Number(
-            product.sold_count
-            ??product.total_sold
-            ??product.sales_count
-          );
-
-        info.appendChild(sold);
-
-      }
-
-
-      const btn =
-        document.createElement("button");
-
-      btn.className =
-        "btn";
-
-      btn.type =
-        "button";
-
-      btn.textContent =
-        "View Details";
-
-
-      btn.addEventListener(
-        "click",
-        ()=>{
-
-          alert(
-            "Product details and checkout are not connected until the actual product schema and secure purchase flow are verified."
-          );
-
-        }
-      );
-
-
-      info.appendChild(btn);
-
-      card.appendChild(info);
-
-      fragment.appendChild(card);
-
+  message.hidden = true;
+
+  const fragment = document.createDocumentFragment();
+
+  items.slice(0, limit || items.length).forEach(product=>{
+
+    const card = document.createElement("article");
+    card.className = "product-card";
+
+    const imageBox = document.createElement("div");
+    imageBox.className = "product-image";
+
+    const imageUrl =
+      product.image_url
+      || product.image
+      || product.image_path
+      || product.thumbnail_url
+      || "";
+
+    if(typeof imageUrl === "string" && /^https?:\/\//i.test(imageUrl)){
+
+      const img = document.createElement("img");
+      img.src = imageUrl;
+      img.alt = product.name || product.title || "Product";
+      img.loading = "lazy";
+
+      img.onerror = ()=>{
+        img.remove();
+        imageBox.textContent = "Product image unavailable";
+      };
+
+      imageBox.appendChild(img);
+
+    }else{
+      imageBox.textContent = "Product";
+    }
+
+    card.appendChild(imageBox);
+
+    const info = document.createElement("div");
+    info.className = "product-info";
+
+    const name = document.createElement("div");
+    name.className = "product-name";
+    name.textContent =
+      product.name
+      || product.title
+      || product.product_name
+      || "Unnamed product";
+    info.appendChild(name);
+
+    const priceValue = product.price ?? product.selling_price ?? product.sale_price;
+
+    const price = document.createElement("div");
+    price.className = "product-price";
+    price.textContent =
+      priceValue !== undefined && priceValue !== null
+        ? formatMoney(priceValue, product.currency || "BDT")
+        : "Price unavailable";
+    info.appendChild(price);
+
+    if(
+      product.sold_count !== undefined
+      || product.total_sold !== undefined
+      || product.sales_count !== undefined
+    ){
+      const sold = document.createElement("div");
+      sold.className = "product-meta";
+      sold.textContent =
+        "Sold: " + Number(product.sold_count ?? product.total_sold ?? product.sales_count);
+      info.appendChild(sold);
+    }
+
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.type = "button";
+    btn.textContent = "View Details";
+
+    btn.addEventListener("click", ()=>{
+      alert("Product details and checkout are not connected until the actual product schema and secure purchase flow are verified.");
     });
 
+    info.appendChild(btn);
+    card.appendChild(info);
+    fragment.appendChild(card);
 
-  gridElement.replaceChildren(
-    fragment
-  );
+  });
+
+  gridElement.replaceChildren(fragment);
 
 }
-
 
 async function loadProducts(){
 
-  const request =
-    ++productRequestNumber;
+  const request = ++productRequestNumber;
 
+  showMessage($("topProductsMessage"), "Loading products...");
+  showMessage($("allProductsMessage"), "Loading products...");
 
-  showMessage(
-    $("topProductsMessage"),
-    "Loading products..."
-  );
+  const candidates = ["products", "product_catalog", "store_products"];
 
-
-  showMessage(
-    $("allProductsMessage"),
-    "Loading products..."
-  );
-
-
-  const candidates=[
-
-    "products",
-
-    "product_catalog",
-
-    "store_products"
-
-  ];
-
-
-  let found=null;
-
-  let lastError=null;
-
+  let found = null;
+  let lastError = null;
 
   try{
 
-    for(
-      const table
-      of candidates
-    ){
+    for(const table of candidates){
 
-      const result =
-        await supabaseClient
-          .from(table)
-          .select("*")
-          .limit(100);
+      const result = await supabaseClient
+        .from(table)
+        .select("*")
+        .limit(100);
 
+      if(request !== productRequestNumber) return;
 
-      if(
-        request!==productRequestNumber
-      ){
-        return;
-      }
-
-
-      if(
-        !result.error
-        &&Array.isArray(
-          result.data
-        )
-      ){
-
-        found =
-          result.data;
-
+      if(!result.error && Array.isArray(result.data)){
+        found = result.data;
         break;
-
       }
 
-
-      lastError =
-        result.error;
+      lastError = result.error;
 
     }
 
+    if(found === null){
 
-    if(found===null){
+      const msg = "Product catalogue could not be loaded. Configure the correct product table and its read permissions before showing products.";
 
-      const msg =
-        "Product catalogue could not be loaded. Configure the correct product table and its read permissions before showing products.";
+      showMessage($("topProductsMessage"), msg, "error");
+      showMessage($("allProductsMessage"), msg, "error");
 
-
-      showMessage(
-        $("topProductsMessage"),
-        msg,
-        "error"
-      );
-
-
-      showMessage(
-        $("allProductsMessage"),
-        msg,
-        "error"
-      );
-
-
-      console.warn(
-        "Product catalogue not found:",
-        lastError
-      );
-
-
+      console.warn("Product catalogue not found:", lastError);
       return;
 
     }
 
-
-    productsCache =
-      found;
-
+    productsCache = found;
 
     if(!found.length){
 
-      showMessage(
-        $("topProductsMessage"),
-        "No products found in the catalogue."
-      );
+      showMessage($("topProductsMessage"), "No products found in the catalogue.");
+      showMessage($("allProductsMessage"), "No products found in the catalogue.");
 
-
-      showMessage(
-        $("allProductsMessage"),
-        "No products found in the catalogue."
-      );
-
-
-      $("topProductsGrid")
-        .replaceChildren();
-
-      $("allProductsGrid")
-        .replaceChildren();
-
+      $("topProductsGrid").replaceChildren();
+      $("allProductsGrid").replaceChildren();
       return;
 
     }
 
-
-    const sorted =
-      [...found].sort(
-        (a,b)=>
-          Number(
-            b.sold_count
-            ??b.total_sold
-            ??b.sales_count
-            ??0
-          )
-          -
-          Number(
-            a.sold_count
-            ??a.total_sold
-            ??a.sales_count
-            ??0
-          )
-      );
-
-
-    renderProducts(
-      sorted,
-      "topProductsGrid",
-      "topProductsMessage",
-      4
+    const sorted = [...found].sort((a,b)=>
+      Number(b.sold_count ?? b.total_sold ?? b.sales_count ?? 0)
+      - Number(a.sold_count ?? a.total_sold ?? a.sales_count ?? 0)
     );
 
-
-    renderProducts(
-      found,
-      "allProductsGrid",
-      "allProductsMessage"
-    );
-
+    renderProducts(sorted, "topProductsGrid", "topProductsMessage", 4);
+    renderProducts(found, "allProductsGrid", "allProductsMessage");
 
     filterProducts();
 
-
   }catch(error){
 
-    console.error(
-      "Products error:",
-      error
-    );
+    console.error("Products error:", error);
 
-
-    showMessage(
-      $("topProductsMessage"),
-      "Products could not be loaded.",
-      "error"
-    );
-
-
-    showMessage(
-      $("allProductsMessage"),
-      "Products could not be loaded.",
-      "error"
-    );
+    showMessage($("topProductsMessage"), "Products could not be loaded.", "error");
+    showMessage($("allProductsMessage"), "Products could not be loaded.", "error");
 
   }
 
 }
 
-
 function filterProducts(){
 
-  const query =
-    $("productSearch")
-      .value
-      .trim()
-      .toLowerCase();
+  const query = $("productSearch").value.trim().toLowerCase();
 
-
-  const filtered =
-    productsCache.filter(p=>
-      String(
-        p.name
-        ||p.title
-        ||p.product_name
-        ||""
-      )
+  const filtered = productsCache.filter(p=>
+    String(p.name || p.title || p.product_name || "")
       .toLowerCase()
       .includes(query)
-    );
-
-
-  renderProducts(
-    filtered,
-    "allProductsGrid",
-    "allProductsMessage"
   );
+
+  renderProducts(filtered, "allProductsGrid", "allProductsMessage");
 
 }
 
 
 /* =========================================================
-   DEPOSIT SYSTEM — SAFE READ-ONLY SETUP
+   DEPOSIT PAGE — providers → channels (READ ONLY)
+   Only services/channels that are status = active AND
+   available = true are shown, so whatever the admin/agent
+   switches on appears here and nothing else.
    ========================================================= */
 
-function getDepositLimits(option){
+function getLimits(option){
 
-  const mins=[
+  const mins = [option.service?.minimum_amount, option.channel?.minimum_amount]
+    .map(Number).filter(v => Number.isFinite(v) && v > 0);
 
-    option.service?.minimum_amount,
+  const maxs = [option.service?.maximum_amount, option.channel?.maximum_amount]
+    .map(Number).filter(v => Number.isFinite(v) && v > 0);
 
-    option.channel?.minimum_amount
-
-  ]
-  .map(Number)
-  .filter(
-    v=>
-      Number.isFinite(v)
-      &&v>0
-  );
-
-
-  const maxs=[
-
-    option.service?.maximum_amount,
-
-    option.channel?.maximum_amount
-
-  ]
-  .map(Number)
-  .filter(
-    v=>
-      Number.isFinite(v)
-      &&v>0
-  );
-
-
-  return{
-
-    min:
-      mins.length
-      ?Math.max(
-        0.01,
-        ...mins
-      )
-      :0.01,
-
-    max:
-      maxs.length
-      ?Math.min(...maxs)
-      :null
-
+  return {
+    min: mins.length ? Math.max(0.01, ...mins) : 0.01,
+    max: maxs.length ? Math.min(...maxs) : null
   };
 
 }
 
-
 function getSelectedDepositOption(){
-
-  const value =
-    $("depositMethod").value;
-
-
-  if(!value){
-    return null;
-  }
-
-
-  return depositOptions.find(
-    option=>
-      option.id===value
-  )||null;
-
+  if(!selectedDepositId) return null;
+  return depositOptions.find(o => o.id === selectedDepositId) || null;
 }
 
+function channelLimitText(option){
+  const limits = getLimits(option);
+  let text = "Min " + formatMoney(limits.min, option.currency || "BDT");
+  if(limits.max !== null){
+    text += " · Max " + formatMoney(limits.max, option.currency || "BDT");
+  }
+  return text;
+}
 
 function updateDepositUI(){
 
-  const option =
-    getSelectedDepositOption();
-
-
-  const amount =
-    Number(
-      $("depositAmount").value
-    );
-
+  const option = getSelectedDepositOption();
+  const amount = Number($("depositAmount").value);
 
   if(!option){
-
-    $("depositDetails")
-      .classList.add("hidden");
-
-    $("depositAmountHint")
-      .textContent="";
-
-    $("depositSummaryMethod")
-      .textContent="—";
-
-    $("depositSummaryAmount")
-      .textContent=
-        "BDT 0.00";
-
+    $("depositForm").classList.add("hidden");
+    $("depositDetails").classList.add("hidden");
+    $("depositAmountHint").textContent = "";
+    $("depositSummaryMethod").textContent = "—";
+    $("depositSummaryAmount").textContent = "BDT 0.00";
     return;
-
   }
 
+  $("depositForm").classList.remove("hidden");
+  $("depositSelectedLabel").textContent = option.providerName + " — " + option.channelName;
+  $("depositSummaryMethod").textContent = option.providerName + " — " + option.channelName;
 
-  $("depositSummaryMethod")
-    .textContent =
-      option.label;
+  const limits = getLimits(option);
 
+  let hint = "Minimum: " + formatMoney(limits.min, option.currency || "BDT");
 
-  const limits =
-    getDepositLimits(option);
-
-
-  let hint =
-    "Minimum: "
-    +formatMoney(
-      limits.min,
-      option.currency||"BDT"
-    );
-
-
-  if(limits.max!==null){
-
-    hint +=
-      " · Maximum: "
-      +formatMoney(
-        limits.max,
-        option.currency||"BDT"
-      );
-
+  if(limits.max !== null){
+    hint += " · Maximum: " + formatMoney(limits.max, option.currency || "BDT");
   }
-
 
   if(option.service?.description){
-
-    hint +=
-      " · "
-      +option.service.description;
-
+    hint += " · " + option.service.description;
   }
 
+  $("depositAmountHint").textContent = hint;
 
-  $("depositAmountHint")
-    .textContent =
-      hint;
+  $("depositSummaryAmount").textContent =
+    formatMoney(Number.isFinite(amount) && amount > 0 ? amount : 0, option.currency || "BDT");
 
-
-  if(
-    Number.isFinite(amount)
-    &&amount>0
-  ){
-
-    $("depositSummaryAmount")
-      .textContent =
-        formatMoney(
-          amount,
-          option.currency||"BDT"
-        );
-
-  }else{
-
-    $("depositSummaryAmount")
-      .textContent =
-        formatMoney(
-          0,
-          option.currency||"BDT"
-        );
-
-  }
-
-
-  const details=[];
-
+  const details = [];
 
   if(option.channel?.channel_name){
-
-    details.push(
-      "Channel: "
-      +option.channel.channel_name
-    );
-
+    details.push("Channel: " + option.channel.channel_name);
   }
-
 
   if(option.channel?.channel_type){
-
-    details.push(
-      "Type: "
-      +readableLabel(
-        option.channel.channel_type
-      )
-    );
-
+    details.push("Type: " + readableLabel(option.channel.channel_type));
   }
-
 
   if(option.channel?.notes){
-
-    details.push(
-      "Details: "
-      +option.channel.notes
-    );
-
+    details.push("Details: " + option.channel.notes);
   }
 
-
   if(details.length){
-
-    $("depositDetailsBox")
-      .textContent =
-        details.join("\n\n");
-
-    $("depositDetails")
-      .classList.remove("hidden");
-
+    $("depositDetailsBox").textContent = details.join("\n\n");
+    $("depositDetails").classList.remove("hidden");
   }else{
-
-    $("depositDetails")
-      .classList.add("hidden");
-
+    $("depositDetails").classList.add("hidden");
   }
 
 }
 
+function selectDepositChannel(id){
 
-async function loadDepositMethods(){
+  selectedDepositId = id;
 
-  const request =
-    ++depositRequestNumber;
+  document.querySelectorAll("#depositChannelList .channel-card").forEach(card=>{
+    card.classList.toggle("selected", card.dataset.id === id);
+  });
 
+  updateDepositUI();
 
-  const message =
-    $("depositMessage");
+  setTimeout(()=>{
+    $("depositForm").scrollIntoView({ behavior:"smooth", block:"start" });
+  }, 50);
 
-  const select =
-    $("depositMethod");
+}
 
+function renderDepositChannels(groups){
 
-  depositOptions=[];
+  const list = $("depositChannelList");
+  list.replaceChildren();
 
+  const fragment = document.createDocumentFragment();
 
-  select.replaceChildren();
+  groups.forEach(group=>{
 
+    const wrap = document.createElement("div");
+    wrap.className = "provider-group";
 
-  const defaultOption =
-    document.createElement("option");
+    const head = document.createElement("div");
+    head.className = "provider-head";
 
-  defaultOption.value="";
+    const title = document.createElement("strong");
+    title.textContent = group.name;
 
-  defaultOption.textContent =
-    "Select deposit method";
+    const count = document.createElement("span");
+    count.textContent = group.channels.length + " " + (currentLang() === "bn" ? "টি চ্যানেল" : "channel(s)");
 
-  select.appendChild(
-    defaultOption
-  );
+    head.append(title, count);
+    wrap.appendChild(head);
 
+    const channelList = document.createElement("div");
+    channelList.className = "channel-list";
 
-  showMessage(
-    message,
-    "Loading available deposit methods..."
-  );
+    group.channels.forEach(option=>{
 
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "channel-card";
+      card.dataset.id = option.id;
+
+      const name = document.createElement("strong");
+      name.textContent = option.channelName;
+
+      const meta = document.createElement("small");
+      const typeText = option.channel?.channel_type ? readableLabel(option.channel.channel_type) + " · " : "";
+      meta.textContent = typeText + channelLimitText(option);
+
+      card.append(name, meta);
+      card.addEventListener("click", ()=> selectDepositChannel(option.id));
+
+      channelList.appendChild(card);
+
+    });
+
+    wrap.appendChild(channelList);
+    fragment.appendChild(wrap);
+
+  });
+
+  list.appendChild(fragment);
+
+}
+
+async function loadDepositChannels(){
+
+  const request = ++depositRequestNumber;
+
+  const message = $("depositMessage");
+
+  depositOptions = [];
+  selectedDepositId = null;
+
+  $("depositChannelList").replaceChildren();
+  $("depositChannelsWrap").classList.add("hidden");
+  $("depositForm").classList.add("hidden");
+  $("depositCount").textContent = "";
+
+  showMessage(message, t("loadingDeposit"));
 
   if(!user?.id){
-
-    showMessage(
-      message,
-      "Please sign in to use deposit.",
-      "error"
-    );
-
+    showMessage(message, "Please sign in to use deposit.", "error");
     return;
-
   }
-
 
   try{
 
-    /*
-     * READ ONLY.
-     *
-     * Only active + available Deposit services
-     * and channels are displayed.
-     *
-     * No deposit request is inserted here.
-     */
+    /* 1) active + available deposit services */
+    const { data:services, error:serviceError } = await supabaseClient
+      .from("provider_services")
+      .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
+      .eq("service_code", "deposit")
+      .eq("status", "active")
+      .eq("available", true);
 
-    const {
-      data:services,
-      error:serviceError
-    }=
-      await supabaseClient
-        .from("provider_services")
-        .select(
-          "id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description"
-        )
-        .eq(
-          "service_code",
-          "deposit"
-        )
-        .eq(
-          "status",
-          "active"
-        )
-        .eq(
-          "available",
-          true
-        );
+    if(request !== depositRequestNumber) return;
+    if(serviceError) throw serviceError;
 
-
-    if(
-      request!==depositRequestNumber
-    ){
+    if(!services || !services.length){
+      showMessage(message, t("noDeposit"));
       return;
     }
 
+    const serviceIds = services.map(s => s.id);
 
-    if(serviceError){
-      throw serviceError;
-    }
+    /* 2) active + available channels of those services */
+    const { data:channels, error:channelError } = await supabaseClient
+      .from("provider_channels")
+      .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
+      .in("provider_service_id", serviceIds)
+      .eq("status", "active")
+      .eq("available", true);
 
+    if(request !== depositRequestNumber) return;
+    if(channelError) throw channelError;
 
-    if(
-      !services
-      ||!services.length
-    ){
-
-      showMessage(
-        message,
-        "No deposit service is currently available."
-      );
-
-      return;
-
-    }
-
-
-    const serviceIds =
-      services.map(
-        service=>service.id
-      );
-
-
-    const {
-      data:channels,
-      error:channelError
-    }=
-      await supabaseClient
-        .from("provider_channels")
-        .select(
-          "id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes"
-        )
-        .in(
-          "provider_service_id",
-          serviceIds
-        )
-        .eq(
-          "status",
-          "active"
-        )
-        .eq(
-          "available",
-          true
-        );
-
-
-    if(
-      request!==depositRequestNumber
-    ){
+    if(!channels || !channels.length){
+      showMessage(message, t("noDepositChannel"));
       return;
     }
 
+    /* 3) provider names (optional — falls back to the service name) */
+    const providerNames = {};
+    const providerIds = [...new Set(services.map(s => s.provider_id).filter(Boolean))];
 
-    if(channelError){
-      throw channelError;
+    if(providerIds.length){
+      try{
+        const { data:providers, error:providerError } = await supabaseClient
+          .from("providers")
+          .select("*")
+          .in("id", providerIds);
+
+        if(!providerError && Array.isArray(providers)){
+          providers.forEach(p=>{
+            providerNames[p.id] =
+              p.provider_name || p.name || p.display_name || p.title || p.provider_code || null;
+          });
+        }
+      }catch(e){ /* names are optional */ }
     }
 
+    if(request !== depositRequestNumber) return;
 
-    if(
-      !channels
-      ||!channels.length
-    ){
-
-      showMessage(
-        message,
-        "Deposit services exist, but no active deposit channel is currently available."
-      );
-
-      return;
-
-    }
-
-
-    const options=[];
-
+    /* 4) group channels by provider */
+    const groupMap = new Map();
 
     channels.forEach(channel=>{
 
-      const service =
-        services.find(
-          item=>
-            item.id===
-            channel.provider_service_id
-        );
+      const service = services.find(s => s.id === channel.provider_service_id);
+      if(!service) return;
 
+      const key = service.provider_id ?? service.id;
 
-      if(!service){
-        return;
+      const providerName =
+        providerNames[service.provider_id]
+        || service.service_name
+        || "Provider";
+
+      const option = {
+        id: String(channel.id),
+        service,
+        channel,
+        currency: "BDT",
+        providerName,
+        channelName: channel.channel_name || channel.channel_code || "Channel"
+      };
+
+      if(!groupMap.has(key)){
+        groupMap.set(key, { name: providerName, channels: [] });
       }
 
-
-      const optionId =
-        String(channel.id);
-
-
-      const labelParts=[
-
-        service.service_name,
-
-        channel.channel_name
-        ||channel.channel_code
-
-      ].filter(Boolean);
-
-
-      options.push({
-
-        id:optionId,
-
-        service,
-
-        channel,
-
-        currency:"BDT",
-
-        label:
-          labelParts.join(
-            " — "
-          )
-
-      });
+      groupMap.get(key).channels.push(option);
+      depositOptions.push(option);
 
     });
 
-
-    if(
-      request!==depositRequestNumber
-    ){
+    if(!depositOptions.length){
+      showMessage(message, t("noDepositChannel"));
       return;
     }
 
+    const groups = [...groupMap.values()]
+      .sort((a,b) => a.name.localeCompare(b.name));
 
-    if(!options.length){
+    groups.forEach(g => g.channels.sort((a,b) => a.channelName.localeCompare(b.channelName)));
 
-      showMessage(
-        message,
-        "No active deposit channel is currently available."
-      );
+    renderDepositChannels(groups);
 
-      return;
+    $("depositCount").textContent =
+      currentLang() === "bn"
+        ? `${groups.length} টি প্রোভাইডার · ${depositOptions.length} টি চ্যানেল`
+        : `${groups.length} provider(s) · ${depositOptions.length} channel(s)`;
 
-    }
-
-
-    depositOptions =
-      options;
-
-
-    const fragment =
-      document.createDocumentFragment();
-
-
-    options.forEach(option=>{
-
-      const item =
-        document.createElement("option");
-
-      item.value =
-        option.id;
-
-      item.textContent =
-        option.label;
-
-      fragment.appendChild(item);
-
-    });
-
-
-    select.appendChild(
-      fragment
-    );
-
-
-    message.hidden=true;
-
-
-    updateDepositUI();
-
+    $("depositChannelsWrap").classList.remove("hidden");
+    message.hidden = true;
 
   }catch(error){
 
-    if(
-      request!==depositRequestNumber
-    ){
-      return;
-    }
+    if(request !== depositRequestNumber) return;
 
-
-    console.error(
-      "Deposit methods error:",
-      error
-    );
-
+    console.error("Deposit channels error:", error);
 
     showMessage(
       message,
-      "Could not load deposit services: "
-      +(error.message||"Please try again."),
+      "Could not load deposit services: " + (error.message || "Please try again."),
       "error"
     );
 
   }
 
 }
-
 
 function handleDepositSubmit(event){
 
   event.preventDefault();
 
-
   /*
-   * IMPORTANT:
-   *
-   * We deliberately do NOT call:
-   *
-   * supabaseClient
-   *   .from("deposit_requests")
-   *   .insert(...)
-   *
-   * because the Deposit INSERT RLS/schema has not
-   * been verified yet.
-   *
-   * This prevents a false or unsafe deposit request.
+   * Deliberately NOT inserting into deposit_requests:
+   * the INSERT RLS / schema has not been verified yet.
    */
 
-
   showMessage(
-    $("depositMessage"),
+    $("depositFormMessage"),
     "Deposit submission is not connected yet. No payment was initiated and no wallet balance was changed.",
     "error"
   );
@@ -4149,969 +1917,345 @@ function handleDepositSubmit(event){
 
 function makeRequestId(prefix="WD"){
 
-  const now =
-    Date.now()
-      .toString(36)
-      .toUpperCase();
-
+  const now = Date.now().toString(36).toUpperCase();
 
   const random =
-
-    window.crypto
-    &&typeof window.crypto.randomUUID==="function"
-
-    ?window.crypto.randomUUID()
-      .replace(/-/g,"")
-      .slice(0,10)
-      .toUpperCase()
-
-    :Math.random()
-      .toString(36)
-      .slice(2,12)
-      .toUpperCase();
-
+    window.crypto && typeof window.crypto.randomUUID === "function"
+      ? window.crypto.randomUUID().replace(/-/g,"").slice(0,10).toUpperCase()
+      : Math.random().toString(36).slice(2,12).toUpperCase();
 
   return `${prefix}-${now}-${random}`;
 
 }
 
+function calculateWithdrawalFee(option, amount){
 
-function getWithdrawalLimits(option){
-
-  const mins=[
-
-    option.service?.minimum_amount,
-
-    option.channel?.minimum_amount
-
-  ]
-  .map(Number)
-  .filter(
-    v=>
-      Number.isFinite(v)
-      &&v>0
-  );
-
-
-  const maxs=[
-
-    option.service?.maximum_amount,
-
-    option.channel?.maximum_amount
-
-  ]
-  .map(Number)
-  .filter(
-    v=>
-      Number.isFinite(v)
-      &&v>0
-  );
-
-
-  return {
-
-    min:
-      mins.length
-      ?Math.max(
-        0.01,
-        ...mins
-      )
-      :0.01,
-
-    max:
-      maxs.length
-      ?Math.min(...maxs)
-      :null
-
-  };
-
-}
-
-
-function calculateWithdrawalFee(
-  option,
-  amount
-){
-
-  if(
-    !option
-    ||!Number.isFinite(amount)
-    ||amount<=0
-  ){
+  if(!option || !Number.isFinite(amount) || amount <= 0){
     return 0;
   }
 
+  const fixedFee = Number(option.service?.fixed_fee || 0);
+  const percentageFee = Number(option.service?.percentage_fee || 0);
 
-  const fixedFee =
-    Number(
-      option.service?.fixed_fee||0
-    );
+  const fee = fixedFee + (amount * percentageFee / 100);
 
-
-  const percentageFee =
-    Number(
-      option.service?.percentage_fee||0
-    );
-
-
-  const fee =
-    fixedFee
-    +(amount*percentageFee/100);
-
-
-  return Number.isFinite(fee)
-    ?Math.max(0,fee)
-    :0;
+  return Number.isFinite(fee) ? Math.max(0, fee) : 0;
 
 }
-
 
 function getSelectedWithdrawalOption(){
 
-  const value =
-    $("withdrawalMethod").value;
+  const value = $("withdrawalMethod").value;
+  if(!value) return null;
 
-
-  if(!value){
-    return null;
-  }
-
-
-  return withdrawalOptions.find(
-    option=>
-      option.id===value
-  )||null;
+  return withdrawalOptions.find(o => o.id === value) || null;
 
 }
-
 
 function updateWithdrawalAmountUI(){
 
-  const option =
-    getSelectedWithdrawalOption();
+  const option = getSelectedWithdrawalOption();
+  const amount = Number($("withdrawalAmount").value);
 
-
-  const amount =
-    Number(
-      $("withdrawalAmount").value
-    );
-
-
-  const currency =
-    option?.currency
-    ||option?.service?.currency
-    ||"BDT";
-
+  const currency = option?.currency || option?.service?.currency || "BDT";
 
   if(!option){
-
-    $("withdrawalAmountHint")
-      .textContent="";
-
-    $("withdrawalFee")
-      .textContent =
-        formatMoney(
-          0,
-          currency
-        );
-
-    $("withdrawalNetAmount")
-      .textContent =
-        formatMoney(
-          0,
-          currency
-        );
-
+    $("withdrawalAmountHint").textContent = "";
+    $("withdrawalFee").textContent = formatMoney(0, currency);
+    $("withdrawalNetAmount").textContent = formatMoney(0, currency);
     return;
-
   }
 
+  const limits = getLimits(option);
 
-  const limits =
-    getWithdrawalLimits(
-      option
-    );
+  let hint = `Minimum: ${formatMoney(limits.min, currency)}`;
 
-
-  let hint =
-    `Minimum: ${formatMoney(
-      limits.min,
-      currency
-    )}`;
-
-
-  if(limits.max!==null){
-
-    hint +=
-      ` · Maximum: ${formatMoney(
-        limits.max,
-        currency
-      )}`;
-
+  if(limits.max !== null){
+    hint += ` · Maximum: ${formatMoney(limits.max, currency)}`;
   }
-
 
   if(option.service?.description){
-
-    hint +=
-      ` · ${option.service.description}`;
-
+    hint += ` · ${option.service.description}`;
   }
 
+  $("withdrawalAmountHint").textContent = hint;
 
-  $("withdrawalAmountHint")
-    .textContent =
-      hint;
-
-
-  if(
-    !Number.isFinite(amount)
-    ||amount<=0
-  ){
-
-    $("withdrawalFee")
-      .textContent =
-        formatMoney(
-          0,
-          currency
-        );
-
-    $("withdrawalNetAmount")
-      .textContent =
-        formatMoney(
-          0,
-          currency
-        );
-
+  if(!Number.isFinite(amount) || amount <= 0){
+    $("withdrawalFee").textContent = formatMoney(0, currency);
+    $("withdrawalNetAmount").textContent = formatMoney(0, currency);
     return;
-
   }
 
+  const fee = calculateWithdrawalFee(option, amount);
+  const safeFee = Math.min(fee, amount);
+  const net = Math.max(0, amount - safeFee);
 
-  const fee =
-    calculateWithdrawalFee(
-      option,
-      amount
-    );
-
-
-  const safeFee =
-    Math.min(
-      fee,
-      amount
-    );
-
-
-  const net =
-    Math.max(
-      0,
-      amount-safeFee
-    );
-
-
-  $("withdrawalFee")
-    .textContent =
-      formatMoney(
-        safeFee,
-        currency
-      );
-
-
-  $("withdrawalNetAmount")
-    .textContent =
-      formatMoney(
-        net,
-        currency
-      );
+  $("withdrawalFee").textContent = formatMoney(safeFee, currency);
+  $("withdrawalNetAmount").textContent = formatMoney(net, currency);
 
 }
 
-
 async function loadWithdrawalMethods(){
 
-  const request =
-    ++withdrawalRequestNumber;
+  const request = ++withdrawalRequestNumber;
 
+  const message = $("withdrawalMessage");
+  const form = $("withdrawalForm");
+  const select = $("withdrawalMethod");
 
-  const message =
-    $("withdrawalMessage");
+  form.classList.add("hidden");
 
-
-  const form =
-    $("withdrawalForm");
-
-
-  const select =
-    $("withdrawalMethod");
-
-
-  form.classList.add(
-    "hidden"
-  );
-
-
-  withdrawalOptions=[];
-
-
+  withdrawalOptions = [];
   select.replaceChildren();
 
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = t("selectWithdrawalMethod");
+  select.appendChild(defaultOption);
 
-  const defaultOption =
-    document.createElement("option");
-
-
-  defaultOption.value="";
-
-
-  defaultOption.textContent =
-    t(
-      "selectWithdrawalMethod"
-    );
-
-
-  select.appendChild(
-    defaultOption
-  );
-
-
-  showMessage(
-    message,
-    t(
-      "loadingWithdrawalMethods"
-    )
-  );
-
+  showMessage(message, t("loadingWithdrawalMethods"));
 
   if(!user?.id){
-
-    showMessage(
-      message,
-      "Please sign in to use withdrawal.",
-      "error"
-    );
-
+    showMessage(message, "Please sign in to use withdrawal.", "error");
     return;
-
   }
-
 
   try{
 
-    const {
-      data:services,
-      error:serviceError
-    }=
-      await supabaseClient
-        .from("provider_services")
-        .select(
-          "id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description"
-        )
-        .eq(
-          "service_code",
-          "withdrawal"
-        )
-        .eq(
-          "status",
-          "active"
-        )
-        .eq(
-          "available",
-          true
-        );
+    const { data:services, error:serviceError } = await supabaseClient
+      .from("provider_services")
+      .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
+      .eq("service_code", "withdrawal")
+      .eq("status", "active")
+      .eq("available", true);
 
+    if(request !== withdrawalRequestNumber) return;
+    if(serviceError) throw serviceError;
 
-    if(
-      request!==withdrawalRequestNumber
-    ){
+    if(!services || !services.length){
+      showMessage(message, t("noWithdrawalMethods"));
       return;
     }
 
+    const serviceIds = services.map(s => s.id);
 
-    if(serviceError){
-      throw serviceError;
-    }
+    const { data:channels, error:channelError } = await supabaseClient
+      .from("provider_channels")
+      .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
+      .in("provider_service_id", serviceIds)
+      .eq("status", "active")
+      .eq("available", true);
 
+    if(request !== withdrawalRequestNumber) return;
+    if(channelError) throw channelError;
 
-    if(
-      !services
-      ||!services.length
-    ){
-
-      showMessage(
-        message,
-        t("noWithdrawalMethods")
-      );
-
-      return;
-
-    }
-
-
-    const serviceIds =
-      services.map(
-        service=>service.id
-      );
-
-
-    const {
-      data:channels,
-      error:channelError
-    }=
-      await supabaseClient
-        .from("provider_channels")
-        .select(
-          "id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes"
-        )
-        .in(
-          "provider_service_id",
-          serviceIds
-        )
-        .eq(
-          "status",
-          "active"
-        )
-        .eq(
-          "available",
-          true
-        );
-
-
-    if(
-      request!==withdrawalRequestNumber
-    ){
+    if(!channels || !channels.length){
+      showMessage(message, t("noWithdrawalMethods"));
       return;
     }
 
-
-    if(channelError){
-      throw channelError;
-    }
-
-
-    if(
-      !channels
-      ||!channels.length
-    ){
-
-      showMessage(
-        message,
-        t("noWithdrawalMethods")
-      );
-
-      return;
-
-    }
-
-
-    const options=[];
-
+    const options = [];
 
     channels.forEach(channel=>{
 
-      const service =
-        services.find(
-          item=>
-            item.id===
-            channel.provider_service_id
-        );
+      const service = services.find(s => s.id === channel.provider_service_id);
+      if(!service) return;
 
-
-      if(!service)return;
-
-
-      const optionId =
-        String(channel.id);
-
-
-      const labelParts=[
-
-        service.service_name,
-
-        channel.channel_name
-        ||channel.channel_code
-
-      ].filter(Boolean);
-
-
-      const label =
-        labelParts.join(
-          " — "
-        );
-
+      const label = [service.service_name, channel.channel_name || channel.channel_code]
+        .filter(Boolean)
+        .join(" — ");
 
       options.push({
-
-        id:optionId,
-
+        id: String(channel.id),
         service,
-
         channel,
-
-        currency:"BDT",
-
+        currency: "BDT",
         label
-
       });
 
     });
 
-
-    if(
-      request!==withdrawalRequestNumber
-    ){
-      return;
-    }
-
+    if(request !== withdrawalRequestNumber) return;
 
     if(!options.length){
-
-      showMessage(
-        message,
-        t("noWithdrawalMethods")
-      );
-
+      showMessage(message, t("noWithdrawalMethods"));
       return;
-
     }
 
+    withdrawalOptions = options;
 
-    withdrawalOptions =
-      options;
-
-
-    const fragment =
-      document.createDocumentFragment();
-
+    const fragment = document.createDocumentFragment();
 
     options.forEach(option=>{
-
-      const item =
-        document.createElement("option");
-
-      item.value =
-        option.id;
-
-      item.textContent =
-        option.label;
-
+      const item = document.createElement("option");
+      item.value = option.id;
+      item.textContent = option.label;
       fragment.appendChild(item);
-
     });
 
+    select.appendChild(fragment);
 
-    select.appendChild(
-      fragment
-    );
-
-
-    form.classList.remove(
-      "hidden"
-    );
-
-
-    message.hidden=true;
-
+    form.classList.remove("hidden");
+    message.hidden = true;
 
     updateWithdrawalAmountUI();
 
-
   }catch(error){
 
-    if(
-      request!==withdrawalRequestNumber
-    ){
-      return;
-    }
+    if(request !== withdrawalRequestNumber) return;
 
-
-    console.error(
-      "Withdrawal methods error:",
-      error
-    );
-
+    console.error("Withdrawal methods error:", error);
 
     showMessage(
       message,
-      "Could not load withdrawal services: "
-      +(error.message||"Please try again."),
+      "Could not load withdrawal services: " + (error.message || "Please try again."),
       "error"
     );
 
   }
 
 }
-
 
 async function submitWithdrawal(event){
 
   event.preventDefault();
 
-
   if(!user?.id){
-
-    showMessage(
-      $("withdrawalMessage"),
-      "Please sign in before submitting a withdrawal request.",
-      "error"
-    );
-
+    showMessage($("withdrawalMessage"), "Please sign in before submitting a withdrawal request.", "error");
     return;
-
   }
 
-
-  const button =
-    $("submitWithdrawalButton");
-
-
-  const option =
-    getSelectedWithdrawalOption();
-
+  const button = $("submitWithdrawalButton");
+  const option = getSelectedWithdrawalOption();
 
   if(!option){
-
-    showMessage(
-      $("withdrawalMessage"),
-      "Please select a withdrawal method.",
-      "error"
-    );
-
+    showMessage($("withdrawalMessage"), "Please select a withdrawal method.", "error");
     return;
-
   }
 
+  const amount = Number($("withdrawalAmount").value);
 
-  const amount =
-    Number(
-      $("withdrawalAmount").value
-    );
-
-
-  if(
-    !Number.isFinite(amount)
-    ||amount<=0
-  ){
-
-    showMessage(
-      $("withdrawalMessage"),
-      "Please enter a valid withdrawal amount.",
-      "error"
-    );
-
+  if(!Number.isFinite(amount) || amount <= 0){
+    showMessage($("withdrawalMessage"), "Please enter a valid withdrawal amount.", "error");
     return;
-
   }
 
+  const limits = getLimits(option);
 
-  const limits =
-    getWithdrawalLimits(
-      option
-    );
-
-
-  if(amount<limits.min){
-
+  if(amount < limits.min){
     showMessage(
       $("withdrawalMessage"),
-      `Minimum withdrawal amount is ${formatMoney(
-        limits.min,
-        option.currency||"BDT"
-      )}.`,
+      `Minimum withdrawal amount is ${formatMoney(limits.min, option.currency || "BDT")}.`,
       "error"
     );
-
     return;
-
   }
 
-
-  if(
-    limits.max!==null
-    &&amount>limits.max
-  ){
-
+  if(limits.max !== null && amount > limits.max){
     showMessage(
       $("withdrawalMessage"),
-      `Maximum withdrawal amount is ${formatMoney(
-        limits.max,
-        option.currency||"BDT"
-      )}.`,
+      `Maximum withdrawal amount is ${formatMoney(limits.max, option.currency || "BDT")}.`,
       "error"
     );
-
     return;
-
   }
 
-
-  const destination =
-    $("withdrawalDestination")
-      .value
-      .trim();
-
+  const destination = $("withdrawalDestination").value.trim();
 
   if(!destination){
-
-    showMessage(
-      $("withdrawalMessage"),
-      "Please enter the destination account or wallet number.",
-      "error"
-    );
-
+    showMessage($("withdrawalMessage"), "Please enter the destination account or wallet number.", "error");
     return;
-
   }
 
+  const destinationName = $("withdrawalDestinationName").value.trim();
+  const userNote = $("withdrawalNote").value.trim();
 
-  const destinationName =
-    $("withdrawalDestinationName")
-      .value
-      .trim();
+  const fee = calculateWithdrawalFee(option, amount);
 
-
-  const userNote =
-    $("withdrawalNote")
-      .value
-      .trim();
-
-
-  const fee =
-    calculateWithdrawalFee(
-      option,
-      amount
-    );
-
-
-  if(fee>amount){
-
-    showMessage(
-      $("withdrawalMessage"),
-      "The withdrawal fee cannot be greater than the withdrawal amount.",
-      "error"
-    );
-
+  if(fee > amount){
+    showMessage($("withdrawalMessage"), "The withdrawal fee cannot be greater than the withdrawal amount.", "error");
     return;
-
   }
 
+  const netAmount = Number((amount - fee).toFixed(2));
 
-  const netAmount =
-    Number(
-      (amount-fee)
-        .toFixed(2)
-    );
-
-
-  button.disabled=true;
-
-  button.textContent =
-    localStorage.getItem(
-      "aprp_language"
-    )==="bn"
-
-    ?"আবেদন পাঠানো হচ্ছে..."
-
-    :"Submitting...";
-
+  button.disabled = true;
+  button.textContent = currentLang() === "bn" ? "আবেদন পাঠানো হচ্ছে..." : "Submitting...";
 
   try{
 
-    const {
-      data:wallet,
-      error:walletError
-    }=
-      await supabaseClient
-        .from("wallets")
-        .select(
-          "currency, available_balance, status"
-        )
-        .eq(
-          "user_id",
-          user.id
-        )
-        .maybeSingle();
+    const { data:wallet, error:walletError } = await supabaseClient
+      .from("wallets")
+      .select("currency, available_balance, status")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-
-    if(walletError){
-      throw walletError;
-    }
-
+    if(walletError) throw walletError;
 
     if(!wallet){
-
-      showMessage(
-        $("withdrawalMessage"),
-        "Your wallet could not be found.",
-        "error"
-      );
-
+      showMessage($("withdrawalMessage"), "Your wallet could not be found.", "error");
       return;
-
     }
 
-
-    if(
-      String(
-        wallet.status||""
-      ).toLowerCase()
-      !=="active"
-    ){
-
-      showMessage(
-        $("withdrawalMessage"),
-        "Your wallet is not active for withdrawal.",
-        "error"
-      );
-
+    if(String(wallet.status || "").toLowerCase() !== "active"){
+      showMessage($("withdrawalMessage"), "Your wallet is not active for withdrawal.", "error");
       return;
-
     }
 
+    const walletCurrency = wallet.currency || "BDT";
 
-    const walletCurrency =
-      wallet.currency||"BDT";
-
-
-    if(
-      String(
-        walletCurrency
-      ).toUpperCase()
-      !==
-      String(
-        option.currency||"BDT"
-      ).toUpperCase()
-    ){
-
-      showMessage(
-        $("withdrawalMessage"),
-        "The selected withdrawal method does not match your wallet currency.",
-        "error"
-      );
-
+    if(String(walletCurrency).toUpperCase() !== String(option.currency || "BDT").toUpperCase()){
+      showMessage($("withdrawalMessage"), "The selected withdrawal method does not match your wallet currency.", "error");
       return;
-
     }
 
+    const available = Number(wallet.available_balance);
 
-    const available =
-      Number(
-        wallet.available_balance
-      );
-
-
-    if(
-      !Number.isFinite(available)
-      ||available<amount
-    ){
-
+    if(!Number.isFinite(available) || available < amount){
       showMessage(
         $("withdrawalMessage"),
-        `Insufficient available balance. Available: ${formatMoney(
-          available||0,
-          walletCurrency
-        )}.`,
+        `Insufficient available balance. Available: ${formatMoney(available || 0, walletCurrency)}.`,
         "error"
       );
-
       return;
-
     }
 
+    const withdrawalId = makeRequestId("WD");
+    const idempotencyKey = makeRequestId("WDI");
 
-    const withdrawalId =
-      makeRequestId("WD");
-
-
-    const idempotencyKey =
-      makeRequestId("WDI");
-
-
-    const payload={
-
-      withdrawal_id:
-        withdrawalId,
-
-      user_id:
-        user.id,
-
-      provider_id:
-        option.service.provider_id,
-
-      provider_service_id:
-        option.service.id,
-
-      provider_channel_id:
-        option.channel.id,
-
+    const payload = {
+      withdrawal_id: withdrawalId,
+      user_id: user.id,
+      provider_id: option.service.provider_id,
+      provider_service_id: option.service.id,
+      provider_channel_id: option.channel.id,
       amount,
-
       fee,
-
-      net_amount:
-        netAmount,
-
-      currency:
-        walletCurrency,
-
-      destination_account:
-        destination,
-
-      destination_name:
-        destinationName||null,
-
-      user_note:
-        userNote||null,
-
-      status:
-        "pending",
-
-      reservation_status:
-        "not_reserved",
-
-      reserved_amount:
-        0,
-
-      idempotency_key:
-        idempotencyKey,
-
-      metadata:{
-
-        source:
-          "user_app",
-
-        flow:
-          "withdrawal_request",
-
-        client_version:
-          "1"
-
+      net_amount: netAmount,
+      currency: walletCurrency,
+      destination_account: destination,
+      destination_name: destinationName || null,
+      user_note: userNote || null,
+      status: "pending",
+      reservation_status: "not_reserved",
+      reserved_amount: 0,
+      idempotency_key: idempotencyKey,
+      metadata: {
+        source: "user_app",
+        flow: "withdrawal_request",
+        client_version: "1"
       }
-
     };
 
+    const { data, error } = await supabaseClient
+      .from("withdrawal_requests")
+      .insert(payload)
+      .select("id,withdrawal_id,status,reservation_status,amount,fee,net_amount,currency,created_at")
+      .single();
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient
-        .from("withdrawal_requests")
-        .insert(payload)
-        .select(
-          "id,withdrawal_id,status,reservation_status,amount,fee,net_amount,currency,created_at"
-        )
-        .single();
+    if(error) throw error;
 
-
-    if(error){
-      throw error;
-    }
-
-
-    const createdId =
-      data?.withdrawal_id
-      ||withdrawalId;
-
+    const createdId = data?.withdrawal_id || withdrawalId;
 
     showMessage(
       $("withdrawalMessage"),
@@ -5119,71 +2263,29 @@ async function submitWithdrawal(event){
       "success"
     );
 
-
-    $("withdrawalForm")
-      .reset();
-
-
-    $("withdrawalFee")
-      .textContent =
-        formatMoney(
-          0,
-          walletCurrency
-        );
-
-
-    $("withdrawalNetAmount")
-      .textContent =
-        formatMoney(
-          0,
-          walletCurrency
-        );
-
-
-    $("withdrawalAmountHint")
-      .textContent="";
-
+    $("withdrawalForm").reset();
+    $("withdrawalFee").textContent = formatMoney(0, walletCurrency);
+    $("withdrawalNetAmount").textContent = formatMoney(0, walletCurrency);
+    $("withdrawalAmountHint").textContent = "";
 
     await loadWallet();
 
-
   }catch(error){
 
-    console.error(
-      "Withdrawal submission error:",
-      error
-    );
+    console.error("Withdrawal submission error:", error);
 
+    let message = error?.message || "Could not create withdrawal request.";
 
-    let message =
-      error?.message
-      ||"Could not create withdrawal request.";
-
-
-    if(
-      /row-level security|permission denied|not authorized/i
-        .test(message)
-    ){
-
-      message =
-        "Withdrawal request could not be submitted because database permission/RLS is blocking the request.";
-
+    if(/row-level security|permission denied|not authorized/i.test(message)){
+      message = "Withdrawal request could not be submitted because database permission/RLS is blocking the request.";
     }
 
-
-    showMessage(
-      $("withdrawalMessage"),
-      message,
-      "error"
-    );
-
+    showMessage($("withdrawalMessage"), message, "error");
 
   }finally{
 
-    button.disabled=false;
-
-    button.textContent =
-      t("submitWithdrawal");
+    button.disabled = false;
+    button.textContent = t("submitWithdrawal");
 
   }
 
@@ -5196,206 +2298,105 @@ async function submitWithdrawal(event){
 
 async function signIn(){
 
-  $("loginButton").disabled=true;
+  $("loginButton").disabled = true;
+  $("signupButton").disabled = true;
 
-  $("signupButton").disabled=true;
-
-
-  showMessage(
-    $("authMessage"),
-    "Signing in..."
-  );
-
+  showMessage($("authMessage"), "Signing in...");
 
   try{
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient.auth
-        .signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: $("authEmail").value.trim(),
+      password: $("authPassword").value
+    });
 
-          email:
-            $("authEmail")
-              .value
-              .trim(),
+    if(error) throw error;
 
-          password:
-            $("authPassword")
-              .value
+    user = data.user;
 
-        });
-
-
-    if(error){
-      throw error;
-    }
-
-
-    user =
-      data.user;
-
+    /* a fresh sign-in starts on Home */
+    clearSavedPage();
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
 
     showApp();
-
 
   }catch(error){
 
     console.error(error);
-
-
-    showMessage(
-      $("authMessage"),
-      error.message
-      ||"Sign-in failed.",
-      "error"
-    );
-
+    showMessage($("authMessage"), error.message || "Sign-in failed.", "error");
 
   }finally{
 
-    $("loginButton").disabled=false;
-
-    $("signupButton").disabled=false;
+    $("loginButton").disabled = false;
+    $("signupButton").disabled = false;
 
   }
 
 }
 
-
 async function signUp(){
 
-  const email =
-    $("authEmail")
-      .value
-      .trim();
+  const email = $("authEmail").value.trim();
+  const password = $("authPassword").value;
 
-
-  const password =
-    $("authPassword")
-      .value;
-
-
-  if(password.length<6){
-
-    showMessage(
-      $("authMessage"),
-      "Password must be at least 6 characters.",
-      "error"
-    );
-
+  if(password.length < 6){
+    showMessage($("authMessage"), "Password must be at least 6 characters.", "error");
     return;
-
   }
 
+  $("loginButton").disabled = true;
+  $("signupButton").disabled = true;
 
-  $("loginButton").disabled=true;
-
-  $("signupButton").disabled=true;
-
-
-  showMessage(
-    $("authMessage"),
-    "Creating account..."
-  );
-
+  showMessage($("authMessage"), "Creating account...");
 
   try{
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient.auth
-        .signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options:{ emailRedirectTo: APRP_REDIRECT_URL }
+    });
 
-          email,
+    if(error) throw error;
 
-          password,
+    if(data.session && data.user){
 
-          options:{
-
-            emailRedirectTo:
-              APRP_REDIRECT_URL
-
-          }
-
-        });
-
-
-    if(error){
-      throw error;
-    }
-
-
-    if(
-      data.session
-      &&data.user
-    ){
-
-      user =
-        data.user;
-
+      user = data.user;
+      clearSavedPage();
       showApp();
 
     }else{
 
-      showMessage(
-        $("authMessage"),
-        "Account created. Check your email to confirm your account.",
-        "success"
-      );
+      showMessage($("authMessage"), "Account created. Check your email to confirm your account.", "success");
 
     }
-
 
   }catch(error){
 
     console.error(error);
-
-
-    showMessage(
-      $("authMessage"),
-      error.message
-      ||"Sign-up failed.",
-      "error"
-    );
-
+    showMessage($("authMessage"), error.message || "Sign-up failed.", "error");
 
   }finally{
 
-    $("loginButton").disabled=false;
-
-    $("signupButton").disabled=false;
+    $("loginButton").disabled = false;
+    $("signupButton").disabled = false;
 
   }
 
 }
 
-
 async function signOut(){
 
-  const {
-    error
-  }=
-    await supabaseClient.auth
-      .signOut();
-
+  const { error } = await supabaseClient.auth.signOut();
 
   if(error){
-
-    alert(
-      "Could not sign out: "
-      +error.message
-    );
-
+    alert("Could not sign out: " + error.message);
     return;
-
   }
 
-
-  user=null;
+  user = null;
+  clearSavedPage();
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
 
   showAuth();
 
@@ -5406,351 +2407,113 @@ async function signOut(){
    EVENT LISTENERS
    ========================================================= */
 
-$("authForm")
-  .addEventListener(
-    "submit",
-    e=>{
-
-      e.preventDefault();
-
-      signIn();
-
-    }
-  );
-
-
-$("signupButton")
-  .addEventListener(
-    "click",
-    signUp
-  );
-
-
-$("refreshWalletButton")
-  .addEventListener(
-    "click",
-    loadWallet
-  );
-
-
-$("refreshTransactions")
-  .addEventListener(
-    "click",
-    loadTransactions
-  );
-
-
-$("menuButton")
-  .addEventListener(
-    "click",
-    ()=>
-      $("drawer")
-        .classList.remove("hidden")
-  );
-
-
-$("closeDrawerButton")
-  .addEventListener(
-    "click",
-    ()=>
-      $("drawer")
-        .classList.add("hidden")
-  );
-
-
-$("drawer")
-  .addEventListener(
-    "click",
-    e=>{
-
-      if(
-        e.target===
-        $("drawer")
-      ){
-
-        $("drawer")
-          .classList.add("hidden");
-
-      }
-
-    }
-  );
-
-
-$("accountLogoutButton")
-  .addEventListener(
-    "click",
-    signOut
-  );
-
-
-$("drawerLogoutButton")
-  .addEventListener(
-    "click",
-    signOut
-  );
-
-
-$("productSearch")
-  .addEventListener(
-    "input",
-    filterProducts
-  );
-
-
-/* =========================================================
-   TOP ACCOUNT
-   ========================================================= */
-
-$("topAccountButton")
-  .addEventListener(
-    "click",
-    ()=>{
-      showPage("accountPage");
-    }
-  );
-
-
-/* =========================================================
-   INLINE DEPOSIT
-   ========================================================= */
-
-$("openDepositQuick")
-  .addEventListener(
-    "click",
-    openDepositPanel
-  );
-
-
-$("closeDepositPanel")
-  .addEventListener(
-    "click",
-    closeDepositPanel
-  );
-
-
-$("depositMethod")
-  .addEventListener(
-    "change",
-    updateDepositUI
-  );
-
-
-$("depositAmount")
-  .addEventListener(
-    "input",
-    updateDepositUI
-  );
-
-
-$("depositReference")
-  .addEventListener(
-    "input",
-    ()=>{
-      $("depositSummaryReference")
-        .textContent =
-          $("depositReference")
-            .value
-            .trim()
-          ||"—";
-    }
-  );
-
-
-$("depositForm")
-  .addEventListener(
-    "submit",
-    handleDepositSubmit
-  );
-
-
-$("drawerDepositButton")
-  .addEventListener(
-    "click",
-    openDepositPanel
-  );
-
-
-/* =========================================================
-   WITHDRAWAL EVENTS
-   ========================================================= */
-
-$("withdrawalMethod")
-  .addEventListener(
-    "change",
-    updateWithdrawalAmountUI
-  );
-
-
-$("withdrawalAmount")
-  .addEventListener(
-    "input",
-    updateWithdrawalAmountUI
-  );
-
-
-$("withdrawalForm")
-  .addEventListener(
-    "submit",
-    submitWithdrawal
-  );
-
-
-/* =========================================================
-   LANGUAGE
-   ========================================================= */
-
-$("saveLanguageButton")
-  .addEventListener(
-    "click",
-    ()=>{
-
-      localStorage.setItem(
-        "aprp_language",
-        $("languageSelect").value
-      );
-
-
-      applyLanguage();
-
-
-      alert(
-
-        $("languageSelect").value==="bn"
-
-        ?"ভাষা পরিবর্তন করা হয়েছে।"
-
-        :"Language preference applied."
-
-      );
-
-    }
-  );
-
-
-/* =========================================================
-   REFERRAL
-   ========================================================= */
-
-$("copyReferralButton")
-  .addEventListener(
-    "click",
-    async()=>{
-
-      const value =
-        $("referralCode")
-          .value;
-
-
-      if(
-        !value
-        ||value==="Not available yet"
-      ){
-
-        alert(
-          "Your referral code is not available yet."
-        );
-
-        return;
-
-      }
-
-
-      try{
-
-        await navigator.clipboard
-          .writeText(value);
-
-
-        alert(
-          "Referral code copied."
-        );
-
-
-      }catch(e){
-
-        alert(
-          "Unable to copy automatically. Please copy the code manually."
-        );
-
-      }
-
-    }
-  );
-
-
-/* =========================================================
-   WEB APP INSTALLATION
-   ========================================================= */
-
-$("installWebAppButton")
-  .addEventListener(
-    "click",
-    async()=>{
-
-      if(deferredInstallPrompt){
-
-        deferredInstallPrompt.prompt();
-
-        await deferredInstallPrompt.userChoice;
-
-        deferredInstallPrompt=null;
-
-      }else{
-
-        alert(
-          "If your browser supports installation, open its menu and choose Add to Home screen. An Android APK download is not published yet."
-        );
-
-      }
-
-    }
-  );
-
-
-window.addEventListener(
-  "beforeinstallprompt",
-  event=>{
-
-    event.preventDefault();
-
-    deferredInstallPrompt =
-      event;
-
+$("authForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  signIn();
+});
+
+$("signupButton").addEventListener("click", signUp);
+$("refreshWalletButton").addEventListener("click", loadWallet);
+$("refreshTransactions").addEventListener("click", loadTransactions);
+
+$("menuButton").addEventListener("click", ()=> $("drawer").classList.remove("hidden"));
+$("closeDrawerButton").addEventListener("click", ()=> $("drawer").classList.add("hidden"));
+
+$("drawer").addEventListener("click", e=>{
+  if(e.target === $("drawer")){
+    $("drawer").classList.add("hidden");
   }
-);
+});
+
+$("accountLogoutButton").addEventListener("click", signOut);
+$("drawerLogoutButton").addEventListener("click", signOut);
+
+$("productSearch").addEventListener("input", filterProducts);
+
+$("topAccountButton").addEventListener("click", ()=> showPage("accountPage"));
 
 
-/* =========================================================
-   PAGE NAVIGATION
-   ========================================================= */
+/* ---- Deposit form ---- */
 
-document
-  .querySelectorAll(
-    "[data-page]"
-  )
-  .forEach(
-    button=>{
+$("depositAmount").addEventListener("input", updateDepositUI);
 
-      button.addEventListener(
-        "click",
-        ()=>{
+$("depositReference").addEventListener("input", ()=>{
+  $("depositSummaryReference").textContent = $("depositReference").value.trim() || "—";
+});
 
-          /*
-           * Deposit drawer button does not use
-           * data-page. Therefore normal navigation
-           * remains unchanged.
-           */
+$("depositForm").addEventListener("submit", handleDepositSubmit);
 
-          showPage(
-            button.dataset.page
-          );
 
-        }
-      );
+/* ---- Withdrawal ---- */
 
-    }
+$("withdrawalMethod").addEventListener("change", updateWithdrawalAmountUI);
+$("withdrawalAmount").addEventListener("input", updateWithdrawalAmountUI);
+$("withdrawalForm").addEventListener("submit", submitWithdrawal);
+
+
+/* ---- Language ---- */
+
+$("saveLanguageButton").addEventListener("click", ()=>{
+
+  try{ localStorage.setItem("aprp_language", $("languageSelect").value); }catch(e){}
+
+  applyLanguage();
+
+  alert(
+    $("languageSelect").value === "bn"
+      ? "ভাষা পরিবর্তন করা হয়েছে।"
+      : "Language preference applied."
   );
+
+});
+
+
+/* ---- Referral ---- */
+
+$("copyReferralButton").addEventListener("click", async ()=>{
+
+  const value = $("referralCode").value;
+
+  if(!value || value === "Not available yet"){
+    alert("Your referral code is not available yet.");
+    return;
+  }
+
+  try{
+    await navigator.clipboard.writeText(value);
+    alert("Referral code copied.");
+  }catch(e){
+    alert("Unable to copy automatically. Please copy the code manually.");
+  }
+
+});
+
+
+/* ---- Web app installation ---- */
+
+$("installWebAppButton").addEventListener("click", async ()=>{
+
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+  }else{
+    alert("If your browser supports installation, open its menu and choose Add to Home screen. An Android APK download is not published yet.");
+  }
+
+});
+
+window.addEventListener("beforeinstallprompt", event=>{
+  event.preventDefault();
+  deferredInstallPrompt = event;
+});
+
+
+/* ---- Page navigation (every button that has data-page) ---- */
+
+document.querySelectorAll("[data-page]").forEach(button=>{
+  button.addEventListener("click", ()=> showPage(button.dataset.page));
+});
 
 
 /* =========================================================
@@ -5761,84 +2524,48 @@ async function initializeApp(){
 
   applyLanguage();
 
-
   try{
 
-    const {
-      data,
-      error
-    }=
-      await supabaseClient.auth
-        .getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
 
+    if(error) throw error;
 
-    if(error){
-      throw error;
-    }
-
-
-    user =
-      data.session?.user
-      ||null;
-
+    user = data.session?.user || null;
 
     if(user){
-
       showApp();
-
     }else{
-
       showAuth();
-
     }
-
 
   }catch(error){
 
     console.error(error);
-
-
-    showAuth(
-      "Could not restore your session. Please sign in again."
-    );
+    showAuth("Could not restore your session. Please sign in again.");
 
   }
 
 }
 
+supabaseClient.auth.onAuthStateChange((_event, session)=>{
 
-supabaseClient.auth
-  .onAuthStateChange(
-    (_event,session)=>{
+  user = session?.user || null;
 
-      user =
-        session?.user
-        ||null;
+  /* run outside the auth callback to avoid Supabase client deadlocks */
+  setTimeout(()=>{
 
-
-      if(user){
-
-        showApp();
-
-      }else{
-
-        $("appView")
-          .classList.add("hidden");
-
-        $("bottomNav")
-          .classList.add("hidden");
-
-        $("authView")
-          .classList.remove("hidden");
-
-      }
-
+    if(user){
+      /* showApp() ignores repeat events (token refresh etc.) and keeps the current page */
+      showApp();
+    }else{
+      showAuth();
     }
-  );
 
+  }, 0);
+
+});
 
 initializeApp();
-
 </script>
 
 </body>
