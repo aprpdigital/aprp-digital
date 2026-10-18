@@ -25,8 +25,12 @@ button:disabled{opacity:.55;cursor:wait}
 .brand-subtitle{color:var(--muted);font-size:11px;margin-top:3px}
 .topbar-actions{display:flex;align-items:center;gap:8px}
 .icon-button{width:43px;height:43px;border:1px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);font-size:21px}
-.account-top-button{height:43px;border:1px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);padding:0 13px;font-size:12px;font-weight:800}
-.account-top-button:hover{border-color:#277a66;color:var(--green)}
+
+/* ---- Notification bell (top right) ---- */
+.notify-top-button{position:relative;width:43px;height:43px;border:1px solid var(--border);border-radius:14px;background:var(--panel);color:var(--text);font-size:19px;line-height:1;display:grid;place-items:center;padding:0}
+.notify-top-button:hover{border-color:#277a66}
+.notify-badge{position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ff5d73;color:#fff;font-size:10px;font-weight:850;line-height:18px;text-align:center;border:2px solid var(--bg)}
+
 .welcome{padding:8px 0 20px}
 .eyebrow{color:var(--green);font-size:10px;font-weight:850;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
 .welcome h1{font-size:clamp(20px,5.3vw,28px);letter-spacing:-.7px;line-height:1.25;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -78,6 +82,15 @@ button:disabled{opacity:.55;cursor:wait}
 .transaction-status.pending{background:#3b2b0b;color:#ffd780;border-color:#75551a}
 .transaction-status.failed{background:#3d1820;color:#ff9eaa;border-color:#75303c}
 .transaction-description{margin-top:10px;color:#aebdd2;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+
+/* ---- Notifications list ---- */
+.notification-list{display:grid;gap:10px;margin-top:12px}
+.notification-item{padding:13px;border:1px solid #25344b;border-radius:15px;background:linear-gradient(145deg,#111c30,#0b1221)}
+.notification-item.unread{border-color:#1d6858;background:linear-gradient(145deg,#0f2a2c,#0b1827)}
+.notification-title{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.notification-body{margin-top:6px;color:#aebdd2;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.notification-date{margin-top:8px;color:#7d90ab;font-size:10.5px}
+
 .field{display:grid;gap:7px;margin-top:15px}
 .field label{color:#c8d5e7;font-size:12px;font-weight:750}
 .field input,.field select,.field textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;outline:none;background:#080f1d;color:var(--text)}
@@ -136,7 +149,6 @@ button:disabled{opacity:.55;cursor:wait}
 .drawer-item small{display:block;margin-top:3px;color:var(--muted);font-size:10px;line-height:1.4}
 .drawer-item.danger .menu-icon{background:#3a1822;color:#ff9eaa}
 @media(max-width:520px){
-  .account-top-button{padding:0 10px;font-size:11px}
   .nav-label{font-size:9.5px}
 }
 @media(max-width:420px){
@@ -200,7 +212,11 @@ button:disabled{opacity:.55;cursor:wait}
     </div>
 
     <div class="topbar-actions">
-      <button class="account-top-button" id="topAccountButton" type="button" aria-label="Open Account">Account</button>
+      <!-- Notification bell (top right) -->
+      <button class="notify-top-button" id="topNotificationButton" data-page="notificationsPage" type="button" aria-label="Open Notifications">
+        🔔
+        <span class="notify-badge hidden" id="notifyBadge">0</span>
+      </button>
       <button class="icon-button" id="menuButton" aria-label="Open menu" type="button">⋮</button>
     </div>
   </header>
@@ -426,7 +442,7 @@ button:disabled{opacity:.55;cursor:wait}
   </section>
 
 
-  <!-- ===================== COMMUNITY ===================== -->
+  <!-- ===================== COMMUNITY (kept, not in bottom nav) ===================== -->
   <section id="communityPage" class="hidden">
     <div class="welcome">
       <div class="eyebrow">APRP Digital</div>
@@ -617,6 +633,7 @@ button:disabled{opacity:.55;cursor:wait}
   </section>
 
 
+  <!-- ===================== NOTIFICATIONS ===================== -->
   <section id="notificationsPage" class="hidden">
     <div class="welcome">
       <div class="eyebrow">Updates</div>
@@ -624,7 +641,12 @@ button:disabled{opacity:.55;cursor:wait}
       <p>Important account updates.</p>
     </div>
     <div class="panel">
-      <div class="message">Notifications will appear here when connected to the notification service.</div>
+      <div class="section-heading">
+        <h2 data-i18n="notifications">Notifications</h2>
+        <button class="btn btn-primary" id="refreshNotifications" data-i18n="refresh" type="button">Refresh</button>
+      </div>
+      <div id="notificationMessage" class="message">Loading notifications...</div>
+      <div id="notificationList" class="notification-list"></div>
     </div>
   </section>
 
@@ -662,7 +684,7 @@ button:disabled{opacity:.55;cursor:wait}
 </main>
 
 
-<!-- BOTTOM NAVIGATION -->
+<!-- BOTTOM NAVIGATION — Home / Product / Order / Buyback / Account -->
 <nav id="bottomNav" class="bottom-nav hidden" aria-label="Main navigation">
 
   <button class="nav-button active" data-page="homePage" type="button">
@@ -685,9 +707,9 @@ button:disabled{opacity:.55;cursor:wait}
     <span class="nav-label" data-i18n="buyback">Buyback</span>
   </button>
 
-  <button class="nav-button" data-page="communityPage" type="button">
-    <span class="nav-icon">♧</span>
-    <span class="nav-label" data-i18n="community">Community</span>
+  <button class="nav-button" data-page="accountPage" type="button">
+    <span class="nav-icon">◉</span>
+    <span class="nav-label" data-i18n="account">Account</span>
   </button>
 
 </nav>
@@ -789,14 +811,20 @@ button:disabled{opacity:.55;cursor:wait}
 "use strict";
 
 /* =========================================================
-   SUPABASE
+   SUPABASE (safe: the app still opens even if the library fails)
    ========================================================= */
 
 const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
 const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabaseClient = null;
+
+try{
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}catch(e){
+  console.error("Supabase could not be loaded:", e);
+}
 
 
 /* =========================================================
@@ -819,6 +847,7 @@ let transactionRequestNumber = 0;
 let productRequestNumber = 0;
 let withdrawalRequestNumber = 0;
 let depositRequestNumber = 0;
+let notificationRequestNumber = 0;
 let productsCache = [];
 let withdrawalOptions = [];
 let depositOptions = [];
@@ -828,6 +857,12 @@ let deferredInstallPrompt = null;
 const LAST_PAGE_KEY = "aprp_last_page";
 
 const $ = id => document.getElementById(id);
+
+/* safe event binding: a missing element never stops the whole app */
+function on(id, eventName, handler){
+  const el = $(id);
+  if(el) el.addEventListener(eventName, handler);
+}
 
 
 /* =========================================================
@@ -879,6 +914,8 @@ const translations = {
     noWithdrawalMethods:"No withdrawal service is currently available.",
     withdrawalUnavailable:"Withdrawal service is not available yet. Please try again later.",
     withdrawalRequestCreated:"Withdrawal request created successfully.",
+    loadingNotifications:"Loading notifications...",
+    noNotifications:"You have no notifications yet.",
     topProducts:"Top-Selling Products",
     topProductsSubtitle:"Products from the product catalogue.",
     viewAll:"View All",
@@ -954,6 +991,8 @@ const translations = {
     noWithdrawalMethods:"বর্তমানে কোনো উইথড্র সেবা উপলভ্য নেই।",
     withdrawalUnavailable:"উইথড্র সেবা এখনো চালু করা হয়নি। পরে আবার চেষ্টা করুন।",
     withdrawalRequestCreated:"উইথড্র আবেদন সফলভাবে তৈরি হয়েছে।",
+    loadingNotifications:"নোটিফিকেশন লোড হচ্ছে...",
+    noNotifications:"এখনো কোনো নোটিফিকেশন নেই।",
     topProducts:"সর্বাধিক বিক্রিত পণ্য",
     topProductsSubtitle:"পণ্য ক্যাটালগ থেকে পণ্য।",
     viewAll:"সব দেখুন",
@@ -1018,6 +1057,7 @@ function applyLanguage(){
    ========================================================= */
 
 function showMessage(element, text, type=""){
+  if(!element) return;
   element.textContent = text;
   element.className = "message" + (type ? " " + type : "");
   element.hidden = false;
@@ -1040,6 +1080,12 @@ function readableLabel(value){
     .replace(/\s+/g," ")
     .trim()
     .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function requireDb(messageElement){
+  if(supabaseClient) return true;
+  showMessage(messageElement, "The database library could not be loaded. Check your internet connection and refresh the page.", "error");
+  return false;
 }
 
 
@@ -1100,6 +1146,7 @@ function showPage(pageId, opts={}){
     }
   });
 
+  /* highlight the matching bottom-nav button (Home, Product, Order, Buyback, Account) */
   document.querySelectorAll("#bottomNav .nav-button").forEach(button=>{
     button.classList.toggle("active", button.dataset.page === pageId);
   });
@@ -1122,10 +1169,11 @@ function showPage(pageId, opts={}){
     }
   }catch(e){}
 
-  if(pageId === "transactionsPage") loadTransactions();
-  if(pageId === "productsPage")     loadProducts();
-  if(pageId === "withdrawPage")     loadWithdrawalMethods();
-  if(pageId === "depositPage")      loadDepositChannels();
+  if(pageId === "transactionsPage")  loadTransactions();
+  if(pageId === "productsPage")      loadProducts();
+  if(pageId === "withdrawPage")      loadWithdrawalMethods();
+  if(pageId === "depositPage")       loadDepositChannels();
+  if(pageId === "notificationsPage") loadNotifications();
 
   if(pageId === "homePage"){
     loadWallet();
@@ -1185,6 +1233,8 @@ function showApp(){
   $("bottomNav").classList.remove("hidden");
 
   showPage(getStartPage(), { replace:true });
+
+  refreshNotificationBadge();
 }
 
 
@@ -1194,7 +1244,7 @@ function showApp(){
 
 async function loadWallet(){
 
-  if(!user?.id) return;
+  if(!user?.id || !supabaseClient) return;
 
   $("availableBalance").textContent = "BDT ৳ …";
   $("reservedBalance").textContent  = "BDT ৳ …";
@@ -1237,6 +1287,162 @@ async function loadWallet(){
 
 
 /* =========================================================
+   NOTIFICATIONS
+   Reads from the "notifications" table:
+   id, user_id, title, message, is_read, created_at
+   If the table is missing, a friendly message is shown instead.
+   ========================================================= */
+
+async function refreshNotificationBadge(){
+
+  const badge = $("notifyBadge");
+  if(!badge) return;
+
+  if(!user?.id || !supabaseClient){
+    badge.classList.add("hidden");
+    return;
+  }
+
+  try{
+
+    const { count, error } = await supabaseClient
+      .from("notifications")
+      .select("id", { count:"exact", head:true })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
+
+    if(error) throw error;
+
+    if(count && count > 0){
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.classList.remove("hidden");
+    }else{
+      badge.classList.add("hidden");
+    }
+
+  }catch(error){
+    /* table may not exist yet — just hide the badge */
+    badge.classList.add("hidden");
+  }
+
+}
+
+async function loadNotifications(){
+
+  const request = ++notificationRequestNumber;
+
+  const list = $("notificationList");
+  const message = $("notificationMessage");
+  const button = $("refreshNotifications");
+
+  if(!list || !message) return;
+
+  list.replaceChildren();
+  showMessage(message, t("loadingNotifications"));
+
+  if(!user?.id){
+    showMessage(message, "Please sign in to view notifications.", "error");
+    return;
+  }
+
+  if(!requireDb(message)) return;
+
+  if(button) button.disabled = true;
+
+  try{
+
+    const { data, error } = await supabaseClient
+      .from("notifications")
+      .select("id, title, message, is_read, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending:false })
+      .limit(50);
+
+    if(request !== notificationRequestNumber) return;
+    if(error) throw error;
+
+    if(!data || !data.length){
+      showMessage(message, t("noNotifications"));
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    data.forEach(item=>{
+
+      const card = document.createElement("article");
+      card.className = "notification-item" + (item.is_read ? "" : " unread");
+
+      const title = document.createElement("div");
+      title.className = "notification-title";
+      title.textContent = item.title || "Notification";
+      card.appendChild(title);
+
+      if(item.message){
+        const body = document.createElement("div");
+        body.className = "notification-body";
+        body.textContent = item.message;
+        card.appendChild(body);
+      }
+
+      const date = document.createElement("div");
+      date.className = "notification-date";
+
+      const parsed = item.created_at ? new Date(item.created_at) : null;
+
+      date.textContent =
+        parsed && !Number.isNaN(parsed.getTime())
+          ? parsed.toLocaleString("en-GB",{
+              dateStyle:"medium",
+              timeStyle:"short",
+              timeZone:"Asia/Dhaka"
+            })
+          : "";
+
+      card.appendChild(date);
+      fragment.appendChild(card);
+
+    });
+
+    list.replaceChildren(fragment);
+    message.hidden = true;
+
+    /* best effort: mark as read (ignored if the database does not allow it) */
+    if(data.some(n => !n.is_read)){
+      try{
+        await supabaseClient
+          .from("notifications")
+          .update({ is_read:true })
+          .eq("user_id", user.id)
+          .eq("is_read", false);
+      }catch(e){}
+      refreshNotificationBadge();
+    }
+
+  }catch(error){
+
+    if(request !== notificationRequestNumber) return;
+
+    console.error("Notifications error:", error);
+
+    showMessage(
+      message,
+      "Notifications could not be loaded yet. The notifications table may not be set up.",
+      "error"
+    );
+
+  }finally{
+
+    if(button && request === notificationRequestNumber){
+      button.disabled = false;
+    }
+
+  }
+
+}
+
+
+/* =========================================================
    TRANSACTIONS
    ========================================================= */
 
@@ -1256,6 +1462,8 @@ async function loadTransactions(){
     showMessage(message, "Please sign in to view transactions.", "error");
     return;
   }
+
+  if(!requireDb(message)) return;
 
   button.disabled = true;
   button.textContent = "Loading...";
@@ -1501,6 +1709,13 @@ async function loadProducts(){
 
   showMessage($("topProductsMessage"), "Loading products...");
   showMessage($("allProductsMessage"), "Loading products...");
+
+  if(!supabaseClient){
+    const msg = "The database library could not be loaded. Check your internet connection and refresh the page.";
+    showMessage($("topProductsMessage"), msg, "error");
+    showMessage($("allProductsMessage"), msg, "error");
+    return;
+  }
 
   const candidates = ["products", "product_catalog", "store_products"];
 
@@ -1799,6 +2014,8 @@ async function loadDepositChannels(){
     return;
   }
 
+  if(!requireDb(message)) return;
+
   try{
 
     const { data:services, error:serviceError } = await supabaseClient
@@ -1939,6 +2156,8 @@ async function handleDepositSubmit(event){
     showMessage(msg, "Please select a deposit channel.", "error");
     return;
   }
+
+  if(!requireDb(msg)) return;
 
   const amount = Number($("depositAmount").value);
   const limits = getLimits(option);
@@ -2132,6 +2351,8 @@ async function loadWithdrawalMethods(){
     return;
   }
 
+  if(!requireDb(message)) return;
+
   try{
 
     const { data:services, error:serviceError } = await supabaseClient
@@ -2236,6 +2457,8 @@ async function submitWithdrawal(event){
     showMessage($("withdrawalMessage"), "Please sign in before submitting a withdrawal request.", "error");
     return;
   }
+
+  if(!requireDb($("withdrawalMessage"))) return;
 
   const button = $("submitWithdrawalButton");
   const option = getSelectedWithdrawalOption();
@@ -2411,6 +2634,11 @@ async function submitWithdrawal(event){
 
 async function signIn(){
 
+  if(!requireDb($("authMessage"))){
+    $("authMessage").classList.remove("hidden");
+    return;
+  }
+
   $("loginButton").disabled = true;
   $("signupButton").disabled = true;
 
@@ -2447,6 +2675,11 @@ async function signIn(){
 }
 
 async function signUp(){
+
+  if(!requireDb($("authMessage"))){
+    $("authMessage").classList.remove("hidden");
+    return;
+  }
 
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
@@ -2499,6 +2732,8 @@ async function signUp(){
 
 async function signOut(){
 
+  if(!supabaseClient) return;
+
   const { error } = await supabaseClient.auth.signOut();
 
   if(error){
@@ -2516,48 +2751,47 @@ async function signOut(){
 
 
 /* =========================================================
-   EVENT LISTENERS
+   EVENT LISTENERS (all bindings are null-safe)
    ========================================================= */
 
-$("authForm").addEventListener("submit", e=>{
+on("authForm", "submit", e=>{
   e.preventDefault();
   signIn();
 });
 
-$("signupButton").addEventListener("click", signUp);
-$("refreshWalletButton").addEventListener("click", loadWallet);
-$("refreshTransactions").addEventListener("click", loadTransactions);
+on("signupButton", "click", signUp);
+on("refreshWalletButton", "click", loadWallet);
+on("refreshTransactions", "click", loadTransactions);
+on("refreshNotifications", "click", loadNotifications);
 
-$("menuButton").addEventListener("click", ()=> $("drawer").classList.remove("hidden"));
-$("closeDrawerButton").addEventListener("click", ()=> $("drawer").classList.add("hidden"));
+on("menuButton", "click", ()=> $("drawer").classList.remove("hidden"));
+on("closeDrawerButton", "click", ()=> $("drawer").classList.add("hidden"));
 
-$("drawer").addEventListener("click", e=>{
+on("drawer", "click", e=>{
   if(e.target === $("drawer")){
     $("drawer").classList.add("hidden");
   }
 });
 
-$("accountLogoutButton").addEventListener("click", signOut);
-$("drawerLogoutButton").addEventListener("click", signOut);
+on("accountLogoutButton", "click", signOut);
+on("drawerLogoutButton", "click", signOut);
 
-$("productSearch").addEventListener("input", filterProducts);
-
-$("topAccountButton").addEventListener("click", ()=> showPage("accountPage"));
+on("productSearch", "input", filterProducts);
 
 
 /* ---- Deposit popup ---- */
 
-$("depositAmount").addEventListener("input", updateDepositUI);
+on("depositAmount", "input", updateDepositUI);
 
-$("depositReference").addEventListener("input", ()=>{
+on("depositReference", "input", ()=>{
   $("depositSummaryReference").textContent = $("depositReference").value.trim() || "—";
 });
 
-$("depositForm").addEventListener("submit", handleDepositSubmit);
-$("closeDepositModal").addEventListener("click", closeDepositModal);
+on("depositForm", "submit", handleDepositSubmit);
+on("closeDepositModal", "click", closeDepositModal);
 
 /* tap on the dark area outside the sheet closes the popup */
-$("depositForm").addEventListener("click", e=>{
+on("depositForm", "click", e=>{
   if(e.target === $("depositForm")){
     closeDepositModal();
   }
@@ -2566,14 +2800,14 @@ $("depositForm").addEventListener("click", e=>{
 
 /* ---- Withdrawal ---- */
 
-$("withdrawalMethod").addEventListener("change", updateWithdrawalAmountUI);
-$("withdrawalAmount").addEventListener("input", updateWithdrawalAmountUI);
-$("withdrawalForm").addEventListener("submit", submitWithdrawal);
+on("withdrawalMethod", "change", updateWithdrawalAmountUI);
+on("withdrawalAmount", "input", updateWithdrawalAmountUI);
+on("withdrawalForm", "submit", submitWithdrawal);
 
 
 /* ---- Language ---- */
 
-$("saveLanguageButton").addEventListener("click", ()=>{
+on("saveLanguageButton", "click", ()=>{
 
   try{ localStorage.setItem("aprp_language", $("languageSelect").value); }catch(e){}
 
@@ -2590,7 +2824,7 @@ $("saveLanguageButton").addEventListener("click", ()=>{
 
 /* ---- Referral ---- */
 
-$("copyReferralButton").addEventListener("click", async ()=>{
+on("copyReferralButton", "click", async ()=>{
 
   const value = $("referralCode").value;
 
@@ -2611,7 +2845,7 @@ $("copyReferralButton").addEventListener("click", async ()=>{
 
 /* ---- Web app installation ---- */
 
-$("installWebAppButton").addEventListener("click", async ()=>{
+on("installWebAppButton", "click", async ()=>{
 
   if(deferredInstallPrompt){
     deferredInstallPrompt.prompt();
@@ -2629,10 +2863,13 @@ window.addEventListener("beforeinstallprompt", event=>{
 });
 
 
-/* ---- Page navigation (every button that has data-page) ---- */
+/* ---- Page navigation: ONE handler for every button that has data-page ---- */
 
-document.querySelectorAll("[data-page]").forEach(button=>{
-  button.addEventListener("click", ()=> showPage(button.dataset.page));
+document.addEventListener("click", e=>{
+  const target = e.target.closest("[data-page]");
+  if(target && target.dataset.page){
+    showPage(target.dataset.page);
+  }
 });
 
 
@@ -2643,6 +2880,11 @@ document.querySelectorAll("[data-page]").forEach(button=>{
 async function initializeApp(){
 
   applyLanguage();
+
+  if(!supabaseClient){
+    showAuth("The database library could not be loaded. Check your internet connection and refresh the page.");
+    return;
+  }
 
   try{
 
@@ -2667,22 +2909,26 @@ async function initializeApp(){
 
 }
 
-supabaseClient.auth.onAuthStateChange((_event, session)=>{
+if(supabaseClient){
 
-  user = session?.user || null;
+  supabaseClient.auth.onAuthStateChange((_event, session)=>{
 
-  /* run outside the auth callback to avoid Supabase client deadlocks */
-  setTimeout(()=>{
+    user = session?.user || null;
 
-    if(user){
-      showApp();
-    }else{
-      showAuth();
-    }
+    /* run outside the auth callback to avoid Supabase client deadlocks */
+    setTimeout(()=>{
 
-  }, 0);
+      if(user){
+        showApp();
+      }else{
+        showAuth();
+      }
 
-});
+    }, 0);
+
+  });
+
+}
 
 initializeApp();
 </script>
