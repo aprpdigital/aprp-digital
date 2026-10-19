@@ -617,7 +617,7 @@ button:disabled{opacity:.55;cursor:wait}
           <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
 
           <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
-            Your request will be sent for review. The amount is taken from your available balance and held as reserved balance until it is processed.
+            Your request will be sent for review. The amount is deducted from your main balance and shown as pending in Transaction History until it is processed.
           </div>
 
         </div>
@@ -952,7 +952,7 @@ const translations = {
     fee:"Fee",
     netAmount:"Net Amount",
     submitWithdrawal:"Submit Withdrawal Request",
-    withdrawalReviewNote:"Your request will be sent for review. The amount is taken from your available balance and held as reserved balance until it is processed.",
+    withdrawalReviewNote:"Your request will be sent for review. The amount is deducted from your main balance and shown as pending in Transaction History until it is processed.",
     loadingWithdrawalMethods:"Loading withdrawal services...",
     noWithdrawalMethods:"No withdrawal service is currently available.",
     withdrawalUnavailable:"Withdrawal service is not available yet. Please try again later.",
@@ -1030,7 +1030,7 @@ const translations = {
     fee:"ফি",
     netAmount:"প্রাপ্তির পরিমাণ",
     submitWithdrawal:"উইথড্র আবেদন পাঠান",
-    withdrawalReviewNote:"আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। আবেদনের টাকা ব্যবহারযোগ্য ব্যালেন্স থেকে কেটে প্রক্রিয়া শেষ না হওয়া পর্যন্ত সংরক্ষিত ব্যালেন্সে রাখা হবে।",
+    withdrawalReviewNote:"আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। আবেদনের টাকা মেইন ব্যালেন্স থেকে কেটে নেওয়া হবে এবং প্রক্রিয়া শেষ না হওয়া পর্যন্ত লেনদেনের ইতিহাসে পেন্ডিং দেখাবে।",
     loadingWithdrawalMethods:"উইথড্র সেবা লোড হচ্ছে...",
     noWithdrawalMethods:"বর্তমানে কোনো উইথড্র সেবা উপলভ্য নেই।",
     withdrawalUnavailable:"উইথড্র সেবা এখনো চালু করা হয়নি। পরে আবার চেষ্টা করুন।",
@@ -1573,7 +1573,9 @@ async function loadTransactions(){
 
       const amount = document.createElement("div");
       amount.className = "transaction-amount";
-      amount.textContent = formatMoney(tx.amount, tx.currency || "BDT");
+      const kind = String(tx.transaction_type || "").toLowerCase();
+      const sign = kind.includes("deposit") ? "+ " : (kind.includes("withdraw") ? "− " : "");
+      amount.textContent = sign + formatMoney(tx.amount, tx.currency || "BDT");
       right.appendChild(amount);
 
       const status = document.createElement("span");
@@ -2258,27 +2260,23 @@ async function handleDepositSubmit(event){
 
     const depositId = makeRequestId("DP");
 
-    const { error } = await supabaseClient
-      .from("deposit_requests")
-      .insert({
-        deposit_id: depositId,
-        user_id: user.id,
-        provider_id: option.service.provider_id,
-        provider_service_id: option.service.id,
-        provider_channel_id: option.channel.id,
-        amount,
-        currency: "BDT",
-        sender_number: sender,
-        transaction_reference: txn,
-        user_note: note || null,
-        status: "pending",
-        idempotency_key: makeRequestId("DPI"),
-        metadata: { source:"user_app", flow:"deposit_request", client_version:"1" }
-      });
+    /* The database function blocks a transaction ID that was already used,
+       creates the pending request, a pending transaction and a notification. */
+    const { error } = await supabaseClient.rpc("create_deposit_request", {
+      p_deposit_id: depositId,
+      p_provider_service_id: String(option.service.id),
+      p_provider_channel_id: String(option.channel.id),
+      p_amount: amount,
+      p_sender_number: sender,
+      p_transaction_reference: txn,
+      p_user_note: note || null,
+      p_idempotency_key: makeRequestId("DPI")
+    });
 
     if(error) throw error;
 
     showMessage(msg, "Deposit request submitted. ID: " + depositId, "success");
+    refreshNotificationBadge();
 
     $("depositForm").reset();
     $("depositSummaryReference").textContent = "—";
@@ -2292,7 +2290,11 @@ async function handleDepositSubmit(event){
 
     let m = error?.message || "Could not submit deposit request.";
 
-    if(/row-level security|permission denied|not authorized/i.test(m)){
+    if(/could not find the function|schema cache/i.test(m)){
+      m = "Deposit database function is not installed yet. Run database_setup.sql in Supabase first.";
+    }else if(/duplicate key|23505/i.test(m)){
+      m = "This transaction ID has already been used. A transaction ID can only be submitted once.";
+    }else if(/row-level security|permission denied|not authorized/i.test(m)){
       m = "Deposit request could not be submitted because database permission/RLS is blocking the request.";
     }
 
@@ -2602,8 +2604,9 @@ async function submitWithdrawal(event){
     const idempotencyKey = makeRequestId("WDI");
 
     /* The database function does everything in ONE atomic step:
-       checks the balance, moves the amount from available to reserved,
-       and creates the pending request. Run withdrawal_rpc.sql once in Supabase. */
+       checks the balance, deducts the amount from the MAIN balance,
+       creates the pending request, a pending transaction and a notification.
+       Run database_setup.sql once in Supabase. */
     const { data, error } = await supabaseClient.rpc("create_withdrawal_request", {
       p_withdrawal_id: withdrawalId,
       p_provider_service_id: String(option.service.id),
@@ -2632,6 +2635,7 @@ async function submitWithdrawal(event){
 
     setTimeout(closeWithdrawalModal, 1800);
 
+    refreshNotificationBadge();
     await loadWallet();
 
   }catch(error){
@@ -2641,7 +2645,7 @@ async function submitWithdrawal(event){
     let errorText = error?.message || "Could not create withdrawal request.";
 
     if(/could not find the function|create_withdrawal_request/i.test(errorText) && /find|schema cache|does not exist/i.test(errorText)){
-      errorText = "Withdrawal database function is not installed yet. Run withdrawal_rpc.sql in Supabase first.";
+      errorText = "Withdrawal database function is not installed yet. Run database_setup.sql in Supabase first.";
     }else if(/row-level security|permission denied|not authorized/i.test(errorText)){
       errorText = "Withdrawal request could not be submitted because database permission/RLS is blocking the request.";
     }
