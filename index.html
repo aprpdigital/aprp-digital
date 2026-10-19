@@ -664,8 +664,18 @@ button:disabled{opacity:.55;cursor:wait}
           <div class="field">
             <label for="withdrawalNote" data-i18n="withdrawNote">Note (optional)</label>
             <input id="withdrawalNote" type="text" maxlength="250" placeholder="Optional note">
+          </div>
 
-                      <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
+          <div class="message" style="margin-top:15px">
+            <div><span data-i18n="fee">Fee</span>: <strong id="withdrawalFee">BDT 0.00</strong></div>
+            <div style="margin-top:6px"><span data-i18n="netAmount">Net Amount</span>: <strong id="withdrawalNetAmount">BDT 0.00</strong></div>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="submitWithdrawalButton" type="submit" style="margin-top:15px" data-i18n="submitWithdrawal">
+            Submit Withdrawal Request
+          </button>
+
+          <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
 
           <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
             Your request will be sent for review. The amount is deducted from your main balance and shown as pending in Transaction History until it is processed.
@@ -900,7 +910,7 @@ button:disabled{opacity:.55;cursor:wait}
 
 
 <script>
-"use strict";
+  "use strict";
 
 /* =========================================================
    SUPABASE (safe: the app still opens even if the library fails)
@@ -1340,7 +1350,8 @@ function showApp(){
   refreshNotificationBadge();
 }
 
-  /* =========================================================
+
+/* =========================================================
    WALLET
    ========================================================= */
 
@@ -2016,8 +2027,6 @@ async function loadProducts(){
 
       const result = await supabaseClient
         .from(table)
-
-            .from(table)
         .select("*")
         .limit(100);
 
@@ -2693,8 +2702,7 @@ async function loadWithdrawalMethods(){
   showMessage(message, t("loadingWithdrawalMethods"));
 
   if(!user?.id){
-
-      showMessage(message, "Please sign in to use withdrawal.", "error");
+    showMessage(message, "Please sign in to use withdrawal.", "error");
     return;
   }
 
