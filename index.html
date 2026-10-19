@@ -910,7 +910,7 @@ button:disabled{opacity:.55;cursor:wait}
 
 
 <script>
-  "use strict";
+"use strict";
 
 /* =========================================================
    SUPABASE (safe: the app still opens even if the library fails)
@@ -1413,7 +1413,7 @@ async function loadProfile(){
   try{
 
     const { data, error } = await supabaseClient
-      .from("profiles")
+      .from("account_profiles")
       .select("username, username_changed, phone, phone_set, phone_verified")
       .eq("user_id", user.id)
       .maybeSingle();
