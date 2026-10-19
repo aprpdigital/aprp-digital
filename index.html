@@ -17,6 +17,7 @@ button{cursor:pointer}
 button:disabled{opacity:.55;cursor:wait}
 .hidden{display:none!important}
 .muted{color:var(--muted)}
+.note-small{color:var(--muted);font-size:11px;line-height:1.55;margin-top:8px}
 .app-shell{width:min(100%,760px);margin:0 auto;padding:15px 14px 100px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 20px}
 .brand{display:flex;align-items:center;gap:11px;min-width:0}
@@ -176,7 +177,7 @@ button:disabled{opacity:.55;cursor:wait}
     </div>
 
     <h1 id="authHeading">Welcome back</h1>
-    <p>Sign in to access your account and wallet.</p>
+    <p id="authIntro">Sign in to access your account and wallet.</p>
 
     <form id="authForm">
       <div class="field">
@@ -193,6 +194,21 @@ button:disabled{opacity:.55;cursor:wait}
         <button class="btn btn-primary" id="loginButton" type="submit">Sign In</button>
         <button class="btn" id="signupButton" type="button">Create Account</button>
       </div>
+    </form>
+
+    <!-- Email code (OTP) form: shown after Create Account -->
+    <form id="otpForm" class="hidden">
+      <div class="field">
+        <label for="otpCode">Email verification code / ইমেইলে আসা কোড</label>
+        <input id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code from your email" required>
+      </div>
+
+      <div class="auth-actions">
+        <button class="btn btn-primary" id="verifyOtpButton" type="submit">Verify</button>
+        <button class="btn" id="resendOtpButton" type="button">Resend code</button>
+      </div>
+
+      <button class="btn btn-block" id="otpBackButton" type="button" style="margin-top:10px">Back to sign in</button>
     </form>
 
     <div id="authMessage" class="message auth-message hidden" role="status" aria-live="polite"></div>
@@ -409,6 +425,51 @@ button:disabled{opacity:.55;cursor:wait}
       <div class="muted" style="margin-top:15px">User ID</div>
       <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px"></p>
 
+      <!-- ---------- Username (can be changed only once) ---------- -->
+      <div class="muted" style="margin-top:15px">Username / ইউজারনেম</div>
+      <p id="accountUsername" style="font-weight:800;margin:6px 0 0;overflow-wrap:anywhere">—</p>
+
+      <form id="usernameForm" class="hidden">
+        <div class="field">
+          <label for="usernameInput">New username (one time only) / নতুন ইউজারনেম</label>
+          <input id="usernameInput" type="text" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="e.g. rahim_99" required>
+          <div class="note-small">3–20 characters: start with a letter, then letters, numbers or underscore (_). You can change it only once.</div>
+        </div>
+        <button class="btn btn-primary btn-block" id="saveUsernameButton" type="submit" style="margin-top:10px">Change Username (one time)</button>
+      </form>
+
+      <div id="usernameLockedNote" class="note-small hidden">Username already changed. It cannot be changed again.</div>
+
+      <!-- ---------- Phone number (can be submitted only once) ---------- -->
+      <div class="muted" style="margin-top:18px">Phone number / ফোন নাম্বার</div>
+
+      <form id="phoneForm" class="hidden">
+        <div class="field">
+          <label for="phoneInput">Mobile number (one time only) / মোবাইল নাম্বার</label>
+          <input id="phoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="01XXXXXXXXX" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="savePhoneButton" type="submit" style="margin-top:10px">Submit Phone Number (one time)</button>
+        <div class="note-small">
+          ℹ️ Phone verification works only through Telegram. If you do not have Telegram, you can skip verification.<br>
+          ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামের মাধ্যমে হয়। টেলিগ্রাম না থাকলে ভেরিফিকেশন বাদ দিতে পারেন।
+        </div>
+      </form>
+
+      <div id="phoneInfo" class="hidden">
+        <p id="phoneValue" style="font-weight:800;margin:6px 0 2px;overflow-wrap:anywhere"></p>
+        <p id="phoneStatus" class="muted" style="margin:0 0 10px"></p>
+
+        <button class="btn btn-primary btn-block" id="verifyPhoneButton" type="button">Verify phone with Telegram</button>
+        <button class="btn btn-block hidden" id="refreshProfileButton" type="button" style="margin-top:8px">I have verified — refresh status</button>
+
+        <div id="telegramOnlyNote" class="note-small">
+          ℹ️ Phone verification is Telegram-only. No Telegram? You can skip this.<br>
+          ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামে। টেলিগ্রাম না থাকলে বাদ দিন।
+        </div>
+      </div>
+
+      <div id="profileMessage" class="message hidden" style="margin-top:14px"></div>
+
     </div>
 
     <div class="panel" style="margin-top:14px">
@@ -603,18 +664,8 @@ button:disabled{opacity:.55;cursor:wait}
           <div class="field">
             <label for="withdrawalNote" data-i18n="withdrawNote">Note (optional)</label>
             <input id="withdrawalNote" type="text" maxlength="250" placeholder="Optional note">
-          </div>
 
-          <div class="message" style="margin-top:15px">
-            <div><span data-i18n="fee">Fee</span>: <strong id="withdrawalFee">BDT 0.00</strong></div>
-            <div style="margin-top:6px"><span data-i18n="netAmount">Net Amount</span>: <strong id="withdrawalNetAmount">BDT 0.00</strong></div>
-          </div>
-
-          <button class="btn btn-primary btn-block" id="submitWithdrawalButton" type="submit" style="margin-top:15px" data-i18n="submitWithdrawal">
-            Submit Withdrawal Request
-          </button>
-
-          <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
+                      <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
 
           <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
             Your request will be sent for review. The amount is deducted from your main balance and shown as pending in Transaction History until it is processed.
@@ -859,6 +910,10 @@ const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
 const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
 
+/* Your Telegram bot username WITHOUT the @ sign (from BotFather).
+   Example: if the bot is @aprp_verify_bot, write "aprp_verify_bot". */
+const TELEGRAM_BOT_USERNAME = "YourBotUsername";
+
 let supabaseClient = null;
 
 try{
@@ -895,6 +950,8 @@ let depositOptions = [];
 let selectedDepositId = null;
 let selectedWithdrawalId = null;
 let deferredInstallPrompt = null;
+let profile = null;
+let pendingSignupEmail = null;
 
 const LAST_PAGE_KEY = "aprp_last_page";
 
@@ -1218,6 +1275,7 @@ function showPage(pageId, opts={}){
   if(pageId === "withdrawPage")      loadWithdrawalMethods();
   if(pageId === "depositPage")       loadDepositChannels();
   if(pageId === "notificationsPage") loadNotifications();
+  if(pageId === "accountPage")       loadProfile();
 
   if(pageId === "homePage"){
     loadWallet();
@@ -1242,6 +1300,7 @@ window.addEventListener("popstate", e=>{
 
 function showAuth(message=""){
   appShownForUser = null;
+  profile = null;
 
   $("authView").classList.remove("hidden");
   $("appView").classList.add("hidden");
@@ -1281,8 +1340,7 @@ function showApp(){
   refreshNotificationBadge();
 }
 
-
-/* =========================================================
+  /* =========================================================
    WALLET
    ========================================================= */
 
@@ -1324,6 +1382,190 @@ async function loadWallet(){
     $("availableBalance").textContent = "Unavailable";
     $("reservedBalance").textContent  = "Unavailable";
     $("walletStatus").textContent     = "Error";
+
+  }
+
+}
+
+
+/* =========================================================
+   PROFILE — username (once), phone (once), Telegram verification
+   Needs supabase_setup.sql to be run once in Supabase.
+   ========================================================= */
+
+async function loadProfile(){
+
+  const msg = $("profileMessage");
+
+  if(!user?.id || !supabaseClient) return;
+
+  try{
+
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("username, username_changed, phone, phone_set, phone_verified")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if(error) throw error;
+
+    profile = data;
+    renderProfile();
+
+  }catch(error){
+
+    console.error("Profile error:", error);
+
+    let m = error?.message || "Please try again.";
+
+    if(/relation|does not exist|schema cache/i.test(m)){
+      m = "Profile table is not set up yet. Run supabase_setup.sql in Supabase first.";
+    }
+
+    showMessage(msg, "Could not load profile: " + m, "error");
+
+  }
+
+}
+
+function renderProfile(){
+
+  if(!profile) return;
+
+  $("accountUsername").textContent = "@" + profile.username;
+
+  $("usernameForm").classList.toggle("hidden", !!profile.username_changed);
+  $("usernameLockedNote").classList.toggle("hidden", !profile.username_changed);
+
+  $("phoneForm").classList.toggle("hidden", !!profile.phone_set);
+  $("phoneInfo").classList.toggle("hidden", !profile.phone_set);
+
+  if(profile.phone_set){
+
+    $("phoneValue").textContent = profile.phone || "";
+    $("phoneStatus").textContent = profile.phone_verified ? "Verified ✓" : "Not verified yet";
+
+    $("verifyPhoneButton").classList.toggle("hidden", !!profile.phone_verified);
+    $("telegramOnlyNote").classList.toggle("hidden", !!profile.phone_verified);
+
+    if(profile.phone_verified){
+      $("refreshProfileButton").classList.add("hidden");
+    }
+
+  }
+
+}
+
+async function changeUsername(event){
+
+  event.preventDefault();
+
+  const msg = $("profileMessage");
+
+  if(!requireDb(msg)) return;
+
+  const value = $("usernameInput").value.trim().toLowerCase();
+
+  if(!confirm("You can change your username only ONCE. Change it to \"" + value + "\"?\n\nইউজারনেম শুধু একবারই বদলানো যাবে।")) return;
+
+  const button = $("saveUsernameButton");
+  button.disabled = true;
+
+  try{
+
+    const { error } = await supabaseClient.rpc("change_username", { new_username: value });
+    if(error) throw error;
+
+    showMessage(msg, "Username changed successfully.", "success");
+    $("usernameInput").value = "";
+
+    await loadProfile();
+
+  }catch(error){
+
+    showMessage(msg, error?.message || "Could not change username.", "error");
+
+  }finally{
+
+    button.disabled = false;
+
+  }
+
+}
+
+async function submitPhone(event){
+
+  event.preventDefault();
+
+  const msg = $("profileMessage");
+
+  if(!requireDb(msg)) return;
+
+  const value = $("phoneInput").value.trim();
+
+  if(!confirm("You can submit your phone number only ONCE and it cannot be changed later. Is " + value + " correct?\n\nফোন নাম্বার শুধু একবারই দেওয়া যাবে, পরে বদলানো যাবে না।")) return;
+
+  const button = $("savePhoneButton");
+  button.disabled = true;
+
+  try{
+
+    const { error } = await supabaseClient.rpc("set_phone", { new_phone: value });
+    if(error) throw error;
+
+    showMessage(msg, "Phone number saved. You can now verify it with Telegram (optional).", "success");
+    $("phoneInput").value = "";
+
+    await loadProfile();
+
+  }catch(error){
+
+    showMessage(msg, error?.message || "Could not save phone number.", "error");
+
+  }finally{
+
+    button.disabled = false;
+
+  }
+
+}
+
+async function startPhoneVerification(){
+
+  const msg = $("profileMessage");
+
+  if(!requireDb(msg)) return;
+
+  if(!TELEGRAM_BOT_USERNAME || TELEGRAM_BOT_USERNAME === "YourBotUsername"){
+    showMessage(msg, "Telegram bot is not configured yet. Set TELEGRAM_BOT_USERNAME in index.html.", "error");
+    return;
+  }
+
+  const button = $("verifyPhoneButton");
+  button.disabled = true;
+
+  try{
+
+    const { data:token, error } = await supabaseClient.rpc("start_phone_verification");
+    if(error) throw error;
+
+    window.open("https://t.me/" + TELEGRAM_BOT_USERNAME + "?start=" + encodeURIComponent(token), "_blank");
+
+    showMessage(
+      msg,
+      "Telegram opened. Tap Start, then 'Share my phone number'. Use the Telegram account that has this same number, then come back here.",
+      ""
+    );
+
+    $("refreshProfileButton").classList.remove("hidden");
+
+  }catch(error){
+
+    showMessage(msg, error?.message || "Could not start verification.", "error");
+
+  }finally{
+
+    button.disabled = false;
 
   }
 
@@ -1774,6 +2016,8 @@ async function loadProducts(){
 
       const result = await supabaseClient
         .from(table)
+
+            .from(table)
         .select("*")
         .limit(100);
 
@@ -2449,7 +2693,8 @@ async function loadWithdrawalMethods(){
   showMessage(message, t("loadingWithdrawalMethods"));
 
   if(!user?.id){
-    showMessage(message, "Please sign in to use withdrawal.", "error");
+
+      showMessage(message, "Please sign in to use withdrawal.", "error");
     return;
   }
 
@@ -2666,6 +2911,33 @@ async function submitWithdrawal(event){
    AUTH
    ========================================================= */
 
+/* Shows the "enter the code from your email" form */
+function showOtpForm(email){
+
+  pendingSignupEmail = email;
+
+  $("authForm").classList.add("hidden");
+  $("otpForm").classList.remove("hidden");
+  $("authHeading").textContent = "Verify your email";
+  $("authIntro").textContent = "Enter the code we sent to your email.";
+
+  showMessage($("authMessage"), "We sent a verification code to " + email + ". Enter it below.", "success");
+
+}
+
+function hideOtpForm(){
+
+  pendingSignupEmail = null;
+
+  $("otpForm").classList.add("hidden");
+  $("authForm").classList.remove("hidden");
+  $("authHeading").textContent = "Welcome back";
+  $("authIntro").textContent = "Sign in to access your account and wallet.";
+  $("otpCode").value = "";
+  $("authMessage").classList.add("hidden");
+
+}
+
 async function signIn(){
 
   if(!requireDb($("authMessage"))){
@@ -2678,10 +2950,12 @@ async function signIn(){
 
   showMessage($("authMessage"), "Signing in...");
 
+  const email = $("authEmail").value.trim();
+
   try{
 
     const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email: $("authEmail").value.trim(),
+      email,
       password: $("authPassword").value
     });
 
@@ -2697,7 +2971,22 @@ async function signIn(){
   }catch(error){
 
     console.error(error);
-    showMessage($("authMessage"), error.message || "Sign-in failed.", "error");
+
+    /* account exists but the email was never confirmed → send a code and ask for it */
+    if(/not confirmed/i.test(error?.message || "")){
+
+      try{
+        await supabaseClient.auth.resend({ type:"signup", email });
+        showOtpForm(email);
+      }catch(e){
+        showMessage($("authMessage"), "Your email is not confirmed yet. Could not send a new code: " + (e.message || "try again."), "error");
+      }
+
+    }else{
+
+      showMessage($("authMessage"), error.message || "Sign-in failed.", "error");
+
+    }
 
   }finally{
 
@@ -2717,6 +3006,11 @@ async function signUp(){
 
   const email = $("authEmail").value.trim();
   const password = $("authPassword").value;
+
+  if(!email){
+    showMessage($("authMessage"), "Please enter your email address.", "error");
+    return;
+  }
 
   if(password.length < 6){
     showMessage($("authMessage"), "Password must be at least 6 characters.", "error");
@@ -2746,7 +3040,8 @@ async function signUp(){
 
     }else{
 
-      showMessage($("authMessage"), "Account created. Check your email to confirm your account.", "success");
+      /* email confirmation is on → ask for the code that was sent to the email */
+      showOtpForm(email);
 
     }
 
@@ -2759,6 +3054,82 @@ async function signUp(){
 
     $("loginButton").disabled = false;
     $("signupButton").disabled = false;
+
+  }
+
+}
+
+async function verifyEmailCode(event){
+
+  event.preventDefault();
+
+  if(!pendingSignupEmail) return;
+  if(!requireDb($("authMessage"))) return;
+
+  const button = $("verifyOtpButton");
+  button.disabled = true;
+
+  showMessage($("authMessage"), "Verifying...");
+
+  try{
+
+    const { data, error } = await supabaseClient.auth.verifyOtp({
+      email: pendingSignupEmail,
+      token: $("otpCode").value.trim(),
+      type: "signup"
+    });
+
+    if(error) throw error;
+
+    user = data.user || data.session?.user || null;
+
+    hideOtpForm();
+
+    clearSavedPage();
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+
+    if(user){
+      showApp();
+    }else{
+      showMessage($("authMessage"), "Email verified. Please sign in.", "success");
+    }
+
+  }catch(error){
+
+    console.error(error);
+    showMessage($("authMessage"), error.message || "Invalid or expired code.", "error");
+
+  }finally{
+
+    button.disabled = false;
+
+  }
+
+}
+
+async function resendEmailCode(){
+
+  if(!pendingSignupEmail) return;
+  if(!requireDb($("authMessage"))) return;
+
+  const button = $("resendOtpButton");
+  button.disabled = true;
+
+  try{
+
+    const { error } = await supabaseClient.auth.resend({ type:"signup", email: pendingSignupEmail });
+    if(error) throw error;
+
+    showMessage($("authMessage"), "A new code has been sent to " + pendingSignupEmail + ".", "success");
+
+  }catch(error){
+
+    showMessage($("authMessage"), error.message || "Could not resend the code.", "error");
+
+  }finally{
+
+    /* 30 second cooldown against repeated taps */
+    setTimeout(()=>{ button.disabled = false; }, 30000);
 
   }
 
@@ -2794,6 +3165,10 @@ on("authForm", "submit", e=>{
 });
 
 on("signupButton", "click", signUp);
+on("otpForm", "submit", verifyEmailCode);
+on("resendOtpButton", "click", resendEmailCode);
+on("otpBackButton", "click", hideOtpForm);
+
 on("refreshWalletButton", "click", loadWallet);
 on("refreshTransactions", "click", loadTransactions);
 on("refreshNotifications", "click", loadNotifications);
@@ -2811,6 +3186,21 @@ on("accountLogoutButton", "click", signOut);
 on("drawerLogoutButton", "click", signOut);
 
 on("productSearch", "input", filterProducts);
+
+
+/* ---- Profile: username / phone / Telegram ---- */
+
+on("usernameForm", "submit", changeUsername);
+on("phoneForm", "submit", submitPhone);
+on("verifyPhoneButton", "click", startPhoneVerification);
+on("refreshProfileButton", "click", loadProfile);
+
+/* coming back from Telegram → refresh the verification status automatically */
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState === "visible" && user && $("accountPage") && !$("accountPage").classList.contains("hidden")){
+    loadProfile();
+  }
+});
 
 
 /* ---- Deposit popup ---- */
