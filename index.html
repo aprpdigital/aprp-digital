@@ -104,7 +104,7 @@ button:disabled{opacity:.55;cursor:wait}
 .deposit-details{margin-top:15px}
 .deposit-details-box{padding:14px;border:1px solid #17684e;border-radius:13px;background:#0b241f;color:#bdeadd;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
 
-/* ---- Deposit page: providers & channels ---- */
+/* ---- Deposit / Withdraw page: providers & channels ---- */
 .deposit-count{margin:0 0 4px;color:var(--muted);font-size:12px}
 .provider-group{margin-top:18px}
 .provider-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
@@ -117,7 +117,7 @@ button:disabled{opacity:.55;cursor:wait}
 .channel-card strong{display:block;font-size:13px;overflow-wrap:anywhere}
 .channel-card small{display:block;margin-top:5px;color:var(--muted);font-size:10.5px;line-height:1.45;overflow-wrap:anywhere}
 
-/* ---- Deposit popup (opens on top of the page) ---- */
+/* ---- Deposit / Withdraw popup (opens on top of the page) ---- */
 .deposit-modal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
 .deposit-modal.hidden{display:none!important}
 .deposit-sheet{width:min(100%,760px);max-height:92vh;overflow:auto;background:#0b1323;border:1px solid var(--border);border-radius:22px 22px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
@@ -409,8 +409,76 @@ button:disabled{opacity:.55;cursor:wait}
       <div class="muted" style="margin-top:15px">User ID</div>
       <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px"></p>
 
-      <button class="btn btn-block" data-page="settingsPage" data-i18n="settings" type="button">Settings</button>
-      <button class="btn btn-block" id="accountLogoutButton" style="margin-top:10px" data-i18n="signOut" type="button">Sign Out</button>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+
+      <div class="menu-group-title" style="margin-top:4px">Account & Wallet</div>
+
+      <button class="drawer-item" data-page="kycPage" type="button">
+        <span class="menu-icon">✓</span>
+        <span><strong data-i18n="kyc">KYC Verification</strong><small>Identity verification</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="transactionsPage" type="button">
+        <span class="menu-icon">↕</span>
+        <span><strong data-i18n="transactions">Transaction History</strong><small>Review wallet activity</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="depositPage" type="button">
+        <span class="menu-icon">＋</span>
+        <span><strong data-i18n="deposit">Deposit</strong><small>Add funds to your wallet</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="withdrawPage" type="button">
+        <span class="menu-icon">↗</span>
+        <span><strong data-i18n="withdraw">Withdraw</strong><small>Withdrawal service</small></span>
+      </button>
+
+      <div class="menu-group-title">Growth & Discovery</div>
+
+      <button class="drawer-item" data-page="referralPage" type="button">
+        <span class="menu-icon">♧</span>
+        <span><strong data-i18n="referral">Referral & Rewards</strong><small>Invitations and referral programme</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="downloadPage" type="button">
+        <span class="menu-icon">↓</span>
+        <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
+      </button>
+
+      <div class="menu-group-title">Preferences & Help</div>
+
+      <button class="drawer-item" data-page="notificationsPage" type="button">
+        <span class="menu-icon">♧</span>
+        <span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="languagePage" type="button">
+        <span class="menu-icon">文</span>
+        <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="settingsPage" type="button">
+        <span class="menu-icon">⚙</span>
+        <span><strong data-i18n="settings">Settings</strong><small>Account preferences</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="supportPage" type="button">
+        <span class="menu-icon">?</span>
+        <span><strong data-i18n="support">Support Center</strong><small>Help and contact</small></span>
+      </button>
+
+      <button class="drawer-item" data-page="helpPage" type="button">
+        <span class="menu-icon">i</span>
+        <span><strong data-i18n="helpLegal">Help & Legal</strong><small>FAQ, privacy and terms</small></span>
+      </button>
+
+      <button class="drawer-item danger" id="accountLogoutButton" style="margin-top:14px" type="button">
+        <span class="menu-icon">↪</span>
+        <span><strong data-i18n="signOut">Sign Out</strong><small>Sign out of your account</small></span>
+      </button>
+
     </div>
 
   </section>
@@ -491,51 +559,68 @@ button:disabled{opacity:.55;cursor:wait}
 
       <div id="withdrawalMessage" class="message" role="status" aria-live="polite">Loading withdrawal services...</div>
 
-      <form id="withdrawalForm" class="hidden">
-
-        <div class="field">
-          <label for="withdrawalMethod" data-i18n="withdrawMethod">Withdrawal Method</label>
-          <select id="withdrawalMethod" required>
-            <option value="" data-i18n="selectWithdrawalMethod">Select withdrawal method</option>
-          </select>
+      <div id="withdrawalChannelsWrap" class="hidden">
+        <div class="section-heading" style="margin-bottom:0">
+          <div>
+            <h2 data-i18n="chooseWithdrawChannel">Choose a withdrawal channel</h2>
+            <p id="withdrawalCount" class="deposit-count"></p>
+          </div>
         </div>
 
-        <div class="field">
-          <label for="withdrawalAmount" data-i18n="withdrawAmount">Amount</label>
-          <input id="withdrawalAmount" type="number" min="1000" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
-          <div id="withdrawalAmountHint" class="muted"></div>
-          <div class="muted" data-i18n="withdrawMainOnly">Only your available (main) balance can be withdrawn. Reserved balance cannot be withdrawn.</div>
+        <div id="withdrawalChannelList"></div>
+      </div>
+
+      <!-- Popup sheet: opens on top when a channel is tapped -->
+      <form id="withdrawalForm" class="deposit-modal hidden">
+        <div class="deposit-sheet">
+
+          <div class="sheet-head">
+            <h2 data-i18n="withdraw">Withdraw</h2>
+            <button class="icon-button" id="closeWithdrawalModal" type="button" aria-label="Close">×</button>
+          </div>
+
+          <div class="muted" data-i18n="selectedChannel">Selected channel</div>
+          <div id="withdrawalSelectedLabel" style="font-weight:800;margin-top:5px;overflow-wrap:anywhere">—</div>
+
+          <div class="field">
+            <label for="withdrawalAmount" data-i18n="withdrawAmount">Amount</label>
+            <input id="withdrawalAmount" type="number" min="1000" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
+            <div id="withdrawalAmountHint" class="muted"></div>
+            <div class="muted" data-i18n="withdrawMainOnly">Only your available (main) balance can be withdrawn. Reserved balance cannot be withdrawn.</div>
+          </div>
+
+          <div class="field">
+            <label for="withdrawalDestination" data-i18n="withdrawDestination">Destination Account</label>
+            <input id="withdrawalDestination" type="text" maxlength="100" autocomplete="off" placeholder="Enter account / wallet number" required>
+            <div class="muted" data-i18n="destinationHint">Enter the account or wallet number where you want to receive the funds.</div>
+          </div>
+
+          <div class="field">
+            <label for="withdrawalDestinationName" data-i18n="withdrawDestinationName">Account Name</label>
+            <input id="withdrawalDestinationName" type="text" maxlength="120" autocomplete="name" placeholder="Account holder name">
+          </div>
+
+          <div class="field">
+            <label for="withdrawalNote" data-i18n="withdrawNote">Note (optional)</label>
+            <input id="withdrawalNote" type="text" maxlength="250" placeholder="Optional note">
+          </div>
+
+          <div class="message" style="margin-top:15px">
+            <div><span data-i18n="fee">Fee</span>: <strong id="withdrawalFee">BDT 0.00</strong></div>
+            <div style="margin-top:6px"><span data-i18n="netAmount">Net Amount</span>: <strong id="withdrawalNetAmount">BDT 0.00</strong></div>
+          </div>
+
+          <button class="btn btn-primary btn-block" id="submitWithdrawalButton" type="submit" style="margin-top:15px" data-i18n="submitWithdrawal">
+            Submit Withdrawal Request
+          </button>
+
+          <div id="withdrawalFormMessage" class="message hidden" style="margin-top:12px"></div>
+
+          <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
+            Your request will be sent for review. The amount is taken from your available balance and held as reserved balance until it is processed.
+          </div>
+
         </div>
-
-        <div class="field">
-          <label for="withdrawalDestination" data-i18n="withdrawDestination">Destination Account</label>
-          <input id="withdrawalDestination" type="text" maxlength="100" autocomplete="off" placeholder="Enter account / wallet number" required>
-          <div class="muted" data-i18n="destinationHint">Enter the account or wallet number where you want to receive the funds.</div>
-        </div>
-
-        <div class="field">
-          <label for="withdrawalDestinationName" data-i18n="withdrawDestinationName">Account Name</label>
-          <input id="withdrawalDestinationName" type="text" maxlength="120" autocomplete="name" placeholder="Account holder name">
-        </div>
-
-        <div class="field">
-          <label for="withdrawalNote" data-i18n="withdrawNote">Note (optional)</label>
-          <input id="withdrawalNote" type="text" maxlength="250" placeholder="Optional note">
-        </div>
-
-        <div class="message" style="margin-top:15px">
-          <div><span data-i18n="fee">Fee</span>: <strong id="withdrawalFee">BDT 0.00</strong></div>
-          <div style="margin-top:6px"><span data-i18n="netAmount">Net Amount</span>: <strong id="withdrawalNetAmount">BDT 0.00</strong></div>
-        </div>
-
-        <button class="btn btn-primary btn-block" id="submitWithdrawalButton" type="submit" style="margin-top:15px" data-i18n="submitWithdrawal">
-          Submit Withdrawal Request
-        </button>
-
-        <div class="message" style="margin-top:12px" data-i18n="withdrawalReviewNote">
-          Your request will be sent for review. No wallet balance is moved from this page.
-        </div>
-
       </form>
 
     </div>
@@ -731,60 +816,16 @@ button:disabled{opacity:.55;cursor:wait}
       <button class="icon-button" id="closeDrawerButton" aria-label="Close menu" type="button">×</button>
     </div>
 
-    <div class="menu-group-title">Account & Wallet</div>
+    <div class="muted" style="margin:0 5px 12px;font-size:11px;line-height:1.5">Wallet, KYC, referral, language and settings are in the Account tab.</div>
 
-    <button class="drawer-item" data-page="kycPage" type="button">
-      <span class="menu-icon">✓</span>
-      <span><strong data-i18n="kyc">KYC Verification</strong><small>Identity verification</small></span>
+    <button class="drawer-item" data-page="accountPage" type="button">
+      <span class="menu-icon">◉</span>
+      <span><strong data-i18n="account">Account</strong><small>All services and settings</small></span>
     </button>
-
-    <button class="drawer-item" data-page="transactionsPage" type="button">
-      <span class="menu-icon">↕</span>
-      <span><strong data-i18n="transactions">Transaction History</strong><small>Review wallet activity</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="depositPage" type="button">
-      <span class="menu-icon">＋</span>
-      <span><strong data-i18n="deposit">Deposit</strong><small>Add funds to your wallet</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="withdrawPage" type="button">
-      <span class="menu-icon">↗</span>
-      <span><strong data-i18n="withdraw">Withdraw</strong><small>Withdrawal service</small></span>
-    </button>
-
-    <div class="menu-group-title">Growth & Discovery</div>
-
-    <button class="drawer-item" data-page="referralPage" type="button">
-      <span class="menu-icon">♧</span>
-      <span><strong data-i18n="referral">Referral & Rewards</strong><small>Invitations and referral programme</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="productsPage" type="button">
-      <span class="menu-icon">▣</span>
-      <span><strong data-i18n="products">Products</strong><small>Browse available products</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="downloadPage" type="button">
-      <span class="menu-icon">↓</span>
-      <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
-    </button>
-
-    <div class="menu-group-title">Preferences & Help</div>
 
     <button class="drawer-item" data-page="notificationsPage" type="button">
       <span class="menu-icon">♧</span>
       <span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="languagePage" type="button">
-      <span class="menu-icon">文</span>
-      <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
-    </button>
-
-    <button class="drawer-item" data-page="settingsPage" type="button">
-      <span class="menu-icon">⚙</span>
-      <span><strong data-i18n="settings">Settings</strong><small>Account preferences</small></span>
     </button>
 
     <button class="drawer-item" data-page="supportPage" type="button">
@@ -852,6 +893,7 @@ let productsCache = [];
 let withdrawalOptions = [];
 let depositOptions = [];
 let selectedDepositId = null;
+let selectedWithdrawalId = null;
 let deferredInstallPrompt = null;
 
 const LAST_PAGE_KEY = "aprp_last_page";
@@ -885,6 +927,7 @@ const translations = {
     depositSubtitle:"Add funds to your wallet",
     walletService:"Wallet Service",
     chooseChannel:"Choose a deposit channel",
+    chooseWithdrawChannel:"Choose a withdrawal channel",
     selectedChannel:"Selected channel",
     paymentDetails:"Payment details",
     paymentReference:"Payment Reference ID",
@@ -909,7 +952,7 @@ const translations = {
     fee:"Fee",
     netAmount:"Net Amount",
     submitWithdrawal:"Submit Withdrawal Request",
-    withdrawalReviewNote:"Your request will be sent for review. No wallet balance is moved from this page.",
+    withdrawalReviewNote:"Your request will be sent for review. The amount is taken from your available balance and held as reserved balance until it is processed.",
     loadingWithdrawalMethods:"Loading withdrawal services...",
     noWithdrawalMethods:"No withdrawal service is currently available.",
     withdrawalUnavailable:"Withdrawal service is not available yet. Please try again later.",
@@ -962,6 +1005,7 @@ const translations = {
     depositSubtitle:"ওয়ালেটে টাকা যোগ করুন",
     walletService:"ওয়ালেট সেবা",
     chooseChannel:"ডিপোজিট চ্যানেল বেছে নিন",
+    chooseWithdrawChannel:"উইথড্র চ্যানেল বেছে নিন",
     selectedChannel:"নির্বাচিত চ্যানেল",
     paymentDetails:"পেমেন্টের তথ্য",
     paymentReference:"পেমেন্ট রেফারেন্স আইডি",
@@ -986,7 +1030,7 @@ const translations = {
     fee:"ফি",
     netAmount:"প্রাপ্তির পরিমাণ",
     submitWithdrawal:"উইথড্র আবেদন পাঠান",
-    withdrawalReviewNote:"আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। এই পেজ থেকে ওয়ালেট ব্যালেন্স কাটা হবে না।",
+    withdrawalReviewNote:"আপনার আবেদন যাচাইয়ের জন্য পাঠানো হবে। আবেদনের টাকা ব্যবহারযোগ্য ব্যালেন্স থেকে কেটে প্রক্রিয়া শেষ না হওয়া পর্যন্ত সংরক্ষিত ব্যালেন্সে রাখা হবে।",
     loadingWithdrawalMethods:"উইথড্র সেবা লোড হচ্ছে...",
     noWithdrawalMethods:"বর্তমানে কোনো উইথড্র সেবা উপলভ্য নেই।",
     withdrawalUnavailable:"উইথড্র সেবা এখনো চালু করা হয়নি। পরে আবার চেষ্টা করুন।",
@@ -1153,7 +1197,7 @@ function showPage(pageId, opts={}){
 
   $("drawer").classList.add("hidden");
 
-  /* make sure the deposit popup never stays open on another page */
+  /* make sure a popup never stays open on another page */
   document.body.style.overflow = "";
 
   savePage(pageId);
@@ -1826,13 +1870,9 @@ function getLimits(option){
 
 
 /* =========================================================
-   DEPOSIT PAGE — providers → channels → popup form
+   SHARED: provider groups → channel cards
+   Used by BOTH the Deposit page and the Withdraw page.
    ========================================================= */
-
-function getSelectedDepositOption(){
-  if(!selectedDepositId) return null;
-  return depositOptions.find(o => o.id === selectedDepositId) || null;
-}
 
 function channelLimitText(option){
   const limits = getLimits(option);
@@ -1841,6 +1881,179 @@ function channelLimitText(option){
     text += " · Max " + formatMoney(limits.max, option.currency || "BDT");
   }
   return text;
+}
+
+function renderChannelGroups(groups, listId, onSelect){
+
+  const list = $(listId);
+  list.replaceChildren();
+
+  const fragment = document.createDocumentFragment();
+
+  groups.forEach(group=>{
+
+    const wrap = document.createElement("div");
+    wrap.className = "provider-group";
+
+    const head = document.createElement("div");
+    head.className = "provider-head";
+
+    const title = document.createElement("strong");
+    title.textContent = group.name;
+
+    const count = document.createElement("span");
+    count.textContent = group.channels.length + " " + (currentLang() === "bn" ? "টি চ্যানেল" : "channel(s)");
+
+    head.append(title, count);
+    wrap.appendChild(head);
+
+    const channelList = document.createElement("div");
+    channelList.className = "channel-list";
+
+    group.channels.forEach(option=>{
+
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "channel-card";
+      card.dataset.id = option.id;
+
+      const name = document.createElement("strong");
+      name.textContent = option.channelName;
+
+      const meta = document.createElement("small");
+      const typeText = option.channel?.channel_type ? readableLabel(option.channel.channel_type) + " · " : "";
+      meta.textContent = typeText + channelLimitText(option);
+
+      card.append(name, meta);
+      card.addEventListener("click", ()=> onSelect(option.id));
+
+      channelList.appendChild(card);
+
+    });
+
+    wrap.appendChild(channelList);
+    fragment.appendChild(wrap);
+
+  });
+
+  list.appendChild(fragment);
+
+}
+
+/* Loads active + available services/channels for a service code
+   ("deposit" or "withdrawal") and groups them by provider.
+   Returns { groups, options } or { empty:"service"|"channel" }. */
+async function fetchChannelGroups(serviceCode, isStale){
+
+  const { data:services, error:serviceError } = await supabaseClient
+    .from("provider_services")
+    .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
+    .eq("service_code", serviceCode)
+    .eq("status", "active")
+    .eq("available", true);
+
+  if(isStale()) return null;
+  if(serviceError) throw serviceError;
+
+  if(!services || !services.length){
+    return { empty:"service" };
+  }
+
+  const { data:channels, error:channelError } = await supabaseClient
+    .from("provider_channels")
+    .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
+    .in("provider_service_id", services.map(s => s.id))
+    .eq("status", "active")
+    .eq("available", true);
+
+  if(isStale()) return null;
+  if(channelError) throw channelError;
+
+  if(!channels || !channels.length){
+    return { empty:"channel" };
+  }
+
+  const providerNames = {};
+  const providerIds = [...new Set(services.map(s => s.provider_id).filter(Boolean))];
+
+  if(providerIds.length){
+    try{
+      const { data:providers, error:providerError } = await supabaseClient
+        .from("providers")
+        .select("*")
+        .in("id", providerIds);
+
+      if(!providerError && Array.isArray(providers)){
+        providers.forEach(p=>{
+          providerNames[p.id] =
+            p.provider_name || p.name || p.display_name || p.title || p.provider_code || null;
+        });
+      }
+    }catch(e){ /* names are optional */ }
+  }
+
+  if(isStale()) return null;
+
+  const groupMap = new Map();
+  const options = [];
+
+  channels.forEach(channel=>{
+
+    const service = services.find(s => s.id === channel.provider_service_id);
+    if(!service) return;
+
+    const key = service.provider_id ?? service.id;
+
+    const providerName =
+      providerNames[service.provider_id]
+      || service.service_name
+      || "Provider";
+
+    const option = {
+      id: String(channel.id),
+      service,
+      channel,
+      currency: "BDT",
+      providerName,
+      channelName: channel.channel_name || channel.channel_code || "Channel"
+    };
+
+    if(!groupMap.has(key)){
+      groupMap.set(key, { name: providerName, channels: [] });
+    }
+
+    groupMap.get(key).channels.push(option);
+    options.push(option);
+
+  });
+
+  if(!options.length){
+    return { empty:"channel" };
+  }
+
+  const groups = [...groupMap.values()]
+    .sort((a,b) => a.name.localeCompare(b.name));
+
+  groups.forEach(g => g.channels.sort((a,b) => a.channelName.localeCompare(b.channelName)));
+
+  return { groups, options };
+
+}
+
+function countText(groupCount, channelCount){
+  return currentLang() === "bn"
+    ? `${groupCount} টি প্রোভাইডার · ${channelCount} টি চ্যানেল`
+    : `${groupCount} provider(s) · ${channelCount} channel(s)`;
+}
+
+
+/* =========================================================
+   DEPOSIT PAGE — providers → channels → popup form
+   ========================================================= */
+
+function getSelectedDepositOption(){
+  if(!selectedDepositId) return null;
+  return depositOptions.find(o => o.id === selectedDepositId) || null;
 }
 
 function updateDepositUI(){
@@ -1935,66 +2148,10 @@ function closeDepositModal(){
 
 }
 
-function renderDepositChannels(groups){
-
-  const list = $("depositChannelList");
-  list.replaceChildren();
-
-  const fragment = document.createDocumentFragment();
-
-  groups.forEach(group=>{
-
-    const wrap = document.createElement("div");
-    wrap.className = "provider-group";
-
-    const head = document.createElement("div");
-    head.className = "provider-head";
-
-    const title = document.createElement("strong");
-    title.textContent = group.name;
-
-    const count = document.createElement("span");
-    count.textContent = group.channels.length + " " + (currentLang() === "bn" ? "টি চ্যানেল" : "channel(s)");
-
-    head.append(title, count);
-    wrap.appendChild(head);
-
-    const channelList = document.createElement("div");
-    channelList.className = "channel-list";
-
-    group.channels.forEach(option=>{
-
-      const card = document.createElement("button");
-      card.type = "button";
-      card.className = "channel-card";
-      card.dataset.id = option.id;
-
-      const name = document.createElement("strong");
-      name.textContent = option.channelName;
-
-      const meta = document.createElement("small");
-      const typeText = option.channel?.channel_type ? readableLabel(option.channel.channel_type) + " · " : "";
-      meta.textContent = typeText + channelLimitText(option);
-
-      card.append(name, meta);
-      card.addEventListener("click", ()=> selectDepositChannel(option.id));
-
-      channelList.appendChild(card);
-
-    });
-
-    wrap.appendChild(channelList);
-    fragment.appendChild(wrap);
-
-  });
-
-  list.appendChild(fragment);
-
-}
-
 async function loadDepositChannels(){
 
   const request = ++depositRequestNumber;
+  const isStale = () => request !== depositRequestNumber;
 
   const message = $("depositMessage");
 
@@ -2018,114 +2175,27 @@ async function loadDepositChannels(){
 
   try{
 
-    const { data:services, error:serviceError } = await supabaseClient
-      .from("provider_services")
-      .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
-      .eq("service_code", "deposit")
-      .eq("status", "active")
-      .eq("available", true);
+    const result = await fetchChannelGroups("deposit", isStale);
 
-    if(request !== depositRequestNumber) return;
-    if(serviceError) throw serviceError;
+    if(result === null) return;
 
-    if(!services || !services.length){
-      showMessage(message, t("noDeposit"));
+    if(result.empty){
+      showMessage(message, result.empty === "service" ? t("noDeposit") : t("noDepositChannel"));
       return;
     }
 
-    const serviceIds = services.map(s => s.id);
+    depositOptions = result.options;
 
-    const { data:channels, error:channelError } = await supabaseClient
-      .from("provider_channels")
-      .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
-      .in("provider_service_id", serviceIds)
-      .eq("status", "active")
-      .eq("available", true);
+    renderChannelGroups(result.groups, "depositChannelList", selectDepositChannel);
 
-    if(request !== depositRequestNumber) return;
-    if(channelError) throw channelError;
-
-    if(!channels || !channels.length){
-      showMessage(message, t("noDepositChannel"));
-      return;
-    }
-
-    const providerNames = {};
-    const providerIds = [...new Set(services.map(s => s.provider_id).filter(Boolean))];
-
-    if(providerIds.length){
-      try{
-        const { data:providers, error:providerError } = await supabaseClient
-          .from("providers")
-          .select("*")
-          .in("id", providerIds);
-
-        if(!providerError && Array.isArray(providers)){
-          providers.forEach(p=>{
-            providerNames[p.id] =
-              p.provider_name || p.name || p.display_name || p.title || p.provider_code || null;
-          });
-        }
-      }catch(e){ /* names are optional */ }
-    }
-
-    if(request !== depositRequestNumber) return;
-
-    const groupMap = new Map();
-
-    channels.forEach(channel=>{
-
-      const service = services.find(s => s.id === channel.provider_service_id);
-      if(!service) return;
-
-      const key = service.provider_id ?? service.id;
-
-      const providerName =
-        providerNames[service.provider_id]
-        || service.service_name
-        || "Provider";
-
-      const option = {
-        id: String(channel.id),
-        service,
-        channel,
-        currency: "BDT",
-        providerName,
-        channelName: channel.channel_name || channel.channel_code || "Channel"
-      };
-
-      if(!groupMap.has(key)){
-        groupMap.set(key, { name: providerName, channels: [] });
-      }
-
-      groupMap.get(key).channels.push(option);
-      depositOptions.push(option);
-
-    });
-
-    if(!depositOptions.length){
-      showMessage(message, t("noDepositChannel"));
-      return;
-    }
-
-    const groups = [...groupMap.values()]
-      .sort((a,b) => a.name.localeCompare(b.name));
-
-    groups.forEach(g => g.channels.sort((a,b) => a.channelName.localeCompare(b.channelName)));
-
-    renderDepositChannels(groups);
-
-    $("depositCount").textContent =
-      currentLang() === "bn"
-        ? `${groups.length} টি প্রোভাইডার · ${depositOptions.length} টি চ্যানেল`
-        : `${groups.length} provider(s) · ${depositOptions.length} channel(s)`;
+    $("depositCount").textContent = countText(result.groups.length, depositOptions.length);
 
     $("depositChannelsWrap").classList.remove("hidden");
     message.hidden = true;
 
   }catch(error){
 
-    if(request !== depositRequestNumber) return;
+    if(isStale()) return;
 
     console.error("Deposit channels error:", error);
 
@@ -2239,7 +2309,7 @@ async function handleDepositSubmit(event){
 
 
 /* =========================================================
-   WITHDRAWAL SYSTEM
+   WITHDRAWAL SYSTEM — providers → channels → popup form
    Only available_balance (main balance) can be withdrawn.
    reserved_balance is never counted.
    ========================================================= */
@@ -2273,12 +2343,8 @@ function calculateWithdrawalFee(option, amount){
 }
 
 function getSelectedWithdrawalOption(){
-
-  const value = $("withdrawalMethod").value;
-  if(!value) return null;
-
-  return withdrawalOptions.find(o => o.id === value) || null;
-
+  if(!selectedWithdrawalId) return null;
+  return withdrawalOptions.find(o => o.id === selectedWithdrawalId) || null;
 }
 
 function updateWithdrawalAmountUI(){
@@ -2326,23 +2392,57 @@ function updateWithdrawalAmountUI(){
 
 }
 
+/* Tapping a channel opens the popup on top of the page */
+function selectWithdrawalChannel(id){
+
+  selectedWithdrawalId = id;
+
+  const option = getSelectedWithdrawalOption();
+  if(!option) return;
+
+  document.querySelectorAll("#withdrawalChannelList .channel-card").forEach(card=>{
+    card.classList.toggle("selected", card.dataset.id === id);
+  });
+
+  $("withdrawalForm").reset();
+  $("withdrawalFormMessage").className = "message hidden";
+  $("withdrawalSelectedLabel").textContent = option.providerName + " — " + option.channelName;
+
+  $("withdrawalForm").classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+
+  updateWithdrawalAmountUI();
+
+}
+
+function closeWithdrawalModal(){
+
+  selectedWithdrawalId = null;
+
+  $("withdrawalForm").classList.add("hidden");
+  document.body.style.overflow = "";
+
+  document.querySelectorAll("#withdrawalChannelList .channel-card").forEach(card=>{
+    card.classList.remove("selected");
+  });
+
+}
+
 async function loadWithdrawalMethods(){
 
   const request = ++withdrawalRequestNumber;
+  const isStale = () => request !== withdrawalRequestNumber;
 
   const message = $("withdrawalMessage");
-  const form = $("withdrawalForm");
-  const select = $("withdrawalMethod");
-
-  form.classList.add("hidden");
 
   withdrawalOptions = [];
-  select.replaceChildren();
+  selectedWithdrawalId = null;
+  document.body.style.overflow = "";
 
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = t("selectWithdrawalMethod");
-  select.appendChild(defaultOption);
+  $("withdrawalChannelList").replaceChildren();
+  $("withdrawalChannelsWrap").classList.add("hidden");
+  $("withdrawalForm").classList.add("hidden");
+  $("withdrawalCount").textContent = "";
 
   showMessage(message, t("loadingWithdrawalMethods"));
 
@@ -2355,87 +2455,27 @@ async function loadWithdrawalMethods(){
 
   try{
 
-    const { data:services, error:serviceError } = await supabaseClient
-      .from("provider_services")
-      .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
-      .eq("service_code", "withdrawal")
-      .eq("status", "active")
-      .eq("available", true);
+    const result = await fetchChannelGroups("withdrawal", isStale);
 
-    if(request !== withdrawalRequestNumber) return;
-    if(serviceError) throw serviceError;
+    if(result === null) return;
 
-    if(!services || !services.length){
+    if(result.empty){
       showMessage(message, t("noWithdrawalMethods"));
       return;
     }
 
-    const serviceIds = services.map(s => s.id);
+    withdrawalOptions = result.options;
 
-    const { data:channels, error:channelError } = await supabaseClient
-      .from("provider_channels")
-      .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
-      .in("provider_service_id", serviceIds)
-      .eq("status", "active")
-      .eq("available", true);
+    renderChannelGroups(result.groups, "withdrawalChannelList", selectWithdrawalChannel);
 
-    if(request !== withdrawalRequestNumber) return;
-    if(channelError) throw channelError;
+    $("withdrawalCount").textContent = countText(result.groups.length, withdrawalOptions.length);
 
-    if(!channels || !channels.length){
-      showMessage(message, t("noWithdrawalMethods"));
-      return;
-    }
-
-    const options = [];
-
-    channels.forEach(channel=>{
-
-      const service = services.find(s => s.id === channel.provider_service_id);
-      if(!service) return;
-
-      const label = [service.service_name, channel.channel_name || channel.channel_code]
-        .filter(Boolean)
-        .join(" — ");
-
-      options.push({
-        id: String(channel.id),
-        service,
-        channel,
-        currency: "BDT",
-        label
-      });
-
-    });
-
-    if(request !== withdrawalRequestNumber) return;
-
-    if(!options.length){
-      showMessage(message, t("noWithdrawalMethods"));
-      return;
-    }
-
-    withdrawalOptions = options;
-
-    const fragment = document.createDocumentFragment();
-
-    options.forEach(option=>{
-      const item = document.createElement("option");
-      item.value = option.id;
-      item.textContent = option.label;
-      fragment.appendChild(item);
-    });
-
-    select.appendChild(fragment);
-
-    form.classList.remove("hidden");
+    $("withdrawalChannelsWrap").classList.remove("hidden");
     message.hidden = true;
-
-    updateWithdrawalAmountUI();
 
   }catch(error){
 
-    if(request !== withdrawalRequestNumber) return;
+    if(isStale()) return;
 
     console.error("Withdrawal methods error:", error);
 
@@ -2453,25 +2493,27 @@ async function submitWithdrawal(event){
 
   event.preventDefault();
 
+  const msg = $("withdrawalFormMessage");
+
   if(!user?.id){
-    showMessage($("withdrawalMessage"), "Please sign in before submitting a withdrawal request.", "error");
+    showMessage(msg, "Please sign in before submitting a withdrawal request.", "error");
     return;
   }
 
-  if(!requireDb($("withdrawalMessage"))) return;
+  if(!requireDb(msg)) return;
 
   const button = $("submitWithdrawalButton");
   const option = getSelectedWithdrawalOption();
 
   if(!option){
-    showMessage($("withdrawalMessage"), "Please select a withdrawal method.", "error");
+    showMessage(msg, "Please select a withdrawal method.", "error");
     return;
   }
 
   const amount = Number($("withdrawalAmount").value);
 
   if(!Number.isFinite(amount) || amount <= 0){
-    showMessage($("withdrawalMessage"), "Please enter a valid withdrawal amount.", "error");
+    showMessage(msg, "Please enter a valid withdrawal amount.", "error");
     return;
   }
 
@@ -2479,7 +2521,7 @@ async function submitWithdrawal(event){
 
   if(amount < limits.min){
     showMessage(
-      $("withdrawalMessage"),
+      msg,
       `Minimum withdrawal amount is ${formatMoney(limits.min, option.currency || "BDT")}.`,
       "error"
     );
@@ -2488,7 +2530,7 @@ async function submitWithdrawal(event){
 
   if(limits.max !== null && amount > limits.max){
     showMessage(
-      $("withdrawalMessage"),
+      msg,
       `Maximum withdrawal amount is ${formatMoney(limits.max, option.currency || "BDT")}.`,
       "error"
     );
@@ -2498,7 +2540,7 @@ async function submitWithdrawal(event){
   const destination = $("withdrawalDestination").value.trim();
 
   if(!destination){
-    showMessage($("withdrawalMessage"), "Please enter the destination account or wallet number.", "error");
+    showMessage(msg, "Please enter the destination account or wallet number.", "error");
     return;
   }
 
@@ -2508,7 +2550,7 @@ async function submitWithdrawal(event){
   const fee = calculateWithdrawalFee(option, amount);
 
   if(fee > amount){
-    showMessage($("withdrawalMessage"), "The withdrawal fee cannot be greater than the withdrawal amount.", "error");
+    showMessage(msg, "The withdrawal fee cannot be greater than the withdrawal amount.", "error");
     return;
   }
 
@@ -2529,19 +2571,19 @@ async function submitWithdrawal(event){
     if(walletError) throw walletError;
 
     if(!wallet){
-      showMessage($("withdrawalMessage"), "Your wallet could not be found.", "error");
+      showMessage(msg, "Your wallet could not be found.", "error");
       return;
     }
 
     if(String(wallet.status || "").toLowerCase() !== "active"){
-      showMessage($("withdrawalMessage"), "Your wallet is not active for withdrawal.", "error");
+      showMessage(msg, "Your wallet is not active for withdrawal.", "error");
       return;
     }
 
     const walletCurrency = wallet.currency || "BDT";
 
     if(String(walletCurrency).toUpperCase() !== String(option.currency || "BDT").toUpperCase()){
-      showMessage($("withdrawalMessage"), "The selected withdrawal method does not match your wallet currency.", "error");
+      showMessage(msg, "The selected withdrawal method does not match your wallet currency.", "error");
       return;
     }
 
@@ -2549,7 +2591,7 @@ async function submitWithdrawal(event){
 
     if(!Number.isFinite(available) || available < amount){
       showMessage(
-        $("withdrawalMessage"),
+        msg,
         `Insufficient available balance. Available (main) balance: ${formatMoney(available || 0, walletCurrency)}. Reserved balance cannot be withdrawn.`,
         "error"
       );
@@ -2559,42 +2601,26 @@ async function submitWithdrawal(event){
     const withdrawalId = makeRequestId("WD");
     const idempotencyKey = makeRequestId("WDI");
 
-    const payload = {
-      withdrawal_id: withdrawalId,
-      user_id: user.id,
-      provider_id: option.service.provider_id,
-      provider_service_id: option.service.id,
-      provider_channel_id: option.channel.id,
-      amount,
-      fee,
-      net_amount: netAmount,
-      currency: walletCurrency,
-      destination_account: destination,
-      destination_name: destinationName || null,
-      user_note: userNote || null,
-      status: "pending",
-      reservation_status: "not_reserved",
-      reserved_amount: 0,
-      idempotency_key: idempotencyKey,
-      metadata: {
-        source: "user_app",
-        flow: "withdrawal_request",
-        client_version: "1"
-      }
-    };
-
-    const { data, error } = await supabaseClient
-      .from("withdrawal_requests")
-      .insert(payload)
-      .select("id,withdrawal_id,status,reservation_status,amount,fee,net_amount,currency,created_at")
-      .single();
+    /* The database function does everything in ONE atomic step:
+       checks the balance, moves the amount from available to reserved,
+       and creates the pending request. Run withdrawal_rpc.sql once in Supabase. */
+    const { data, error } = await supabaseClient.rpc("create_withdrawal_request", {
+      p_withdrawal_id: withdrawalId,
+      p_provider_service_id: String(option.service.id),
+      p_provider_channel_id: String(option.channel.id),
+      p_amount: amount,
+      p_destination_account: destination,
+      p_destination_name: destinationName || null,
+      p_user_note: userNote || null,
+      p_idempotency_key: idempotencyKey
+    });
 
     if(error) throw error;
 
     const createdId = data?.withdrawal_id || withdrawalId;
 
     showMessage(
-      $("withdrawalMessage"),
+      msg,
       `${t("withdrawalRequestCreated")} ID: ${createdId}`,
       "success"
     );
@@ -2604,19 +2630,23 @@ async function submitWithdrawal(event){
     $("withdrawalNetAmount").textContent = formatMoney(0, walletCurrency);
     $("withdrawalAmountHint").textContent = "";
 
+    setTimeout(closeWithdrawalModal, 1800);
+
     await loadWallet();
 
   }catch(error){
 
     console.error("Withdrawal submission error:", error);
 
-    let message = error?.message || "Could not create withdrawal request.";
+    let errorText = error?.message || "Could not create withdrawal request.";
 
-    if(/row-level security|permission denied|not authorized/i.test(message)){
-      message = "Withdrawal request could not be submitted because database permission/RLS is blocking the request.";
+    if(/could not find the function|create_withdrawal_request/i.test(errorText) && /find|schema cache|does not exist/i.test(errorText)){
+      errorText = "Withdrawal database function is not installed yet. Run withdrawal_rpc.sql in Supabase first.";
+    }else if(/row-level security|permission denied|not authorized/i.test(errorText)){
+      errorText = "Withdrawal request could not be submitted because database permission/RLS is blocking the request.";
     }
 
-    showMessage($("withdrawalMessage"), message, "error");
+    showMessage(msg, errorText, "error");
 
   }finally{
 
@@ -2798,11 +2828,18 @@ on("depositForm", "click", e=>{
 });
 
 
-/* ---- Withdrawal ---- */
+/* ---- Withdrawal popup ---- */
 
-on("withdrawalMethod", "change", updateWithdrawalAmountUI);
 on("withdrawalAmount", "input", updateWithdrawalAmountUI);
 on("withdrawalForm", "submit", submitWithdrawal);
+on("closeWithdrawalModal", "click", closeWithdrawalModal);
+
+/* tap on the dark area outside the sheet closes the popup */
+on("withdrawalForm", "click", e=>{
+  if(e.target === $("withdrawalForm")){
+    closeWithdrawalModal();
+  }
+});
 
 
 /* ---- Language ---- */
