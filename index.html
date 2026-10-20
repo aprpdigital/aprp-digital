@@ -178,6 +178,7 @@ button:disabled{opacity:.55;cursor:wait}
 
     <h1 id="authHeading">Welcome back</h1>
     <p id="authIntro">Sign in to access your account and wallet.</p>
+    <div id="refNotice" class="note-small hidden" style="margin-top:-6px;margin-bottom:8px"></div>
 
     <form id="authForm">
       <div class="field">
@@ -194,6 +195,8 @@ button:disabled{opacity:.55;cursor:wait}
         <button class="btn btn-primary" id="loginButton" type="submit">Sign In</button>
         <button class="btn" id="signupButton" type="button">Create Account</button>
       </div>
+
+      <button class="btn btn-block" id="forgotPasswordButton" type="button" style="margin-top:10px">Forgot password? / পাসওয়ার্ড ভুলে গেছেন?</button>
     </form>
 
     <!-- Email code (OTP) form: shown after Create Account -->
@@ -209,6 +212,29 @@ button:disabled{opacity:.55;cursor:wait}
       </div>
 
       <button class="btn btn-block" id="otpBackButton" type="button" style="margin-top:10px">Back to sign in</button>
+    </form>
+
+    <!-- Forgot password: code by email, then new password -->
+    <form id="authResetForm" class="hidden">
+      <div class="field">
+        <label for="resetEmail">Email address</label>
+        <input id="resetEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+      </div>
+
+      <button class="btn btn-block" id="resetSendButton" type="button" style="margin-top:10px">Send code to my email / কোড পাঠান</button>
+
+      <div class="field">
+        <label for="resetCode">Code from email / ইমেইলে আসা কোড</label>
+        <input id="resetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code" required>
+      </div>
+
+      <div class="field">
+        <label for="resetPassword">New password / নতুন পাসওয়ার্ড</label>
+        <input id="resetPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="resetSubmitButton" type="submit" style="margin-top:14px">Change Password</button>
+      <button class="btn btn-block" id="resetBackButton" type="button" style="margin-top:10px">Back to sign in</button>
     </form>
 
     <div id="authMessage" class="message auth-message hidden" role="status" aria-live="polite"></div>
@@ -243,7 +269,7 @@ button:disabled{opacity:.55;cursor:wait}
 
     <div class="welcome">
       <div class="eyebrow" data-i18n="welcome">Welcome Back</div>
-      <h1 id="userName">Mohammad Jubol Official</h1>
+      <h1 id="userName">Welcome</h1>
       <p data-i18n="homeSubtitle">Your wallet, products and account services.</p>
     </div>
 
@@ -419,38 +445,33 @@ button:disabled{opacity:.55;cursor:wait}
     </div>
 
     <div class="panel">
-      <div class="muted">Email address</div>
-      <p id="accountEmail" style="overflow-wrap:anywhere"></p>
 
-      <div class="muted" style="margin-top:15px">User ID</div>
-      <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px"></p>
+      <div id="profileMessage" class="message hidden" style="margin:0 0 14px"></div>
 
-      <!-- ---------- Username (can be changed only once) ---------- -->
-      <div class="muted" style="margin-top:15px">Username / ইউজারনেম</div>
+      <!-- ---------- 1. Username (can be changed any time) ---------- -->
+      <div class="muted">Username / ইউজারনেম</div>
       <p id="accountUsername" style="font-weight:800;margin:6px 0 0;overflow-wrap:anywhere">—</p>
 
-      <form id="usernameForm" class="hidden">
+      <form id="usernameForm">
         <div class="field">
-          <label for="usernameInput">New username (one time only) / নতুন ইউজারনেম</label>
+          <label for="usernameInput">New username / নতুন ইউজারনেম</label>
           <input id="usernameInput" type="text" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="e.g. rahim_99" required>
-          <div class="note-small">3–20 characters: start with a letter, then letters, numbers or underscore (_). You can change it only once.</div>
+          <div class="note-small">3–20 characters: start with a letter, then letters, numbers or underscore (_). You can change it any time.</div>
         </div>
-        <button class="btn btn-primary btn-block" id="saveUsernameButton" type="submit" style="margin-top:10px">Change Username (one time)</button>
+        <button class="btn btn-primary btn-block" id="saveUsernameButton" type="submit" style="margin-top:10px">Change Username</button>
       </form>
 
-      <div id="usernameLockedNote" class="note-small hidden">Username already changed. It cannot be changed again.</div>
-
-      <!-- ---------- Phone number (can be submitted only once) ---------- -->
-      <div class="muted" style="margin-top:18px">Phone number / ফোন নাম্বার</div>
+      <!-- ---------- 2. Phone number ---------- -->
+      <div class="muted" style="margin-top:20px">Phone number / ফোন নাম্বার</div>
 
       <form id="phoneForm" class="hidden">
         <div class="field">
-          <label for="phoneInput">Mobile number (one time only) / মোবাইল নাম্বার</label>
+          <label for="phoneInput">Mobile number / মোবাইল নাম্বার</label>
           <input id="phoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="01XXXXXXXXX" required>
         </div>
-        <button class="btn btn-primary btn-block" id="savePhoneButton" type="submit" style="margin-top:10px">Submit Phone Number (one time)</button>
+        <button class="btn btn-primary btn-block" id="savePhoneButton" type="submit" style="margin-top:10px">Save Phone Number</button>
         <div class="note-small">
-          ℹ️ Phone verification works only through Telegram. If you do not have Telegram, you can skip verification.<br>
+          ℹ️ After saving, you can change it ONE more time later (with an email code).<br>
           ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামের মাধ্যমে হয়। টেলিগ্রাম না থাকলে ভেরিফিকেশন বাদ দিতে পারেন।
         </div>
       </form>
@@ -466,9 +487,92 @@ button:disabled{opacity:.55;cursor:wait}
           ℹ️ Phone verification is Telegram-only. No Telegram? You can skip this.<br>
           ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামে। টেলিগ্রাম না থাকলে বাদ দিন।
         </div>
+
+        <button class="btn btn-block" id="showPhoneChangeButton" type="button" style="margin-top:12px">Change phone number (one time) / নাম্বার বদলান</button>
+        <div id="phoneChangedNote" class="note-small hidden">Your phone number was already changed once. It cannot be changed again. / নাম্বার একবার বদলানো হয়েছে, আর বদলানো যাবে না।</div>
+
+        <form id="phoneChangeForm" class="hidden">
+          <button class="btn btn-block" id="sendPhoneCodeButton" type="button" style="margin-top:10px">Send code to my email / ইমেইলে কোড পাঠান</button>
+          <div class="field">
+            <label for="phoneChangeCode">Code from email / ইমেইলে আসা কোড</label>
+            <input id="phoneChangeCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code" required>
+          </div>
+          <div class="field">
+            <label for="newPhoneInput">New mobile number / নতুন নাম্বার</label>
+            <input id="newPhoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="off" placeholder="01XXXXXXXXX" required>
+          </div>
+          <button class="btn btn-primary btn-block" id="confirmPhoneChangeButton" type="submit" style="margin-top:12px">Confirm change (one time)</button>
+          <div class="note-small">SMS is not free, so the code goes to your account email. After changing, verify the new number with Telegram again.</div>
+        </form>
       </div>
 
-      <div id="profileMessage" class="message hidden" style="margin-top:14px"></div>
+      <!-- ---------- 3. User ID (cannot be changed) ---------- -->
+      <div class="muted" style="margin-top:20px">User ID</div>
+      <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px;margin:6px 0 0"></p>
+      <div class="note-small">User ID cannot be changed. / ইউজার আইডি বদলানো যায় না।</div>
+
+      <!-- ---------- 4. Email address (one change, with codes) ---------- -->
+      <div class="muted" style="margin-top:20px">Email address / ইমেইল</div>
+      <p id="accountEmail" style="overflow-wrap:anywhere;margin:6px 0 0"></p>
+
+      <button class="btn btn-block" id="showEmailChangeButton" type="button" style="margin-top:10px">Change email (one time) / ইমেইল বদলান</button>
+      <div id="emailChangedNote" class="note-small hidden">Your email was already changed once. It cannot be changed again. / ইমেইল একবার বদলানো হয়েছে।</div>
+
+      <form id="emailChangeForm" class="hidden">
+        <div class="field">
+          <label for="newEmailInput">New email address / নতুন ইমেইল</label>
+          <input id="newEmailInput" type="email" autocomplete="off" autocapitalize="none" placeholder="new@example.com" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="sendEmailChangeButton" type="submit" style="margin-top:10px">Send codes to both emails</button>
+        <div class="note-small">One code goes to your current email and one to the new email. You must enter both. / একটা কোড বর্তমান ইমেইলে, একটা নতুন ইমেইলে যাবে। দুটোই দিতে হবে।</div>
+      </form>
+
+      <form id="emailConfirmForm" class="hidden">
+        <div class="field">
+          <label for="emailCodeOld">Code sent to your CURRENT email / বর্তমান ইমেইলের কোড</label>
+          <input id="emailCodeOld" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="emailCodeNew">Code sent to the NEW email / নতুন ইমেইলের কোড</label>
+          <input id="emailCodeNew" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="confirmEmailChangeButton" type="submit" style="margin-top:12px">Confirm email change</button>
+      </form>
+
+      <!-- ---------- 5. Password ---------- -->
+      <div class="muted" style="margin-top:20px">Password / পাসওয়ার্ড</div>
+
+      <button class="btn btn-block" id="showPasswordChangeButton" type="button" style="margin-top:8px">Change password / পাসওয়ার্ড বদলান</button>
+
+      <form id="passwordChangeForm" class="hidden">
+        <div class="field">
+          <label for="oldPassword">Old password / পুরনো পাসওয়ার্ড</label>
+          <input id="oldPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="newPassword">New password / নতুন পাসওয়ার্ড</label>
+          <input id="newPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
+        </div>
+        <div class="field">
+          <label for="newPassword2">Repeat new password / আবার লিখুন</label>
+          <input id="newPassword2" type="password" autocomplete="new-password" minlength="6" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="savePasswordButton" type="submit" style="margin-top:12px">Change Password</button>
+        <button class="btn btn-block" id="forgotOldPasswordButton" type="button" style="margin-top:8px">Forgot old password? / পুরনো পাসওয়ার্ড মনে নেই?</button>
+      </form>
+
+      <form id="accountResetForm" class="hidden">
+        <button class="btn btn-block" id="accountResetSend" type="button" style="margin-top:10px">Send code to my email / কোড পাঠান</button>
+        <div class="field">
+          <label for="accountResetCode">Code from email / ইমেইলে আসা কোড</label>
+          <input id="accountResetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="accountResetPassword">New password / নতুন পাসওয়ার্ড</label>
+          <input id="accountResetPassword" type="password" autocomplete="new-password" minlength="6" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="accountResetSubmit" type="submit" style="margin-top:12px">Set New Password</button>
+      </form>
 
     </div>
 
@@ -706,17 +810,43 @@ button:disabled{opacity:.55;cursor:wait}
     <div class="welcome">
       <div class="eyebrow">Grow Together</div>
       <h1 data-i18n="referral">Referral & Rewards</h1>
-      <p>Invite friends and review your referral programme.</p>
+      <p>Invite friends with your link and earn commission.</p>
     </div>
-    <div class="panel">
-      <div class="message">Referral programme information and rewards will appear here when the referral system is connected.</div>
 
-      <div class="field">
-        <label for="referralCode">Your referral code</label>
-        <input id="referralCode" readonly placeholder="Not available yet">
+    <div class="panel">
+
+      <div id="referralMessage" class="message hidden" style="margin-bottom:14px"></div>
+
+      <div class="balance-grid">
+        <div class="balance-box"><span>Today's commission / আজকের কমিশন</span><strong id="refRate">—</strong></div>
+        <div class="balance-box"><span>Friends referred / রেফার করেছেন</span><strong id="refTotal">0</strong></div>
+        <div class="balance-box"><span>Waiting / অপেক্ষমাণ</span><strong id="refPending">0</strong></div>
+        <div class="balance-box"><span>Earned / অর্জিত</span><strong id="refEarned">BDT 0.00</strong></div>
       </div>
 
-      <button class="btn btn-block" id="copyReferralButton" style="margin-top:12px" type="button">Copy Referral Code</button>
+      <div class="field">
+        <label for="referralLink">Your referral link / আপনার রেফার লিংক</label>
+        <input id="referralLink" readonly placeholder="Loading...">
+      </div>
+      <button class="btn btn-primary btn-block" id="copyReferralLinkButton" style="margin-top:10px" type="button">Copy Referral Link</button>
+
+      <div class="field">
+        <label for="referralCode">Your referral code / রেফার কোড</label>
+        <input id="referralCode" readonly placeholder="Not available yet">
+      </div>
+      <button class="btn btn-block" id="copyReferralButton" style="margin-top:10px" type="button">Copy Referral Code</button>
+
+      <div class="note-small" id="referralRules" style="margin-top:14px">
+        ℹ️ You earn the commission only after your friend's total valid product purchases or buybacks reach the required amount. Signing up alone earns nothing.<br>
+        ℹ️ বন্ধুর মোট বৈধ প্রোডাক্ট কেনা বা বাইব্যাক নির্দিষ্ট অঙ্কে পৌঁছালে তবেই কমিশন পাবেন। শুধু অ্যাকাউন্ট খুললে কমিশন নেই।<br>
+        ℹ️ To withdraw, your own account needs at least one completed deposit and one product purchase.<br>
+        ℹ️ টাকা তুলতে আপনার নিজের অন্তত একটা ডিপোজিট আর একটা প্রোডাক্ট কেনা লাগবে।
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="menu-group-title" style="margin-top:4px">My referrals / আমার রেফারেল</div>
+      <div id="referralList" style="display:grid;gap:10px;margin-top:10px"></div>
     </div>
   </section>
 
@@ -919,6 +1049,20 @@ button:disabled{opacity:.55;cursor:wait}
 const SUPABASE_URL = "https://hdlskefeuodhoeaksflq.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
 const APRP_REDIRECT_URL = "https://aprpdigital.github.io/aprp-digital/";
+
+/* referral link: ?ref=CODE is remembered until the person signs up */
+const REF_STORAGE_KEY = "aprp_ref";
+(function captureReferral(){
+  try{
+    const code = new URLSearchParams(location.search).get("ref");
+    if(code && /^[A-Za-z0-9]{4,16}$/.test(code)){
+      localStorage.setItem(REF_STORAGE_KEY, code.toUpperCase());
+    }
+  }catch(e){}
+})();
+function getSavedReferral(){
+  try{ return localStorage.getItem(REF_STORAGE_KEY) || ""; }catch(e){ return ""; }
+}
 
 /* Your Telegram bot username WITHOUT the @ sign (from BotFather).
    Example: if the bot is @aprp_verify_bot, write "aprp_verify_bot". */
@@ -1286,6 +1430,7 @@ function showPage(pageId, opts={}){
   if(pageId === "depositPage")       loadDepositChannels();
   if(pageId === "notificationsPage") loadNotifications();
   if(pageId === "accountPage")       loadProfile();
+  if(pageId === "referralPage")      loadReferral();
 
   if(pageId === "homePage"){
     loadWallet();
@@ -1328,7 +1473,7 @@ function showApp(){
   $("userName").textContent =
     user?.user_metadata?.full_name
     || user?.user_metadata?.name
-    || "Mohammad Jubol Official";
+    || (user?.email ? user.email.split("@")[0] : "Welcome");
 
   $("accountEmail").textContent  = user?.email || "Unavailable";
   $("accountUserId").textContent = user?.id || "Unavailable";
@@ -1348,6 +1493,7 @@ function showApp(){
   showPage(getStartPage(), { replace:true });
 
   refreshNotificationBadge();
+  loadProfile();
 }
 
 
@@ -1414,7 +1560,7 @@ async function loadProfile(){
 
     const { data, error } = await supabaseClient
       .from("account_profiles")
-      .select("username, username_changed, phone, phone_set, phone_verified")
+      .select("username, username_changed, phone, phone_set, phone_verified, phone_changed, email_changed")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -1430,7 +1576,7 @@ async function loadProfile(){
     let m = error?.message || "Please try again.";
 
     if(/relation|does not exist|schema cache/i.test(m)){
-      m = "Profile table is not set up yet. Run supabase_setup.sql in Supabase first.";
+      m = "Profile table is not set up yet. Run supabase_setup.sql and supabase_update.sql in Supabase first. (" + m + ")";
     }
 
     showMessage(msg, "Could not load profile: " + m, "error");
@@ -1439,30 +1585,49 @@ async function loadProfile(){
 
 }
 
+function setHidden(id, hide){
+  const el = $(id);
+  if(el) el.classList.toggle("hidden", !!hide);
+}
+
 function renderProfile(){
 
   if(!profile) return;
 
   $("accountUsername").textContent = "@" + profile.username;
 
-  $("usernameForm").classList.toggle("hidden", !!profile.username_changed);
-  $("usernameLockedNote").classList.toggle("hidden", !profile.username_changed);
+  if(!(user?.user_metadata?.full_name || user?.user_metadata?.name)){
+    $("userName").textContent = profile.username;
+  }
 
-  $("phoneForm").classList.toggle("hidden", !!profile.phone_set);
-  $("phoneInfo").classList.toggle("hidden", !profile.phone_set);
+  setHidden("phoneForm", !!profile.phone_set);
+  setHidden("phoneInfo", !profile.phone_set);
 
   if(profile.phone_set){
 
     $("phoneValue").textContent = profile.phone || "";
     $("phoneStatus").textContent = profile.phone_verified ? "Verified ✓" : "Not verified yet";
 
-    $("verifyPhoneButton").classList.toggle("hidden", !!profile.phone_verified);
-    $("telegramOnlyNote").classList.toggle("hidden", !!profile.phone_verified);
+    setHidden("verifyPhoneButton", !!profile.phone_verified);
+    setHidden("telegramOnlyNote", !!profile.phone_verified);
 
     if(profile.phone_verified){
       $("refreshProfileButton").classList.add("hidden");
     }
 
+    setHidden("showPhoneChangeButton", !!profile.phone_changed);
+    setHidden("phoneChangedNote", !profile.phone_changed);
+    if(profile.phone_changed){
+      setHidden("phoneChangeForm", true);
+    }
+
+  }
+
+  setHidden("showEmailChangeButton", !!profile.email_changed);
+  setHidden("emailChangedNote", !profile.email_changed);
+  if(profile.email_changed){
+    setHidden("emailChangeForm", true);
+    setHidden("emailConfirmForm", true);
   }
 
 }
@@ -1476,8 +1641,6 @@ async function changeUsername(event){
   if(!requireDb(msg)) return;
 
   const value = $("usernameInput").value.trim().toLowerCase();
-
-  if(!confirm("You can change your username only ONCE. Change it to \"" + value + "\"?\n\nইউজারনেম শুধু একবারই বদলানো যাবে।")) return;
 
   const button = $("saveUsernameButton");
   button.disabled = true;
@@ -1514,7 +1677,7 @@ async function submitPhone(event){
 
   const value = $("phoneInput").value.trim();
 
-  if(!confirm("You can submit your phone number only ONCE and it cannot be changed later. Is " + value + " correct?\n\nফোন নাম্বার শুধু একবারই দেওয়া যাবে, পরে বদলানো যাবে না।")) return;
+  if(!confirm("Save this phone number: " + value + " ?\n\nপরে আপনি আর মাত্র একবার বদলাতে পারবেন।")) return;
 
   const button = $("savePhoneButton");
   button.disabled = true;
@@ -3035,10 +3198,15 @@ async function signUp(){
     const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
-      options:{ emailRedirectTo: APRP_REDIRECT_URL }
+      options:{
+        emailRedirectTo: APRP_REDIRECT_URL,
+        data: getSavedReferral() ? { ref: getSavedReferral() } : {}
+      }
     });
 
     if(error) throw error;
+
+    try{ localStorage.removeItem(REF_STORAGE_KEY); }catch(e){}
 
     if(data.session && data.user){
 
@@ -3315,6 +3483,482 @@ document.addEventListener("click", e=>{
 /* =========================================================
    INITIALIZE
    ========================================================= */
+
+/* =========================================================
+   ACCOUNT: phone change, email change, password
+   ========================================================= */
+
+function profileNote(text, type){
+  const el = $("profileMessage");
+  showMessage(el, text, type);
+  try{ el.scrollIntoView({ behavior:"smooth", block:"center" }); }catch(e){}
+}
+
+function cleanCode(value){
+  return String(value || "").replace(/\s+/g, "");
+}
+
+/* ---- Phone change (one time) ---- */
+async function sendPhoneChangeCode(){
+
+  if(!requireDb($("profileMessage")) || !user?.email) return;
+
+  const button = $("sendPhoneCodeButton");
+  button.disabled = true;
+
+  try{
+    const { error } = await supabaseClient.auth.signInWithOtp({
+      email: user.email,
+      options: { shouldCreateUser:false }
+    });
+    if(error) throw error;
+    profileNote("A code was sent to " + user.email + ". Check Spam too. / আপনার ইমেইলে কোড পাঠানো হয়েছে।", "success");
+  }catch(error){
+    profileNote(error?.message || "Could not send the code.", "error");
+  }finally{
+    setTimeout(()=>{ button.disabled = false; }, 30000);
+  }
+
+}
+
+async function submitPhoneChange(event){
+
+  event.preventDefault();
+
+  if(!requireDb($("profileMessage")) || !user?.email) return;
+
+  const code  = cleanCode($("phoneChangeCode").value);
+  const value = $("newPhoneInput").value.trim();
+
+  if(!code || !value){
+    profileNote("Enter the email code and the new number.", "error");
+    return;
+  }
+
+  if(!confirm("You can change your phone number only ONE time. New number: " + value + "\n\nনাম্বার আর মাত্র এই একবারই বদলানো যাবে। ঠিক আছে?")) return;
+
+  const button = $("confirmPhoneChangeButton");
+  button.disabled = true;
+
+  try{
+
+    const { error:codeError } = await supabaseClient.auth.verifyOtp({
+      email: user.email,
+      token: code,
+      type: "email"
+    });
+    if(codeError) throw codeError;
+
+    const { error } = await supabaseClient.rpc("change_phone", { new_phone: value });
+    if(error) throw error;
+
+    $("phoneChangeCode").value = "";
+    $("newPhoneInput").value = "";
+    setHidden("phoneChangeForm", true);
+
+    profileNote("Phone number changed. Please verify the new number with Telegram. / নাম্বার বদলানো হয়েছে।", "success");
+
+    await loadProfile();
+
+  }catch(error){
+    profileNote(error?.message || "Could not change the phone number.", "error");
+  }finally{
+    button.disabled = false;
+  }
+
+}
+
+/* ---- Email change (one time, codes to old and new email) ---- */
+let pendingNewEmail = null;
+let emailStepOneDone = false;
+
+async function requestEmailChange(event){
+
+  event.preventDefault();
+
+  if(!requireDb($("profileMessage")) || !user?.email) return;
+
+  const value = $("newEmailInput").value.trim().toLowerCase();
+
+  if(!value || value === String(user.email).toLowerCase()){
+    profileNote("Enter a different email address.", "error");
+    return;
+  }
+
+  if(!confirm("You can change your email only ONE time. New email: " + value + "\n\nইমেইল মাত্র একবারই বদলানো যাবে। ঠিক আছে?")) return;
+
+  const button = $("sendEmailChangeButton");
+  button.disabled = true;
+
+  try{
+
+    const { error } = await supabaseClient.auth.updateUser({ email: value });
+    if(error) throw error;
+
+    pendingNewEmail = value;
+    emailStepOneDone = false;
+
+    setHidden("emailChangeForm", true);
+    setHidden("emailConfirmForm", false);
+
+    profileNote("Codes were sent to your current email and to " + value + ". Enter both codes. Check Spam too.", "success");
+
+  }catch(error){
+    profileNote(error?.message || "Could not start the email change.", "error");
+  }finally{
+    button.disabled = false;
+  }
+
+}
+
+async function confirmEmailChange(event){
+
+  event.preventDefault();
+
+  if(!pendingNewEmail || !user?.email) return;
+  if(!requireDb($("profileMessage"))) return;
+
+  const oldEmail = user.email;
+  const codeOld  = cleanCode($("emailCodeOld").value);
+  const codeNew  = cleanCode($("emailCodeNew").value);
+
+  if(!codeOld || !codeNew){
+    profileNote("Enter both codes.", "error");
+    return;
+  }
+
+  const button = $("confirmEmailChangeButton");
+  button.disabled = true;
+
+  try{
+
+    if(!emailStepOneDone){
+      const first = await supabaseClient.auth.verifyOtp({ email: oldEmail, token: codeOld, type: "email_change" });
+      if(first.error && !/proceed|other email|accepted|confirm/i.test(first.error.message || "")){
+        throw first.error;
+      }
+      emailStepOneDone = true;
+    }
+
+    const second = await supabaseClient.auth.verifyOtp({ email: pendingNewEmail, token: codeNew, type: "email_change" });
+    if(second.error) throw second.error;
+
+    const { data } = await supabaseClient.auth.getUser();
+    if(data?.user){
+      user = data.user;
+      $("accountEmail").textContent = user.email || "";
+    }
+
+    pendingNewEmail = null;
+    emailStepOneDone = false;
+    $("emailCodeOld").value = "";
+    $("emailCodeNew").value = "";
+    $("newEmailInput").value = "";
+    setHidden("emailConfirmForm", true);
+
+    profileNote("Email changed successfully. / ইমেইল বদলানো হয়েছে।", "success");
+
+    await loadProfile();
+
+  }catch(error){
+    profileNote(error?.message || "Could not confirm the email change.", "error");
+  }finally{
+    button.disabled = false;
+  }
+
+}
+
+/* ---- Password: change with old password ---- */
+async function changePassword(event){
+
+  event.preventDefault();
+
+  if(!requireDb($("profileMessage")) || !user?.email) return;
+
+  const oldPassword = $("oldPassword").value;
+  const newPassword = $("newPassword").value;
+  const repeat      = $("newPassword2").value;
+
+  if(newPassword.length < 6){
+    profileNote("New password must be at least 6 characters.", "error");
+    return;
+  }
+  if(newPassword !== repeat){
+    profileNote("The two new passwords do not match. / দুটো নতুন পাসওয়ার্ড মিলছে না।", "error");
+    return;
+  }
+  if(newPassword === oldPassword){
+    profileNote("The new password must be different from the old one.", "error");
+    return;
+  }
+
+  const button = $("savePasswordButton");
+  button.disabled = true;
+
+  try{
+
+    const { error:checkError } = await supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: oldPassword
+    });
+    if(checkError) throw new Error("Old password is incorrect. / পুরনো পাসওয়ার্ড ভুল।");
+
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if(error) throw error;
+
+    $("oldPassword").value = "";
+    $("newPassword").value = "";
+    $("newPassword2").value = "";
+    setHidden("passwordChangeForm", true);
+
+    profileNote("Password changed successfully. / পাসওয়ার্ড বদলানো হয়েছে।", "success");
+
+  }catch(error){
+    profileNote(error?.message || "Could not change the password.", "error");
+  }finally{
+    button.disabled = false;
+  }
+
+}
+
+/* ---- Password: forgot (code by email, then new password) ---- */
+async function sendResetCode(email, messageElement, button){
+
+  if(!requireDb(messageElement)) return;
+
+  if(!email){
+    showMessage(messageElement, "Please enter your email address.", "error");
+    return;
+  }
+
+  button.disabled = true;
+
+  try{
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+    if(error) throw error;
+    showMessage(messageElement, "If this email has an account, a code was sent to " + email + ". Check Spam too.", "success");
+  }catch(error){
+    showMessage(messageElement, error?.message || "Could not send the code.", "error");
+  }finally{
+    setTimeout(()=>{ button.disabled = false; }, 30000);
+  }
+
+}
+
+async function finishReset(email, code, newPassword, messageElement){
+
+  if(!requireDb(messageElement)) return false;
+
+  if(!email || !code){
+    showMessage(messageElement, "Enter your email and the code.", "error");
+    return false;
+  }
+  if(newPassword.length < 6){
+    showMessage(messageElement, "New password must be at least 6 characters.", "error");
+    return false;
+  }
+
+  try{
+
+    const { error } = await supabaseClient.auth.verifyOtp({ email, token: code, type: "recovery" });
+    if(error) throw error;
+
+    const { error:updateError } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if(updateError) throw updateError;
+
+    return true;
+
+  }catch(error){
+    showMessage(messageElement, error?.message || "Could not reset the password.", "error");
+    return false;
+  }
+
+}
+
+function showResetForm(){
+  $("authForm").classList.add("hidden");
+  $("authResetForm").classList.remove("hidden");
+  $("authHeading").textContent = "Reset password";
+  $("authIntro").textContent = "We will email you a code, then you can set a new password.";
+  $("resetEmail").value = $("authEmail").value.trim();
+  $("authMessage").classList.add("hidden");
+}
+
+function hideResetForm(){
+  $("authResetForm").classList.add("hidden");
+  $("authForm").classList.remove("hidden");
+  $("authHeading").textContent = "Welcome back";
+  $("authIntro").textContent = "Sign in to access your account and wallet.";
+  $("resetCode").value = "";
+  $("resetPassword").value = "";
+  $("authMessage").classList.add("hidden");
+}
+
+on("showPhoneChangeButton", "click", ()=> setHidden("phoneChangeForm", !$("phoneChangeForm").classList.contains("hidden")));
+on("sendPhoneCodeButton", "click", sendPhoneChangeCode);
+on("phoneChangeForm", "submit", submitPhoneChange);
+
+on("showEmailChangeButton", "click", ()=>{
+  setHidden("emailConfirmForm", true);
+  setHidden("emailChangeForm", !$("emailChangeForm").classList.contains("hidden"));
+});
+on("emailChangeForm", "submit", requestEmailChange);
+on("emailConfirmForm", "submit", confirmEmailChange);
+
+on("showPasswordChangeButton", "click", ()=>{
+  setHidden("accountResetForm", true);
+  setHidden("passwordChangeForm", !$("passwordChangeForm").classList.contains("hidden"));
+});
+on("passwordChangeForm", "submit", changePassword);
+on("forgotOldPasswordButton", "click", ()=>{
+  setHidden("passwordChangeForm", true);
+  setHidden("accountResetForm", false);
+});
+on("accountResetSend", "click", ()=> sendResetCode(user?.email, $("profileMessage"), $("accountResetSend")));
+on("accountResetForm", "submit", async e=>{
+  e.preventDefault();
+  const button = $("accountResetSubmit");
+  button.disabled = true;
+  const ok = await finishReset(user?.email, cleanCode($("accountResetCode").value), $("accountResetPassword").value, $("profileMessage"));
+  button.disabled = false;
+  if(ok){
+    $("accountResetCode").value = "";
+    $("accountResetPassword").value = "";
+    setHidden("accountResetForm", true);
+    profileNote("Password changed successfully. / পাসওয়ার্ড বদলানো হয়েছে।", "success");
+  }
+});
+
+on("forgotPasswordButton", "click", showResetForm);
+on("resetBackButton", "click", hideResetForm);
+on("resetSendButton", "click", ()=> sendResetCode($("resetEmail").value.trim(), $("authMessage"), $("resetSendButton")));
+on("authResetForm", "submit", async e=>{
+  e.preventDefault();
+  const button = $("resetSubmitButton");
+  button.disabled = true;
+  const ok = await finishReset($("resetEmail").value.trim(), cleanCode($("resetCode").value), $("resetPassword").value, $("authMessage"));
+  button.disabled = false;
+  if(ok){
+    alert("Password changed. You are signed in. / পাসওয়ার্ড বদলানো হয়েছে।");
+    hideResetForm();
+  }
+});
+
+/* =========================================================
+   REFERRAL
+   ========================================================= */
+
+function referralLinkFor(code){
+  return APRP_REDIRECT_URL + "?ref=" + encodeURIComponent(code);
+}
+
+async function loadReferral(){
+
+  const msg = $("referralMessage");
+
+  if(!user?.id || !supabaseClient) return;
+
+  try{
+
+    const { data:info, error } = await supabaseClient.rpc("my_referral_info");
+    if(error) throw error;
+
+    const i = info || {};
+
+    $("referralCode").value = i.ref_code || "";
+    $("referralLink").value = i.ref_code ? referralLinkFor(i.ref_code) : "";
+    $("refRate").textContent    = formatMoney(i.current_rate || 0, "BDT");
+    $("refTotal").textContent   = String(i.total || 0);
+    $("refPending").textContent = String(i.pending || 0);
+    $("refEarned").textContent  = formatMoney(i.earned_amount || 0, "BDT");
+
+    const min = Number(i.min_purchase_total || 0);
+    $("referralRules").dataset.min = String(min);
+
+    const { data:rows, error:listError } = await supabaseClient.rpc("my_referrals");
+    if(listError) throw listError;
+
+    const list = $("referralList");
+    list.replaceChildren();
+
+    if(!rows || !rows.length){
+      const empty = document.createElement("div");
+      empty.className = "note-small";
+      empty.textContent = "No referrals yet. Share your link! / এখনো কেউ নেই, লিংক শেয়ার করুন।";
+      list.appendChild(empty);
+    }else{
+      rows.forEach(row=>{
+        const card = document.createElement("article");
+        card.className = "transaction-item";
+
+        const top = document.createElement("div");
+        top.className = "transaction-top";
+
+        const left = document.createElement("div");
+        const name = document.createElement("div");
+        name.className = "transaction-type";
+        name.textContent = "@" + (row.username || "user");
+        left.appendChild(name);
+
+        const progress = document.createElement("div");
+        progress.className = "transaction-id";
+        progress.textContent = "Purchased " + formatMoney(row.purchased || 0, "BDT") + (min ? " / " + formatMoney(min, "BDT") : "");
+        left.appendChild(progress);
+
+        const right = document.createElement("div");
+        right.className = "transaction-right";
+        const amount = document.createElement("div");
+        amount.className = "transaction-amount";
+        amount.textContent = formatMoney(row.commission_amount || 0, "BDT");
+        right.appendChild(amount);
+
+        const status = document.createElement("span");
+        status.className = "transaction-status " + (row.status === "earned" ? "completed" : "pending");
+        status.textContent = row.status === "earned" ? "Earned" : "Waiting";
+        right.appendChild(status);
+
+        top.append(left, right);
+        card.appendChild(top);
+        list.appendChild(card);
+      });
+    }
+
+    msg.hidden = true;
+
+  }catch(error){
+    console.error("Referral error:", error);
+    let m = error?.message || "Please try again.";
+    if(/function|does not exist|schema cache/i.test(m)){
+      m = "Referral system is not set up yet. Run supabase_referral.sql in Supabase first. (" + m + ")";
+    }
+    showMessage(msg, "Could not load referrals: " + m, "error");
+  }
+
+}
+
+async function copyText(value, okText){
+  if(!value){
+    alert("Not available yet.");
+    return;
+  }
+  try{
+    await navigator.clipboard.writeText(value);
+    alert(okText);
+  }catch(e){
+    alert("Unable to copy automatically. Please copy it manually.");
+  }
+}
+
+on("copyReferralLinkButton", "click", ()=> copyText($("referralLink").value, "Referral link copied."));
+
+(function showReferralNotice(){
+  const code = getSavedReferral();
+  const box = $("refNotice");
+  if(code && box){
+    box.textContent = "Referral code applied: " + code + " / রেফার কোড প্রয়োগ হয়েছে";
+    box.classList.remove("hidden");
+  }
+})();
 
 async function initializeApp(){
 
