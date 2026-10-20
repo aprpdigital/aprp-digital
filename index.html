@@ -161,6 +161,34 @@ button:disabled{opacity:.55;cursor:wait}
   .bottom-nav{padding-left:7px;padding-right:7px;gap:3px}
   .channel-list{grid-template-columns:1fr}
 }
+
+/* ---- Profile rows, badges, hero cards ---- */
+.section-title{margin:4px 2px 4px;color:#69819f;font-size:10px;font-weight:850;letter-spacing:1.4px;text-transform:uppercase}
+.row-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;margin-top:10px;border:1px solid #1f2d44;border-radius:14px;background:#0d1626}
+.row-text{min-width:0}
+.row-label{color:var(--muted);font-size:11px}
+.row-value{margin-top:3px;font-size:14px;font-weight:800;overflow-wrap:anywhere}
+.row-sub{margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5}
+.edit-btn{flex-shrink:0;width:38px;height:38px;display:grid;place-items:center;padding:0;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:#65f0c1;font-size:17px;line-height:1}
+.edit-box{margin:-2px 0 0;padding:2px 14px 14px;border:1px solid #1f2d44;border-top:0;border-radius:0 0 14px 14px;background:#0a1220}
+.badge{display:inline-block;padding:4px 9px;border:1px solid #34445c;border-radius:999px;background:#1b293c;color:#d2dced;font-size:10px;font-weight:850}
+.badge.ok{background:#073b2d;color:#68efb9;border-color:#17684e}
+.badge.warn{background:#3b2b0b;color:#ffd780;border-color:#75551a}
+.badge.bad{background:#3d1820;color:#ff9eaa;border-color:#75303c}
+.profile-hero{display:flex;align-items:center;gap:14px;padding:16px;border:1px solid #1f3a38;border-radius:20px;background:linear-gradient(145deg,#0f2a2a,#0a1424)}
+.avatar{width:54px;height:54px;display:grid;place-items:center;flex-shrink:0;border-radius:18px;background:linear-gradient(145deg,#20d5a0,#08775d);color:#031c17;font-size:22px;font-weight:950}
+.ref-hero{padding:22px 18px;border:1px solid #1d5a4b;border-radius:22px;background:linear-gradient(150deg,#0d3b32,#0a1a2c);text-align:center}
+.ref-hero .ref-small{color:#a6c9c0;font-size:12px}
+.ref-hero .ref-amount{margin:6px 0;color:#65f0c1;font-size:36px;font-weight:900;letter-spacing:-1px}
+.copy-row{display:flex;gap:8px;align-items:stretch;margin-top:8px}
+.copy-row input{flex:1;min-width:0;padding:12px;border:1px solid var(--border);border-radius:12px;outline:none;background:#080f1d;color:var(--text)}
+.copy-row .btn{flex-shrink:0}
+.steps{display:grid;gap:10px;margin-top:10px}
+.step{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid #1f2d44;border-radius:14px;background:#0d1626;line-height:1.5}
+.step-num{width:28px;height:28px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:#17332f;color:#65f0c1;font-weight:900}
+.step small{display:block;color:var(--muted);font-size:11px}
+.field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;outline:none;background:#080f1d;color:var(--text)}
+.field input[type=file]{padding:10px;font-size:12px}
 </style>
 </head>
 
@@ -182,28 +210,30 @@ button:disabled{opacity:.55;cursor:wait}
 
     <form id="authForm">
       <div class="field">
-        <label for="authEmail">Email address</label>
-        <input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <label for="authEmail">Email or phone number</label>
+        <input id="authEmail" type="text" inputmode="email" autocomplete="username" autocapitalize="none" required>
       </div>
 
       <div class="field">
         <label for="authPassword">Password</label>
-        <input id="authPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Enter password" required>
+        <input id="authPassword" type="password" autocomplete="current-password" minlength="6" required>
       </div>
+
+      <div id="authHint" class="note-small hidden"></div>
 
       <div class="auth-actions">
         <button class="btn btn-primary" id="loginButton" type="submit">Sign In</button>
         <button class="btn" id="signupButton" type="button">Create Account</button>
       </div>
 
-      <button class="btn btn-block" id="forgotPasswordButton" type="button" style="margin-top:10px">Forgot password? / পাসওয়ার্ড ভুলে গেছেন?</button>
+      <button class="btn btn-block" id="forgotPasswordButton" type="button" style="margin-top:10px">Forgot password?</button>
     </form>
 
     <!-- Email code (OTP) form: shown after Create Account -->
     <form id="otpForm" class="hidden">
       <div class="field">
-        <label for="otpCode">Email verification code / ইমেইলে আসা কোড</label>
-        <input id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code from your email" required>
+        <label for="otpCode">Email verification code</label>
+        <input id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
       </div>
 
       <div class="auth-actions">
@@ -214,23 +244,30 @@ button:disabled{opacity:.55;cursor:wait}
       <button class="btn btn-block" id="otpBackButton" type="button" style="margin-top:10px">Back to sign in</button>
     </form>
 
+    <!-- Phone sign-up: verify on Telegram -->
+    <form id="phoneVerifyForm" class="hidden">
+      <a class="btn btn-primary btn-block" id="phoneVerifyOpen" href="#" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none">Open Telegram</a>
+      <button class="btn btn-block" id="phoneVerifyDone" type="submit" style="margin-top:10px">I have verified</button>
+      <button class="btn btn-block" id="phoneVerifyBack" type="button" style="margin-top:10px">Back to sign in</button>
+    </form>
+
     <!-- Forgot password: code by email, then new password -->
     <form id="authResetForm" class="hidden">
       <div class="field">
         <label for="resetEmail">Email address</label>
-        <input id="resetEmail" type="email" autocomplete="email" placeholder="you@example.com" required>
+        <input id="resetEmail" type="email" autocomplete="email" required>
       </div>
 
-      <button class="btn btn-block" id="resetSendButton" type="button" style="margin-top:10px">Send code to my email / কোড পাঠান</button>
+      <button class="btn btn-block" id="resetSendButton" type="button" style="margin-top:10px">Send code to my email</button>
 
       <div class="field">
-        <label for="resetCode">Code from email / ইমেইলে আসা কোড</label>
-        <input id="resetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code" required>
+        <label for="resetCode">Code from email</label>
+        <input id="resetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
       </div>
 
       <div class="field">
-        <label for="resetPassword">New password / নতুন পাসওয়ার্ড</label>
-        <input id="resetPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
+        <label for="resetPassword">New password</label>
+        <input id="resetPassword" type="password" autocomplete="new-password" minlength="6" required>
       </div>
 
       <button class="btn btn-primary btn-block" id="resetSubmitButton" type="submit" style="margin-top:14px">Change Password</button>
@@ -378,23 +415,23 @@ button:disabled{opacity:.55;cursor:wait}
           </div>
 
           <div class="field">
-            <label for="depositAmount">Amount / টাকার পরিমাণ</label>
+            <label for="depositAmount">Amount</label>
             <input id="depositAmount" type="number" min="500" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
             <div id="depositAmountHint" class="muted"></div>
           </div>
 
           <div class="field">
-            <label for="depositSenderNumber">যে নাম্বার থেকে ডিপোজিট করেছেন</label>
+            <label for="depositSenderNumber">Sender number</label>
             <input id="depositSenderNumber" type="tel" inputmode="tel" maxlength="40" autocomplete="off" placeholder="01XXXXXXXXX" required>
           </div>
 
           <div class="field">
-            <label for="depositReference">Transaction ID / ট্রানজেকশন আইডি</label>
+            <label for="depositReference">Transaction ID</label>
             <input id="depositReference" type="text" maxlength="150" autocomplete="off" placeholder="Enter transaction ID" required>
           </div>
 
           <div class="field">
-            <label for="depositNote">Note (optional) / নোট</label>
+            <label for="depositNote">Note (optional)</label>
             <textarea id="depositNote" maxlength="500" placeholder="Optional note"></textarea>
           </div>
 
@@ -444,137 +481,6 @@ button:disabled{opacity:.55;cursor:wait}
       <p data-i18n="accountSubtitle">Manage your account.</p>
     </div>
 
-    <div class="panel">
-
-      <div id="profileMessage" class="message hidden" style="margin:0 0 14px"></div>
-
-      <!-- ---------- 1. Username (can be changed any time) ---------- -->
-      <div class="muted">Username / ইউজারনেম</div>
-      <p id="accountUsername" style="font-weight:800;margin:6px 0 0;overflow-wrap:anywhere">—</p>
-
-      <form id="usernameForm">
-        <div class="field">
-          <label for="usernameInput">New username / নতুন ইউজারনেম</label>
-          <input id="usernameInput" type="text" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="e.g. rahim_99" required>
-          <div class="note-small">3–20 characters: start with a letter, then letters, numbers or underscore (_). You can change it any time.</div>
-        </div>
-        <button class="btn btn-primary btn-block" id="saveUsernameButton" type="submit" style="margin-top:10px">Change Username</button>
-      </form>
-
-      <!-- ---------- 2. Phone number ---------- -->
-      <div class="muted" style="margin-top:20px">Phone number / ফোন নাম্বার</div>
-
-      <form id="phoneForm" class="hidden">
-        <div class="field">
-          <label for="phoneInput">Mobile number / মোবাইল নাম্বার</label>
-          <input id="phoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="01XXXXXXXXX" required>
-        </div>
-        <button class="btn btn-primary btn-block" id="savePhoneButton" type="submit" style="margin-top:10px">Save Phone Number</button>
-        <div class="note-small">
-          ℹ️ After saving, you can change it ONE more time later (with an email code).<br>
-          ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামের মাধ্যমে হয়। টেলিগ্রাম না থাকলে ভেরিফিকেশন বাদ দিতে পারেন।
-        </div>
-      </form>
-
-      <div id="phoneInfo" class="hidden">
-        <p id="phoneValue" style="font-weight:800;margin:6px 0 2px;overflow-wrap:anywhere"></p>
-        <p id="phoneStatus" class="muted" style="margin:0 0 10px"></p>
-
-        <button class="btn btn-primary btn-block" id="verifyPhoneButton" type="button">Verify phone with Telegram</button>
-        <button class="btn btn-block hidden" id="refreshProfileButton" type="button" style="margin-top:8px">I have verified — refresh status</button>
-
-        <div id="telegramOnlyNote" class="note-small">
-          ℹ️ Phone verification is Telegram-only. No Telegram? You can skip this.<br>
-          ℹ️ ফোন ভেরিফিকেশন শুধু টেলিগ্রামে। টেলিগ্রাম না থাকলে বাদ দিন।
-        </div>
-
-        <button class="btn btn-block" id="showPhoneChangeButton" type="button" style="margin-top:12px">Change phone number (one time) / নাম্বার বদলান</button>
-        <div id="phoneChangedNote" class="note-small hidden">Your phone number was already changed once. It cannot be changed again. / নাম্বার একবার বদলানো হয়েছে, আর বদলানো যাবে না।</div>
-
-        <form id="phoneChangeForm" class="hidden">
-          <button class="btn btn-block" id="sendPhoneCodeButton" type="button" style="margin-top:10px">Send code to my email / ইমেইলে কোড পাঠান</button>
-          <div class="field">
-            <label for="phoneChangeCode">Code from email / ইমেইলে আসা কোড</label>
-            <input id="phoneChangeCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Enter the code" required>
-          </div>
-          <div class="field">
-            <label for="newPhoneInput">New mobile number / নতুন নাম্বার</label>
-            <input id="newPhoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="off" placeholder="01XXXXXXXXX" required>
-          </div>
-          <button class="btn btn-primary btn-block" id="confirmPhoneChangeButton" type="submit" style="margin-top:12px">Confirm change (one time)</button>
-          <div class="note-small">SMS is not free, so the code goes to your account email. After changing, verify the new number with Telegram again.</div>
-        </form>
-      </div>
-
-      <!-- ---------- 3. User ID (cannot be changed) ---------- -->
-      <div class="muted" style="margin-top:20px">User ID</div>
-      <p id="accountUserId" style="overflow-wrap:anywhere;font-size:11px;margin:6px 0 0"></p>
-      <div class="note-small">User ID cannot be changed. / ইউজার আইডি বদলানো যায় না।</div>
-
-      <!-- ---------- 4. Email address (one change, with codes) ---------- -->
-      <div class="muted" style="margin-top:20px">Email address / ইমেইল</div>
-      <p id="accountEmail" style="overflow-wrap:anywhere;margin:6px 0 0"></p>
-
-      <button class="btn btn-block" id="showEmailChangeButton" type="button" style="margin-top:10px">Change email (one time) / ইমেইল বদলান</button>
-      <div id="emailChangedNote" class="note-small hidden">Your email was already changed once. It cannot be changed again. / ইমেইল একবার বদলানো হয়েছে।</div>
-
-      <form id="emailChangeForm" class="hidden">
-        <div class="field">
-          <label for="newEmailInput">New email address / নতুন ইমেইল</label>
-          <input id="newEmailInput" type="email" autocomplete="off" autocapitalize="none" placeholder="new@example.com" required>
-        </div>
-        <button class="btn btn-primary btn-block" id="sendEmailChangeButton" type="submit" style="margin-top:10px">Send codes to both emails</button>
-        <div class="note-small">One code goes to your current email and one to the new email. You must enter both. / একটা কোড বর্তমান ইমেইলে, একটা নতুন ইমেইলে যাবে। দুটোই দিতে হবে।</div>
-      </form>
-
-      <form id="emailConfirmForm" class="hidden">
-        <div class="field">
-          <label for="emailCodeOld">Code sent to your CURRENT email / বর্তমান ইমেইলের কোড</label>
-          <input id="emailCodeOld" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
-        </div>
-        <div class="field">
-          <label for="emailCodeNew">Code sent to the NEW email / নতুন ইমেইলের কোড</label>
-          <input id="emailCodeNew" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
-        </div>
-        <button class="btn btn-primary btn-block" id="confirmEmailChangeButton" type="submit" style="margin-top:12px">Confirm email change</button>
-      </form>
-
-      <!-- ---------- 5. Password ---------- -->
-      <div class="muted" style="margin-top:20px">Password / পাসওয়ার্ড</div>
-
-      <button class="btn btn-block" id="showPasswordChangeButton" type="button" style="margin-top:8px">Change password / পাসওয়ার্ড বদলান</button>
-
-      <form id="passwordChangeForm" class="hidden">
-        <div class="field">
-          <label for="oldPassword">Old password / পুরনো পাসওয়ার্ড</label>
-          <input id="oldPassword" type="password" autocomplete="current-password" required>
-        </div>
-        <div class="field">
-          <label for="newPassword">New password / নতুন পাসওয়ার্ড</label>
-          <input id="newPassword" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required>
-        </div>
-        <div class="field">
-          <label for="newPassword2">Repeat new password / আবার লিখুন</label>
-          <input id="newPassword2" type="password" autocomplete="new-password" minlength="6" required>
-        </div>
-        <button class="btn btn-primary btn-block" id="savePasswordButton" type="submit" style="margin-top:12px">Change Password</button>
-        <button class="btn btn-block" id="forgotOldPasswordButton" type="button" style="margin-top:8px">Forgot old password? / পুরনো পাসওয়ার্ড মনে নেই?</button>
-      </form>
-
-      <form id="accountResetForm" class="hidden">
-        <button class="btn btn-block" id="accountResetSend" type="button" style="margin-top:10px">Send code to my email / কোড পাঠান</button>
-        <div class="field">
-          <label for="accountResetCode">Code from email / ইমেইলে আসা কোড</label>
-          <input id="accountResetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
-        </div>
-        <div class="field">
-          <label for="accountResetPassword">New password / নতুন পাসওয়ার্ড</label>
-          <input id="accountResetPassword" type="password" autocomplete="new-password" minlength="6" required>
-        </div>
-        <button class="btn btn-primary btn-block" id="accountResetSubmit" type="submit" style="margin-top:12px">Set New Password</button>
-      </form>
-
-    </div>
 
     <div class="panel" style="margin-top:14px">
 
@@ -582,66 +488,66 @@ button:disabled{opacity:.55;cursor:wait}
 
       <button class="drawer-item" data-page="kycPage" type="button">
         <span class="menu-icon">✓</span>
-        <span><strong data-i18n="kyc">KYC Verification</strong><small>Identity verification</small></span>
+        <span><strong data-i18n="kyc">KYC Verification</strong></span>
       </button>
 
       <button class="drawer-item" data-page="transactionsPage" type="button">
         <span class="menu-icon">↕</span>
-        <span><strong data-i18n="transactions">Transaction History</strong><small>Review wallet activity</small></span>
+        <span><strong data-i18n="transactions">Transaction History</strong></span>
       </button>
 
       <button class="drawer-item" data-page="depositPage" type="button">
         <span class="menu-icon">＋</span>
-        <span><strong data-i18n="deposit">Deposit</strong><small>Add funds to your wallet</small></span>
+        <span><strong data-i18n="deposit">Deposit</strong></span>
       </button>
 
       <button class="drawer-item" data-page="withdrawPage" type="button">
         <span class="menu-icon">↗</span>
-        <span><strong data-i18n="withdraw">Withdraw</strong><small>Withdrawal service</small></span>
+        <span><strong data-i18n="withdraw">Withdraw</strong></span>
       </button>
 
       <div class="menu-group-title">Growth & Discovery</div>
 
       <button class="drawer-item" data-page="referralPage" type="button">
         <span class="menu-icon">♧</span>
-        <span><strong data-i18n="referral">Referral & Rewards</strong><small>Invitations and referral programme</small></span>
+        <span><strong data-i18n="referral">Referral & Rewards</strong></span>
       </button>
 
       <button class="drawer-item" data-page="downloadPage" type="button">
         <span class="menu-icon">↓</span>
-        <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
+        <span><strong data-i18n="downloadApp">Download App</strong></span>
       </button>
 
       <div class="menu-group-title">Preferences & Help</div>
 
       <button class="drawer-item" data-page="notificationsPage" type="button">
         <span class="menu-icon">♧</span>
-        <span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span>
+        <span><strong data-i18n="notifications">Notifications</strong></span>
       </button>
 
       <button class="drawer-item" data-page="languagePage" type="button">
         <span class="menu-icon">文</span>
-        <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
+        <span><strong data-i18n="language">Language</strong></span>
       </button>
 
       <button class="drawer-item" data-page="settingsPage" type="button">
         <span class="menu-icon">⚙</span>
-        <span><strong data-i18n="settings">Settings</strong><small>Account preferences</small></span>
+        <span><strong data-i18n="settings">Settings</strong></span>
       </button>
 
       <button class="drawer-item" data-page="supportPage" type="button">
         <span class="menu-icon">?</span>
-        <span><strong data-i18n="support">Support Center</strong><small>Help and contact</small></span>
+        <span><strong data-i18n="support">Support Center</strong></span>
       </button>
 
       <button class="drawer-item" data-page="helpPage" type="button">
         <span class="menu-icon">i</span>
-        <span><strong data-i18n="helpLegal">Help & Legal</strong><small>FAQ, privacy and terms</small></span>
+        <span><strong data-i18n="helpLegal">Help & Legal</strong></span>
       </button>
 
       <button class="drawer-item danger" id="accountLogoutButton" style="margin-top:14px" type="button">
         <span class="menu-icon">↪</span>
-        <span><strong data-i18n="signOut">Sign Out</strong><small>Sign out of your account</small></span>
+        <span><strong data-i18n="signOut">Sign Out</strong></span>
       </button>
 
     </div>
@@ -692,7 +598,7 @@ button:disabled{opacity:.55;cursor:wait}
   <section id="transactionsPage" class="hidden">
 
     <div class="welcome">
-      <div class="eyebrow">Account Activity</div>
+      
       <h1 data-i18n="transactions">Transaction History</h1>
       <p data-i18n="transactionsSubtitle">Review your recorded transactions.</p>
     </div>
@@ -751,13 +657,11 @@ button:disabled{opacity:.55;cursor:wait}
             <label for="withdrawalAmount" data-i18n="withdrawAmount">Amount</label>
             <input id="withdrawalAmount" type="number" min="1000" step="0.01" inputmode="decimal" autocomplete="off" placeholder="0.00" required>
             <div id="withdrawalAmountHint" class="muted"></div>
-            <div class="muted" data-i18n="withdrawMainOnly">Only your available (main) balance can be withdrawn. Reserved balance cannot be withdrawn.</div>
           </div>
 
           <div class="field">
             <label for="withdrawalDestination" data-i18n="withdrawDestination">Destination Account</label>
             <input id="withdrawalDestination" type="text" maxlength="100" autocomplete="off" placeholder="Enter account / wallet number" required>
-            <div class="muted" data-i18n="destinationHint">Enter the account or wallet number where you want to receive the funds.</div>
           </div>
 
           <div class="field">
@@ -795,59 +699,270 @@ button:disabled{opacity:.55;cursor:wait}
 
   <!-- ===================== OTHER PAGES ===================== -->
   <section id="kycPage" class="hidden">
+
     <div class="welcome">
-      <div class="eyebrow">Identity</div>
+      
       <h1 data-i18n="kyc">KYC Verification</h1>
-      <p>Identity verification status and instructions.</p>
+      <p>Your details, security and identity verification.</p>
     </div>
+
+    <div class="profile-hero">
+      <div class="avatar" id="accountAvatar">A</div>
+      <div style="min-width:0">
+        <div id="accountHeaderName" style="font-size:16px;font-weight:850;overflow-wrap:anywhere">—</div>
+        <span id="accountKycBadge" class="badge" style="margin-top:8px">KYC</span>
+      </div>
+    </div>
+
+
     <div class="panel">
-      <div id="kycMessage" class="message">KYC status has not been connected to the verified database schema.</div>
+
+      <div id="profileMessage" class="message hidden" style="margin:0 0 12px"></div>
+
+      <div class="section-title">My details</div>
+
+      <!-- Username -->
+      <div class="row-item">
+        <div class="row-text">
+          <div class="row-label">Username</div>
+          <div class="row-value" id="accountUsername">—</div>
+        </div>
+        <button class="edit-btn" id="editUsernameButton" type="button" aria-label="Edit username">✎</button>
+      </div>
+      <form id="usernameForm" class="edit-box hidden">
+        <div class="field">
+          <label for="usernameInput">New username</label>
+          <input id="usernameInput" type="text" maxlength="20" autocomplete="off" autocapitalize="none" placeholder="Username" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="saveUsernameButton" type="submit" style="margin-top:10px">Save</button>
+      </form>
+
+      <!-- Phone -->
+      <div class="row-item">
+        <div class="row-text">
+          <div class="row-label">Phone number</div>
+          <div class="row-value" id="phoneValue">Not added</div>
+          <div class="row-sub"><span id="phoneStatus" class="badge hidden"></span></div>
+        </div>
+        <button class="edit-btn hidden" id="showPhoneChangeButton" type="button" aria-label="Edit phone number">✎</button>
+      </div>
+      <form id="phoneForm" class="edit-box hidden">
+        <div class="field">
+          <label for="phoneInput">Mobile number</label>
+          <input id="phoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="tel" placeholder="01XXXXXXXXX" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="savePhoneButton" type="submit" style="margin-top:10px">Save</button>
+      </form>
+      <div id="phoneInfo" class="edit-box hidden">
+        <button class="btn btn-primary btn-block" id="verifyPhoneButton" type="button" style="margin-top:12px">Verify with Telegram</button>
+        <button class="btn btn-block hidden" id="refreshProfileButton" type="button" style="margin-top:8px">I have verified — refresh</button>
+      </div>
+      <form id="phoneChangeForm" class="edit-box hidden">
+        <button class="btn btn-block" id="sendPhoneCodeButton" type="button" style="margin-top:12px">Send code to my email</button>
+        <div class="field">
+          <label for="phoneChangeCode">Code from email</label>
+          <input id="phoneChangeCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="newPhoneInput">New mobile number</label>
+          <input id="newPhoneInput" type="tel" inputmode="tel" maxlength="16" autocomplete="off" placeholder="01XXXXXXXXX" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="confirmPhoneChangeButton" type="submit" style="margin-top:12px">Confirm change</button>
+      </form>
+      <div id="phoneChangedNote" class="note-small hidden">Phone number already changed once.</div>
+
+      <!-- User ID -->
+      <div class="row-item">
+        <div class="row-text">
+          <div class="row-label">User ID</div>
+          <div class="row-value" id="accountUserId" style="font-size:11px"></div>
+        </div>
+        <button class="edit-btn" id="copyUserIdButton" type="button" aria-label="Copy user ID">⧉</button>
+      </div>
+
+      <!-- Email -->
+      <div id="emailRow" class="row-item">
+        <div class="row-text">
+          <div class="row-label">Email address</div>
+          <div class="row-value" id="accountEmail"></div>
+        </div>
+        <button class="edit-btn" id="showEmailChangeButton" type="button" aria-label="Change email">✎</button>
+      </div>
+      <form id="emailChangeForm" class="edit-box hidden">
+        <div class="field">
+          <label for="newEmailInput">New email address</label>
+          <input id="newEmailInput" type="email" autocomplete="off" autocapitalize="none" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="sendEmailChangeButton" type="submit" style="margin-top:10px">Send codes</button>
+      </form>
+      <form id="emailConfirmForm" class="edit-box hidden">
+        <div class="field">
+          <label for="emailCodeOld">Code from CURRENT email</label>
+          <input id="emailCodeOld" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="emailCodeNew">Code from NEW email</label>
+          <input id="emailCodeNew" type="text" inputmode="numeric" autocomplete="off" maxlength="8" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="confirmEmailChangeButton" type="submit" style="margin-top:12px">Confirm</button>
+      </form>
+      <div id="emailChangedNote" class="note-small hidden">Email already changed once.</div>
+
+      <!-- Password -->
+      <div class="row-item">
+        <div class="row-text">
+          <div class="row-label">Password</div>
+          <div class="row-value">••••••••</div>
+        </div>
+        <button class="edit-btn" id="showPasswordChangeButton" type="button" aria-label="Change password">✎</button>
+      </div>
+      <form id="passwordChangeForm" class="edit-box hidden">
+        <div class="field">
+          <label for="oldPassword">Old password</label>
+          <input id="oldPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="newPassword">New password</label>
+          <input id="newPassword" type="password" autocomplete="new-password" minlength="6" required>
+        </div>
+        <div class="field">
+          <label for="newPassword2">Repeat new password</label>
+          <input id="newPassword2" type="password" autocomplete="new-password" minlength="6" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="savePasswordButton" type="submit" style="margin-top:12px">Change Password</button>
+        <button class="btn btn-block" id="forgotOldPasswordButton" type="button" style="margin-top:8px">Forgot old password?</button>
+      </form>
+      <form id="accountResetForm" class="edit-box hidden">
+        <button class="btn btn-block" id="accountResetSend" type="button" style="margin-top:12px">Send code to my email</button>
+        <div class="field">
+          <label for="accountResetCode">Code from email</label>
+          <input id="accountResetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="accountResetPassword">New password</label>
+          <input id="accountResetPassword" type="password" autocomplete="new-password" minlength="6" required>
+        </div>
+        <button class="btn btn-primary btn-block" id="accountResetSubmit" type="submit" style="margin-top:12px">Set New Password</button>
+      </form>
+
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+
+      <div class="section-title">Identity verification (optional)</div>
+
+      <div class="row-item">
+        <div class="row-text">
+          <div class="row-label">KYC status</div>
+          <div class="row-value"><span id="kycStatusBadge" class="badge">Loading...</span></div>
+          <div class="row-sub" id="kycStatusNote"></div>
+        </div>
+      </div>
+
+      <div id="kycMessage" class="message hidden" style="margin-top:12px"></div>
+
+      <form id="kycForm" class="hidden">
+
+        <div class="field">
+          <label for="kycFullName">Full name (as on your ID)</label>
+          <input id="kycFullName" type="text" maxlength="80" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="kycDob">Date of birth</label>
+          <input id="kycDob" type="date" required>
+        </div>
+
+        <div class="field">
+          <label for="kycDocType">Document type</label>
+          <select id="kycDocType">
+            <option value="nid">National ID card</option>
+            <option value="passport">Passport</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="kycDocNumber">ID / Passport number</label>
+          <input id="kycDocNumber" type="text" maxlength="30" autocomplete="off" required>
+        </div>
+
+        <div class="field">
+          <label for="kycAddress">Present address</label>
+          <input id="kycAddress" type="text" maxlength="160" autocomplete="street-address" required>
+        </div>
+
+        <div class="field">
+          <label for="kycFront" id="kycFrontLabel">ID card front</label>
+          <input id="kycFront" type="file" accept="image/*" required>
+        </div>
+
+        <div class="field" id="kycBackWrap">
+          <label for="kycBack">ID card back</label>
+          <input id="kycBack" type="file" accept="image/*">
+        </div>
+
+        <div class="field">
+          <label for="kycSelfie">Selfie holding your ID</label>
+          <input id="kycSelfie" type="file" accept="image/*" capture="user" required>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="kycSubmitButton" type="submit" style="margin-top:14px">Submit for verification</button>
+      </form>
+
     </div>
   </section>
 
 
   <section id="referralPage" class="hidden">
+
     <div class="welcome">
-      <div class="eyebrow">Grow Together</div>
+      
       <h1 data-i18n="referral">Referral & Rewards</h1>
-      <p>Invite friends with your link and earn commission.</p>
+      <p>Invite friends and earn commission.</p>
     </div>
 
-    <div class="panel">
+    <div id="referralMessage" class="message hidden" style="margin-bottom:14px"></div>
 
-      <div id="referralMessage" class="message hidden" style="margin-bottom:14px"></div>
-
-      <div class="balance-grid">
-        <div class="balance-box"><span>Today's commission / আজকের কমিশন</span><strong id="refRate">—</strong></div>
-        <div class="balance-box"><span>Friends referred / রেফার করেছেন</span><strong id="refTotal">0</strong></div>
-        <div class="balance-box"><span>Waiting / অপেক্ষমাণ</span><strong id="refPending">0</strong></div>
-        <div class="balance-box"><span>Earned / অর্জিত</span><strong id="refEarned">BDT 0.00</strong></div>
-      </div>
-
-      <div class="field">
-        <label for="referralLink">Your referral link / আপনার রেফার লিংক</label>
-        <input id="referralLink" readonly placeholder="Loading...">
-      </div>
-      <button class="btn btn-primary btn-block" id="copyReferralLinkButton" style="margin-top:10px" type="button">Copy Referral Link</button>
-
-      <div class="field">
-        <label for="referralCode">Your referral code / রেফার কোড</label>
-        <input id="referralCode" readonly placeholder="Not available yet">
-      </div>
-      <button class="btn btn-block" id="copyReferralButton" style="margin-top:10px" type="button">Copy Referral Code</button>
-
-      <div class="note-small" id="referralRules" style="margin-top:14px">
-        ℹ️ You earn the commission only after your friend's total valid product purchases or buybacks reach the required amount. Signing up alone earns nothing.<br>
-        ℹ️ বন্ধুর মোট বৈধ প্রোডাক্ট কেনা বা বাইব্যাক নির্দিষ্ট অঙ্কে পৌঁছালে তবেই কমিশন পাবেন। শুধু অ্যাকাউন্ট খুললে কমিশন নেই।<br>
-        ℹ️ To withdraw, your own account needs at least one completed deposit and one product purchase.<br>
-        ℹ️ টাকা তুলতে আপনার নিজের অন্তত একটা ডিপোজিট আর একটা প্রোডাক্ট কেনা লাগবে।
-      </div>
+    <div class="ref-hero">
+      <div class="ref-small">Today's commission per friend</div>
+      <div class="ref-amount" id="refRate">—</div>
+      <div class="ref-small">when friend's purchases reach <strong id="refMin">—</strong></div>
     </div>
 
     <div class="panel" style="margin-top:14px">
-      <div class="menu-group-title" style="margin-top:4px">My referrals / আমার রেফারেল</div>
+      <div class="section-title">Your invite link</div>
+      <div class="copy-row">
+        <input id="referralLink" readonly placeholder="Loading...">
+        <button class="btn btn-primary" id="copyReferralLinkButton" type="button">Copy</button>
+      </div>
+      <div class="section-title" style="margin-top:16px">Your code</div>
+      <div class="copy-row">
+        <input id="referralCode" readonly placeholder="Not available yet">
+        <button class="btn" id="copyReferralButton" type="button">Copy</button>
+      </div>
+    </div>
+
+    <div class="balance-grid" style="margin-top:14px">
+      <div class="balance-box"><span>Friends</span><strong id="refTotal">0</strong></div>
+      <div class="balance-box"><span>Waiting</span><strong id="refPending">0</strong></div>
+      <div class="balance-box" style="grid-column:1 / -1"><span>Earned</span><strong id="refEarned">BDT 0.00</strong></div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="section-title">How it works</div>
+      <div class="steps" id="referralRules">
+        <div class="step"><span class="step-num">1</span><div>Share your link</div></div>
+        <div class="step"><span class="step-num">2</span><div>Your friend signs up and buys products</div></div>
+        <div class="step"><span class="step-num">3</span><div>Their total reaches the amount: you earn the commission</div></div>
+      </div>
+      <div class="note-small" style="margin-top:12px">To withdraw you need a completed deposit and a product purchase.</div>
+    </div>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="section-title">My referrals</div>
       <div id="referralList" style="display:grid;gap:10px;margin-top:10px"></div>
     </div>
+
   </section>
 
 
@@ -866,44 +981,42 @@ button:disabled{opacity:.55;cursor:wait}
 
   <section id="languagePage" class="hidden">
     <div class="welcome">
-      <div class="eyebrow">Preferences</div>
+      
       <h1 data-i18n="language">Language</h1>
-      <p>Choose your preferred interface language.</p>
     </div>
     <div class="panel">
       <div class="field">
-        <label for="languageSelect">App Language / অ্যাপের ভাষা</label>
+        <label for="languageSelect">Language</label>
         <select id="languageSelect">
           <option value="en">English</option>
           <option value="bn">বাংলা</option>
         </select>
       </div>
       <button class="btn btn-primary btn-block" id="saveLanguageButton" style="margin-top:14px" type="button">Apply Language</button>
-      <p class="muted">Language preference is saved on this device.</p>
     </div>
   </section>
 
 
   <section id="settingsPage" class="hidden">
     <div class="welcome">
-      <div class="eyebrow">Preferences</div>
+      
       <h1 data-i18n="settings">Settings</h1>
       <p>Account preferences and security.</p>
     </div>
     <div class="panel">
       <button class="drawer-item" data-page="languagePage" type="button">
         <span class="menu-icon">文</span>
-        <span><strong data-i18n="language">Language</strong><small>English / বাংলা</small></span>
+        <span><strong data-i18n="language">Language</strong></span>
       </button>
 
       <button class="drawer-item" data-page="downloadPage" type="button">
         <span class="menu-icon">↓</span>
-        <span><strong data-i18n="downloadApp">Download App</strong><small>Official app availability</small></span>
+        <span><strong data-i18n="downloadApp">Download App</strong></span>
       </button>
 
       <button class="drawer-item" data-page="helpPage" type="button">
         <span class="menu-icon">?</span>
-        <span><strong data-i18n="helpLegal">Help & Legal</strong><small>Help, privacy and terms</small></span>
+        <span><strong data-i18n="helpLegal">Help & Legal</strong></span>
       </button>
     </div>
   </section>
@@ -912,7 +1025,7 @@ button:disabled{opacity:.55;cursor:wait}
   <!-- ===================== NOTIFICATIONS ===================== -->
   <section id="notificationsPage" class="hidden">
     <div class="welcome">
-      <div class="eyebrow">Updates</div>
+      
       <h1 data-i18n="notifications">Notifications</h1>
       <p>Important account updates.</p>
     </div>
@@ -929,7 +1042,7 @@ button:disabled{opacity:.55;cursor:wait}
 
   <section id="supportPage" class="hidden">
     <div class="welcome">
-      <div class="eyebrow">We can help</div>
+      
       <h1 data-i18n="support">Support Center</h1>
       <p>Get help with your APRP Digital account.</p>
     </div>
@@ -941,19 +1054,16 @@ button:disabled{opacity:.55;cursor:wait}
 
   <section id="helpPage" class="hidden">
     <div class="welcome">
-      <div class="eyebrow">Information</div>
+      
       <h1 data-i18n="helpLegal">Help & Legal</h1>
       <p>Important information for users.</p>
     </div>
     <div class="panel">
       <h3>Help & FAQ</h3>
-      <p class="muted">Help articles will be published here.</p>
       <hr style="border-color:var(--border);margin:18px 0">
       <h3>Privacy Policy</h3>
-      <p class="muted">The official privacy policy URL has not been configured.</p>
       <hr style="border-color:var(--border);margin:18px 0">
       <h3>Terms & Conditions</h3>
-      <p class="muted">The official terms URL has not been configured.</p>
     </div>
   </section>
 
@@ -1007,31 +1117,29 @@ button:disabled{opacity:.55;cursor:wait}
       <button class="icon-button" id="closeDrawerButton" aria-label="Close menu" type="button">×</button>
     </div>
 
-    <div class="muted" style="margin:0 5px 12px;font-size:11px;line-height:1.5">Wallet, KYC, referral, language and settings are in the Account tab.</div>
-
     <button class="drawer-item" data-page="accountPage" type="button">
       <span class="menu-icon">◉</span>
-      <span><strong data-i18n="account">Account</strong><small>All services and settings</small></span>
+      <span><strong data-i18n="account">Account</strong></span>
     </button>
 
     <button class="drawer-item" data-page="notificationsPage" type="button">
       <span class="menu-icon">♧</span>
-      <span><strong data-i18n="notifications">Notifications</strong><small>Account updates</small></span>
+      <span><strong data-i18n="notifications">Notifications</strong></span>
     </button>
 
     <button class="drawer-item" data-page="supportPage" type="button">
       <span class="menu-icon">?</span>
-      <span><strong data-i18n="support">Support Center</strong><small>Help and contact</small></span>
+      <span><strong data-i18n="support">Support Center</strong></span>
     </button>
 
     <button class="drawer-item" data-page="helpPage" type="button">
       <span class="menu-icon">i</span>
-      <span><strong data-i18n="helpLegal">Help & Legal</strong><small>FAQ, privacy and terms</small></span>
+      <span><strong data-i18n="helpLegal">Help & Legal</strong></span>
     </button>
 
     <button class="drawer-item danger" id="drawerLogoutButton" type="button">
       <span class="menu-icon">↪</span>
-      <span><strong data-i18n="signOut">Sign Out</strong><small>Sign out of your account</small></span>
+      <span><strong data-i18n="signOut">Sign Out</strong></span>
     </button>
 
   </aside>
@@ -1106,6 +1214,9 @@ let selectedWithdrawalId = null;
 let deferredInstallPrompt = null;
 let profile = null;
 let pendingSignupEmail = null;
+let pendingPhone = null;
+let phonePollTimer = null;
+const PHONE_DOMAIN = "phone.aprp.app";
 
 const LAST_PAGE_KEY = "aprp_last_page";
 
@@ -1293,6 +1404,144 @@ function t(key){
     || key;
 }
 
+
+const BN_EXTRA = {
+ "Forgot password?": "পাসওয়ার্ড ভুলে গেছেন?",
+ "Email verification code": "ইমেইলে আসা কোড",
+ "Send code to my email": "কোড পাঠান",
+ "Code from email": "ইমেইলে আসা কোড",
+ "New password": "নতুন পাসওয়ার্ড",
+ "Amount": "টাকার পরিমাণ",
+ "Sender number": "যে নাম্বার থেকে ডিপোজিট করেছেন",
+ "Transaction ID": "ট্রানজেকশন আইডি",
+ "Note (optional)": "নোট",
+ "Profile &amp; KYC": "প্রোফাইল ও কেওয়াইসি",
+ "My details": "আমার তথ্য",
+ "Username": "ইউজারনেম",
+ "New username": "নতুন ইউজারনেম",
+ "Phone number": "ফোন নাম্বার",
+ "Mobile number": "মোবাইল নাম্বার",
+ "New mobile number": "নতুন নাম্বার",
+ "Phone number already changed once.": "নাম্বার একবার বদলানো হয়েছে।",
+ "Email address": "ইমেইল",
+ "New email address": "নতুন ইমেইল",
+ "Code from CURRENT email": "বর্তমান ইমেইলের কোড",
+ "Code from NEW email": "নতুন ইমেইলের কোড",
+ "Email already changed once.": "ইমেইল একবার বদলানো হয়েছে।",
+ "Password": "পাসওয়ার্ড",
+ "Old password": "পুরনো পাসওয়ার্ড",
+ "Repeat new password": "আবার লিখুন",
+ "Forgot old password?": "পুরনো মনে নেই?",
+ "Identity verification (optional)": "পরিচয় যাচাই (ঐচ্ছিক)",
+ "Full name (as on your ID)": "পূর্ণ নাম",
+ "Date of birth": "জন্ম তারিখ",
+ "Document type": "ডকুমেন্টের ধরন",
+ "National ID card": "জাতীয় পরিচয়পত্র",
+ "Passport": "পাসপোর্ট",
+ "ID / Passport number": "নম্বর",
+ "Present address": "বর্তমান ঠিকানা",
+ "ID card front": "আইডির সামনের দিক",
+ "ID card back": "আইডির পেছনের দিক",
+ "Selfie holding your ID": "আইডি হাতে সেলফি",
+ "Today's commission per friend": "আজকের কমিশন (প্রতি বন্ধু)",
+ "Your invite link": "আপনার ইনভাইট লিংক",
+ "Your code": "আপনার কোড",
+ "Friends": "বন্ধু",
+ "Waiting": "অপেক্ষমাণ",
+ "Earned": "অর্জিত কমিশন",
+ "How it works": "কীভাবে কাজ করে",
+ "To withdraw you need a completed deposit and a product purchase.": "টাকা তুলতে একটি সম্পন্ন ডিপোজিট ও একটি প্রোডাক্ট কেনা লাগবে।",
+ "My referrals": "আমার রেফারেল",
+ "Language": "ভাষা",
+ "A code was sent to your email. Check Spam too.": "আপনার ইমেইলে কোড পাঠানো হয়েছে। স্প্যামও দেখুন।",
+ "Phone number changed. Please verify the new number with Telegram.": "নাম্বার বদলানো হয়েছে। টেলিগ্রামে নতুন নাম্বার ভেরিফাই করুন।",
+ "Email changed successfully.": "ইমেইল বদলানো হয়েছে।",
+ "The two new passwords do not match.": "দুটো নতুন পাসওয়ার্ড মিলছে না।",
+ "Password changed successfully.": "পাসওয়ার্ড বদলানো হয়েছে।",
+ "Password changed. You are signed in.": "পাসওয়ার্ড বদলানো হয়েছে। আপনি সাইন ইন আছেন।",
+ "No referrals yet.": "এখনো কোনো রেফারেল নেই।",
+ "Submitted. We will review your documents soon.": "জমা হয়েছে, শীঘ্রই যাচাই করা হবে।",
+ "Old password is incorrect.": "পুরনো পাসওয়ার্ড ভুল।",
+ "Referral code applied: ": "রেফার কোড প্রয়োগ হয়েছে: ",
+ "Save this phone number?": "এই নাম্বার সেভ করবেন? পরে আর মাত্র একবার বদলানো যাবে।",
+ "Change phone number? This can be done only once.": "নাম্বার বদলাবেন? এটা মাত্র একবারই করা যাবে।",
+ "Change email? This can be done only once.": "ইমেইল বদলাবেন? এটা মাত্র একবারই করা যাবে।",
+ "Passport photo page": "পাসপোর্টের ছবির পাতা",
+ "Verified ✓": "ভেরিফাইড ✓",
+ "Not verified": "ভেরিফাই হয়নি",
+ "Not added": "যোগ করা হয়নি",
+ "Not submitted": "জমা দেওয়া হয়নি",
+ "Pending review": "যাচাই অপেক্ষমাণ",
+ "Under review": "যাচাই চলছে",
+ "Rejected": "বাতিল",
+ "Expired": "মেয়াদোত্তীর্ণ",
+ "Reason: ": "কারণ: ",
+ "We are checking your documents.": "আপনার ডকুমেন্ট যাচাই করা হচ্ছে।",
+ "Your identity is verified.": "আপনার পরিচয় ভেরিফাইড।",
+ "Optional. Submit your ID card or passport to verify your identity.": "ঐচ্ছিক। পরিচয় যাচাইয়ে আইডি কার্ড বা পাসপোর্ট জমা দিন।",
+ "Submit for verification": "যাচাইয়ের জন্য জমা দিন",
+ "Uploading...": "আপলোড হচ্ছে...",
+ "Please fill in all the fields.": "সব ঘর পূরণ করুন।",
+ "You must be at least 18 years old.": "বয়স কমপক্ষে ১৮ হতে হবে।",
+ "Please add all the required photos.": "প্রয়োজনীয় সব ছবি দিন।"
+};
+
+Object.assign(BN_EXTRA, {
+ "Email or phone number": "ইমেইল বা ফোন নাম্বার",
+ "Open Telegram": "টেলিগ্রাম খুলুন",
+ "I have verified": "আমি ভেরিফাই করেছি",
+ "Verify on Telegram": "টেলিগ্রামে ভেরিফাই করুন",
+ "Open Telegram and share your phone number.": "টেলিগ্রাম খুলে আপনার ফোন নাম্বার শেয়ার করুন।",
+ "A verification code will be sent on Telegram.": "ভেরিফিকেশন টেলিগ্রামে হবে।",
+ "A verification code will be sent to your email.": "ভেরিফিকেশন কোড আপনার ইমেইলে যাবে।",
+ "Not verified yet. Finish the steps in Telegram first.": "এখনো ভেরিফাই হয়নি। আগে টেলিগ্রামে ধাপগুলো শেষ করুন।",
+ "Verification failed.": "ভেরিফিকেশন ব্যর্থ হয়েছে।",
+ "Enter a valid email or phone number.": "সঠিক ইমেইল বা ফোন নাম্বার দিন।",
+ "Creating account...": "অ্যাকাউন্ট তৈরি হচ্ছে...",
+ "Welcome back": "আবার স্বাগতম",
+ "Sign in to access your account and wallet.": "আপনার অ্যাকাউন্ট ও ওয়ালেটে ঢুকতে সাইন ইন করুন।",
+ "Password reset works with email accounts only. Contact support.": "পাসওয়ার্ড রিসেট শুধু ইমেইল অ্যাকাউন্টে কাজ করে। সাপোর্টে যোগাযোগ করুন।",
+ "Enter a valid Bangladesh mobile number.": "সঠিক বাংলাদেশি মোবাইল নাম্বার দিন।",
+ "Password must be at least 6 characters.": "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।",
+ "This phone number is already used.": "এই ফোন নাম্বার আগেই ব্যবহৃত হয়েছে।",
+ "Nothing to verify for this number.": "এই নাম্বারে ভেরিফাই করার কিছু নেই।",
+ "Bad request.": "ভুল অনুরোধ।",
+ "Sign In": "সাইন ইন",
+ "Create Account": "অ্যাকাউন্ট খুলুন",
+ "Back to sign in": "সাইন ইনে ফিরুন",
+ "Password": "পাসওয়ার্ড",
+ "Forgot password?": "পাসওয়ার্ড ভুলে গেছেন?",
+ "Verify": "ভেরিফাই",
+ "Resend code": "আবার কোড পাঠান",
+ "Email address": "ইমেইল ঠিকানা",
+ "Email verification code": "ইমেইলে আসা কোড",
+ "New password": "নতুন পাসওয়ার্ড",
+ "Change Password": "পাসওয়ার্ড বদলান",
+ "Send code to my email": "ইমেইলে কোড পাঠান",
+ "Code from email": "ইমেইলে আসা কোড"
+});
+
+function tx(text){
+  return (currentLang() === "bn" && BN_EXTRA[text]) ? BN_EXTRA[text] : text;
+}
+
+function translatePlainText(){
+  const bn = currentLang() === "bn";
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+    if(node.__en === undefined){
+      const raw = node.nodeValue.trim();
+      if(!raw || !BN_EXTRA[raw]) return;
+      node.__en = raw;
+    }
+    if(node.parentElement && node.parentElement.closest("[data-i18n]")) return;
+    node.nodeValue = bn ? BN_EXTRA[node.__en] : node.__en;
+  });
+}
+
+
 function applyLanguage(){
   const lang = currentLang();
   document.documentElement.lang = lang;
@@ -1300,6 +1549,8 @@ function applyLanguage(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     el.textContent = t(el.dataset.i18n);
   });
+
+  translatePlainText();
 
   if($("languageSelect")){
     $("languageSelect").value = lang;
@@ -1429,7 +1680,8 @@ function showPage(pageId, opts={}){
   if(pageId === "withdrawPage")      loadWithdrawalMethods();
   if(pageId === "depositPage")       loadDepositChannels();
   if(pageId === "notificationsPage") loadNotifications();
-  if(pageId === "accountPage")       loadProfile();
+  if(pageId === "accountPage")       { loadProfile(); loadKyc(); }
+  if(pageId === "kycPage")           { loadProfile(); loadKyc(); }
   if(pageId === "referralPage")      loadReferral();
 
   if(pageId === "homePage"){
@@ -1595,35 +1847,42 @@ function renderProfile(){
   if(!profile) return;
 
   $("accountUsername").textContent = "@" + profile.username;
+  $("accountHeaderName").textContent = "@" + profile.username;
+  $("accountAvatar").textContent = String(profile.username || "A").charAt(0).toUpperCase();
 
   if(!(user?.user_metadata?.full_name || user?.user_metadata?.name)){
     $("userName").textContent = profile.username;
   }
 
-  setHidden("phoneForm", !!profile.phone_set);
-  setHidden("phoneInfo", !profile.phone_set);
+  /* phone */
+  $("phoneValue").textContent = profile.phone_set ? (profile.phone || "") : tx("Not added");
 
+  const status = $("phoneStatus");
   if(profile.phone_set){
-
-    $("phoneValue").textContent = profile.phone || "";
-    $("phoneStatus").textContent = profile.phone_verified ? "Verified ✓" : "Not verified yet";
-
-    setHidden("verifyPhoneButton", !!profile.phone_verified);
-    setHidden("telegramOnlyNote", !!profile.phone_verified);
-
-    if(profile.phone_verified){
-      $("refreshProfileButton").classList.add("hidden");
-    }
-
-    setHidden("showPhoneChangeButton", !!profile.phone_changed);
-    setHidden("phoneChangedNote", !profile.phone_changed);
-    if(profile.phone_changed){
-      setHidden("phoneChangeForm", true);
-    }
-
+    status.textContent = profile.phone_verified ? tx("Verified ✓") : tx("Not verified");
+    status.className = "badge " + (profile.phone_verified ? "ok" : "warn");
+  }else{
+    status.className = "badge hidden";
   }
 
-  setHidden("showEmailChangeButton", !!profile.email_changed);
+  setHidden("showPhoneChangeButton", !!profile.phone_changed);
+  setHidden("phoneChangedNote", !profile.phone_changed);
+  setHidden("phoneInfo", !(profile.phone_set && !profile.phone_verified));
+  if(profile.phone_set) setHidden("phoneForm", true);
+  if(profile.phone_changed) setHidden("phoneChangeForm", true);
+  if(profile.phone_verified) $("refreshProfileButton").classList.add("hidden");
+
+  /* phone-only accounts have no real email */
+  const phoneOnly = isPhoneAccount();
+  setHidden("emailRow", phoneOnly);
+  if(phoneOnly){
+    setHidden("showPhoneChangeButton", true);
+    setHidden("emailChangeForm", true);
+    setHidden("emailConfirmForm", true);
+  }
+
+  /* email */
+  setHidden("showEmailChangeButton", !!profile.email_changed || phoneOnly);
   setHidden("emailChangedNote", !profile.email_changed);
   if(profile.email_changed){
     setHidden("emailChangeForm", true);
@@ -1651,6 +1910,7 @@ async function changeUsername(event){
     if(error) throw error;
 
     showMessage(msg, "Username changed successfully.", "success");
+    setHidden("usernameForm", true);
     $("usernameInput").value = "";
 
     await loadProfile();
@@ -1677,7 +1937,7 @@ async function submitPhone(event){
 
   const value = $("phoneInput").value.trim();
 
-  if(!confirm("Save this phone number: " + value + " ?\n\nপরে আপনি আর মাত্র একবার বদলাতে পারবেন।")) return;
+  if(!confirm(tx("Save this phone number?") + "\n" + value)) return;
 
   const button = $("savePhoneButton");
   button.disabled = true;
@@ -1688,6 +1948,7 @@ async function submitPhone(event){
     if(error) throw error;
 
     showMessage(msg, "Phone number saved. You can now verify it with Telegram (optional).", "success");
+    setHidden("phoneForm", true);
     $("phoneInput").value = "";
 
     await loadProfile();
@@ -3082,6 +3343,108 @@ async function submitWithdrawal(event){
    AUTH
    ========================================================= */
 
+
+/* ---------- Phone sign-in / sign-up (verified through Telegram) ---------- */
+
+function parsePhone(value){
+  const d = String(value || "").replace(/[\s\-()+]/g, "");
+  if(/^01[3-9]\d{8}$/.test(d)) return "880" + d.slice(1);
+  if(/^8801[3-9]\d{8}$/.test(d)) return d;
+  return null;
+}
+
+/* returns {type:"email"|"phone", email, digits} or null when invalid */
+function parseIdentifier(value){
+  const v = String(value || "").trim();
+  if(!v) return null;
+  if(v.includes("@")) return { type:"email", email:v };
+  const digits = parsePhone(v);
+  if(!digits) return null;
+  return { type:"phone", digits, email: digits + "@" + PHONE_DOMAIN };
+}
+
+function isPhoneAccount(){
+  return !!user?.email && user.email.endsWith("@" + PHONE_DOMAIN);
+}
+
+function updateAuthHint(){
+  const hint = $("authHint");
+  if(!hint) return;
+  const id = parseIdentifier($("authEmail").value);
+  if(!id){ hint.classList.add("hidden"); return; }
+  hint.textContent = id.type === "phone"
+    ? tx("A verification code will be sent on Telegram.")
+    : tx("A verification code will be sent to your email.");
+  hint.classList.remove("hidden");
+}
+
+async function phoneApi(body){
+  const { data, error } = await supabaseClient.functions.invoke("telegram-bot", { body });
+  if(error) throw new Error("Could not reach the server. Try again.");
+  if(data?.error) throw new Error(tx(data.error));
+  return data;
+}
+
+function showPhoneVerifyForm(token){
+
+  $("authForm").classList.add("hidden");
+  $("otpForm").classList.add("hidden");
+  $("phoneVerifyForm").classList.remove("hidden");
+  $("authHeading").textContent = tx("Verify on Telegram");
+  $("authIntro").textContent = tx("Open Telegram and share your phone number.");
+  $("phoneVerifyOpen").href = "https://t.me/" + TELEGRAM_BOT_USERNAME + "?start=" + encodeURIComponent(token);
+  $("authMessage").classList.add("hidden");
+
+  clearInterval(phonePollTimer);
+  phonePollTimer = setInterval(()=> checkPhoneVerified(true), 4000);
+
+}
+
+function hidePhoneVerifyForm(){
+  clearInterval(phonePollTimer);
+  pendingPhone = null;
+  $("phoneVerifyForm").classList.add("hidden");
+  $("authForm").classList.remove("hidden");
+  $("authHeading").textContent = tx("Welcome back");
+  $("authIntro").textContent = tx("Sign in to access your account and wallet.");
+  $("authMessage").classList.add("hidden");
+}
+
+async function checkPhoneVerified(quiet){
+
+  if(!pendingPhone) return;
+
+  try{
+
+    const r = await phoneApi({ action:"status", phone: pendingPhone.digits });
+
+    if(!r.verified){
+      if(!quiet) showMessage($("authMessage"), tx("Not verified yet. Finish the steps in Telegram first."), "error");
+      return;
+    }
+
+    clearInterval(phonePollTimer);
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: pendingPhone.email,
+      password: pendingPhone.password
+    });
+    if(error) throw error;
+
+    user = data.user;
+    pendingPhone = null;
+    $("phoneVerifyForm").classList.add("hidden");
+    $("authForm").classList.remove("hidden");
+    clearSavedPage();
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){}
+    showApp();
+
+  }catch(error){
+    if(!quiet) showMessage($("authMessage"), error.message || tx("Verification failed."), "error");
+  }
+
+}
+
 /* Shows the "enter the code from your email" form */
 function showOtpForm(email){
 
@@ -3121,7 +3484,16 @@ async function signIn(){
 
   showMessage($("authMessage"), "Signing in...");
 
-  const email = $("authEmail").value.trim();
+  const id = parseIdentifier($("authEmail").value);
+
+  if(!id){
+    showMessage($("authMessage"), tx("Enter a valid email or phone number."), "error");
+    $("loginButton").disabled = false;
+    $("signupButton").disabled = false;
+    return;
+  }
+
+  const email = id.email;
 
   try{
 
@@ -3144,7 +3516,17 @@ async function signIn(){
     console.error(error);
 
     /* account exists but the email was never confirmed → send a code and ask for it */
-    if(/not confirmed/i.test(error?.message || "")){
+    if(/not confirmed/i.test(error?.message || "") && id.type === "phone"){
+
+      try{
+        const r = await phoneApi({ action:"resend", phone: id.digits });
+        pendingPhone = { digits: id.digits, email: id.email, password: $("authPassword").value };
+        showPhoneVerifyForm(r.token);
+      }catch(e){
+        showMessage($("authMessage"), e.message, "error");
+      }
+
+    }else if(/not confirmed/i.test(error?.message || "")){
 
       try{
         await supabaseClient.auth.resend({ type:"signup", email });
@@ -3175,13 +3557,15 @@ async function signUp(){
     return;
   }
 
-  const email = $("authEmail").value.trim();
+  const id = parseIdentifier($("authEmail").value);
   const password = $("authPassword").value;
 
-  if(!email){
-    showMessage($("authMessage"), "Please enter your email address.", "error");
+  if(!id){
+    showMessage($("authMessage"), tx("Enter a valid email or phone number."), "error");
     return;
   }
+
+  const email = id.email;
 
   if(password.length < 6){
     showMessage($("authMessage"), "Password must be at least 6 characters.", "error");
@@ -3191,9 +3575,19 @@ async function signUp(){
   $("loginButton").disabled = true;
   $("signupButton").disabled = true;
 
-  showMessage($("authMessage"), "Creating account...");
+  showMessage($("authMessage"), tx("Creating account..."));
 
   try{
+
+    if(id.type === "phone"){
+
+      const r = await phoneApi({ action:"signup", phone: id.digits, password, ref: getSavedReferral() || undefined });
+      try{ localStorage.removeItem(REF_STORAGE_KEY); }catch(e){}
+      pendingPhone = { digits: id.digits, email: id.email, password };
+      showPhoneVerifyForm(r.token);
+      return;
+
+    }
 
     const { data, error } = await supabaseClient.auth.signUp({
       email,
@@ -3344,6 +3738,9 @@ on("signupButton", "click", signUp);
 on("otpForm", "submit", verifyEmailCode);
 on("resendOtpButton", "click", resendEmailCode);
 on("otpBackButton", "click", hideOtpForm);
+on("phoneVerifyForm", "submit", e=>{ e.preventDefault(); checkPhoneVerified(false); });
+on("phoneVerifyBack", "click", hidePhoneVerifyForm);
+on("authEmail", "input", updateAuthHint);
 
 on("refreshWalletButton", "click", loadWallet);
 on("refreshTransactions", "click", loadTransactions);
@@ -3512,7 +3909,7 @@ async function sendPhoneChangeCode(){
       options: { shouldCreateUser:false }
     });
     if(error) throw error;
-    profileNote("A code was sent to " + user.email + ". Check Spam too. / আপনার ইমেইলে কোড পাঠানো হয়েছে।", "success");
+    profileNote(tx("A code was sent to your email. Check Spam too."), "success");
   }catch(error){
     profileNote(error?.message || "Could not send the code.", "error");
   }finally{
@@ -3535,7 +3932,7 @@ async function submitPhoneChange(event){
     return;
   }
 
-  if(!confirm("You can change your phone number only ONE time. New number: " + value + "\n\nনাম্বার আর মাত্র এই একবারই বদলানো যাবে। ঠিক আছে?")) return;
+  if(!confirm(tx("Change phone number? This can be done only once.") + "\n" + value)) return;
 
   const button = $("confirmPhoneChangeButton");
   button.disabled = true;
@@ -3556,7 +3953,7 @@ async function submitPhoneChange(event){
     $("newPhoneInput").value = "";
     setHidden("phoneChangeForm", true);
 
-    profileNote("Phone number changed. Please verify the new number with Telegram. / নাম্বার বদলানো হয়েছে।", "success");
+    profileNote(tx("Phone number changed. Please verify the new number with Telegram."), "success");
 
     await loadProfile();
 
@@ -3585,7 +3982,7 @@ async function requestEmailChange(event){
     return;
   }
 
-  if(!confirm("You can change your email only ONE time. New email: " + value + "\n\nইমেইল মাত্র একবারই বদলানো যাবে। ঠিক আছে?")) return;
+  if(!confirm(tx("Change email? This can be done only once.") + "\n" + value)) return;
 
   const button = $("sendEmailChangeButton");
   button.disabled = true;
@@ -3656,7 +4053,7 @@ async function confirmEmailChange(event){
     $("newEmailInput").value = "";
     setHidden("emailConfirmForm", true);
 
-    profileNote("Email changed successfully. / ইমেইল বদলানো হয়েছে।", "success");
+    profileNote(tx("Email changed successfully."), "success");
 
     await loadProfile();
 
@@ -3684,7 +4081,7 @@ async function changePassword(event){
     return;
   }
   if(newPassword !== repeat){
-    profileNote("The two new passwords do not match. / দুটো নতুন পাসওয়ার্ড মিলছে না।", "error");
+    profileNote(tx("The two new passwords do not match."), "error");
     return;
   }
   if(newPassword === oldPassword){
@@ -3701,7 +4098,7 @@ async function changePassword(event){
       email: user.email,
       password: oldPassword
     });
-    if(checkError) throw new Error("Old password is incorrect. / পুরনো পাসওয়ার্ড ভুল।");
+    if(checkError) throw new Error(tx("Old password is incorrect."));
 
     const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
     if(error) throw error;
@@ -3711,7 +4108,7 @@ async function changePassword(event){
     $("newPassword2").value = "";
     setHidden("passwordChangeForm", true);
 
-    profileNote("Password changed successfully. / পাসওয়ার্ড বদলানো হয়েছে।", "success");
+    profileNote(tx("Password changed successfully."), "success");
 
   }catch(error){
     profileNote(error?.message || "Could not change the password.", "error");
@@ -3728,6 +4125,11 @@ async function sendResetCode(email, messageElement, button){
 
   if(!email){
     showMessage(messageElement, "Please enter your email address.", "error");
+    return;
+  }
+
+  if(!email.includes("@")){
+    showMessage(messageElement, tx("Password reset works with email accounts only. Contact support."), "error");
     return;
   }
 
@@ -3794,7 +4196,15 @@ function hideResetForm(){
   $("authMessage").classList.add("hidden");
 }
 
-on("showPhoneChangeButton", "click", ()=> setHidden("phoneChangeForm", !$("phoneChangeForm").classList.contains("hidden")));
+on("showPhoneChangeButton", "click", ()=>{
+  if(profile && profile.phone_set){
+    setHidden("phoneChangeForm", !$("phoneChangeForm").classList.contains("hidden"));
+  }else{
+    setHidden("phoneForm", !$("phoneForm").classList.contains("hidden"));
+  }
+});
+on("editUsernameButton", "click", ()=> setHidden("usernameForm", !$("usernameForm").classList.contains("hidden")));
+on("copyUserIdButton", "click", ()=> copyText($("accountUserId").textContent, "User ID copied."));
 on("sendPhoneCodeButton", "click", sendPhoneChangeCode);
 on("phoneChangeForm", "submit", submitPhoneChange);
 
@@ -3825,7 +4235,7 @@ on("accountResetForm", "submit", async e=>{
     $("accountResetCode").value = "";
     $("accountResetPassword").value = "";
     setHidden("accountResetForm", true);
-    profileNote("Password changed successfully. / পাসওয়ার্ড বদলানো হয়েছে।", "success");
+    profileNote(tx("Password changed successfully."), "success");
   }
 });
 
@@ -3839,7 +4249,7 @@ on("authResetForm", "submit", async e=>{
   const ok = await finishReset($("resetEmail").value.trim(), cleanCode($("resetCode").value), $("resetPassword").value, $("authMessage"));
   button.disabled = false;
   if(ok){
-    alert("Password changed. You are signed in. / পাসওয়ার্ড বদলানো হয়েছে।");
+    alert(tx("Password changed. You are signed in."));
     hideResetForm();
   }
 });
@@ -3868,12 +4278,12 @@ async function loadReferral(){
     $("referralCode").value = i.ref_code || "";
     $("referralLink").value = i.ref_code ? referralLinkFor(i.ref_code) : "";
     $("refRate").textContent    = formatMoney(i.current_rate || 0, "BDT");
+    $("refMin").textContent     = formatMoney(i.min_purchase_total || 0, "BDT");
     $("refTotal").textContent   = String(i.total || 0);
     $("refPending").textContent = String(i.pending || 0);
     $("refEarned").textContent  = formatMoney(i.earned_amount || 0, "BDT");
 
     const min = Number(i.min_purchase_total || 0);
-    $("referralRules").dataset.min = String(min);
 
     const { data:rows, error:listError } = await supabaseClient.rpc("my_referrals");
     if(listError) throw listError;
@@ -3884,7 +4294,7 @@ async function loadReferral(){
     if(!rows || !rows.length){
       const empty = document.createElement("div");
       empty.className = "note-small";
-      empty.textContent = "No referrals yet. Share your link! / এখনো কেউ নেই, লিংক শেয়ার করুন।";
+      empty.textContent = tx("No referrals yet.");
       list.appendChild(empty);
     }else{
       rows.forEach(row=>{
@@ -3955,10 +4365,184 @@ on("copyReferralLinkButton", "click", ()=> copyText($("referralLink").value, "Re
   const code = getSavedReferral();
   const box = $("refNotice");
   if(code && box){
-    box.textContent = "Referral code applied: " + code + " / রেফার কোড প্রয়োগ হয়েছে";
+    box.textContent = tx("Referral code applied: ") + code;
     box.classList.remove("hidden");
   }
 })();
+
+/* =========================================================
+   KYC (identity verification)
+   ========================================================= */
+
+const KYC_BADGES = {
+  not_submitted: ["Not submitted", "warn"],
+  pending:       ["Pending review", "warn"],
+  under_review:  ["Under review", "warn"],
+  verified:      ["Verified ✓", "ok"],
+  rejected:      ["Rejected", "bad"],
+  expired:       ["Expired", "bad"]
+};
+
+async function loadKyc(){
+
+  if(!user?.id || !supabaseClient) return;
+
+  const msg = $("kycMessage");
+
+  try{
+
+    const { data, error } = await supabaseClient.rpc("my_kyc");
+    if(error) throw error;
+
+    const status = (data && data.status) || "not_submitted";
+    const badge  = KYC_BADGES[status] || [readableLabel(status), ""];
+
+    const main = $("kycStatusBadge");
+    main.textContent = tx(badge[0]);
+    main.className = "badge " + badge[1];
+
+    const small = $("accountKycBadge");
+    if(small){
+      small.textContent = tx(badge[0]);
+      small.className = "badge " + badge[1];
+    }
+
+    const note = $("kycStatusNote");
+    note.textContent =
+      status === "rejected" && data.note ? tx("Reason: ") + data.note :
+      status === "pending" || status === "under_review" ? tx("We are checking your documents.") :
+      status === "verified" ? tx("Your identity is verified.") :
+      tx("Optional. Submit your ID card or passport to verify your identity.");
+
+    setHidden("kycForm", !["not_submitted", "rejected", "expired"].includes(status));
+    msg.hidden = true;
+
+  }catch(error){
+    console.error("KYC error:", error);
+    let m = error?.message || "Please try again.";
+    if(/function|does not exist|schema cache/i.test(m)){
+      m = "KYC is not set up yet. Run supabase_kyc.sql in Supabase first. (" + m + ")";
+    }
+    $("kycStatusBadge").textContent = "Unavailable";
+    showMessage(msg, m, "error");
+  }
+
+}
+
+function compressImage(file, maxSide = 1600, quality = 0.8){
+  return new Promise((resolve, reject)=>{
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob=>{
+        blob ? resolve(blob) : reject(new Error("Could not process the image."));
+      }, "image/jpeg", quality);
+    };
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(new Error("This file is not a valid image."));
+    };
+    img.src = url;
+  });
+}
+
+async function uploadKycImage(file, label){
+  const blob = await compressImage(file);
+  const path = user.id + "/" + Date.now() + "_" + label + ".jpg";
+  const { error } = await supabaseClient.storage
+    .from("kyc-documents")
+    .upload(path, blob, { contentType: "image/jpeg", upsert: false });
+  if(error) throw error;
+  return path;
+}
+
+async function submitKyc(event){
+
+  event.preventDefault();
+
+  const msg = $("kycMessage");
+
+  if(!requireDb(msg) || !user?.id) return;
+
+  const fullName  = $("kycFullName").value.trim();
+  const dob       = $("kycDob").value;
+  const docType   = $("kycDocType").value;
+  const docNumber = $("kycDocNumber").value.trim();
+  const address   = $("kycAddress").value.trim();
+  const front     = $("kycFront").files[0];
+  const back      = $("kycBack").files[0];
+  const selfie    = $("kycSelfie").files[0];
+
+  if(fullName.length < 3 || docNumber.length < 5 || address.length < 5 || !dob){
+    showMessage(msg, tx("Please fill in all the fields."), "error");
+    return;
+  }
+
+  const age = (Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000);
+  if(!(age >= 18)){
+    showMessage(msg, tx("You must be at least 18 years old."), "error");
+    return;
+  }
+
+  if(!front || !selfie || (docType === "nid" && !back)){
+    showMessage(msg, tx("Please add all the required photos."), "error");
+    return;
+  }
+
+  const button = $("kycSubmitButton");
+  button.disabled = true;
+  button.textContent = tx("Uploading...");
+  showMessage(msg, "Uploading your documents. Please wait...");
+
+  try{
+
+    const frontPath  = await uploadKycImage(front, "front");
+    const backPath   = (docType === "nid" && back) ? await uploadKycImage(back, "back") : null;
+    const selfiePath = await uploadKycImage(selfie, "selfie");
+
+    const { error } = await supabaseClient.rpc("submit_kyc", {
+      p_full_name: fullName,
+      p_dob: dob,
+      p_doc_type: docType,
+      p_doc_number: docNumber,
+      p_address: address,
+      p_front: frontPath,
+      p_back: backPath,
+      p_selfie: selfiePath
+    });
+    if(error) throw error;
+
+    $("kycForm").reset();
+    showMessage(msg, tx("Submitted. We will review your documents soon."), "success");
+
+    await loadKyc();
+
+  }catch(error){
+    showMessage(msg, error?.message || "Could not submit your documents.", "error");
+  }finally{
+    button.disabled = false;
+    button.textContent = tx("Submit for verification");
+  }
+
+}
+
+function updateKycDocType(){
+  const isNid = $("kycDocType").value === "nid";
+  setHidden("kycBackWrap", !isNid);
+  $("kycFrontLabel").textContent = isNid ? tx("ID card front") : tx("Passport photo page");
+}
+
+on("kycDocType", "change", updateKycDocType);
+on("kycForm", "submit", submitKyc);
+updateKycDocType();
 
 async function initializeApp(){
 
