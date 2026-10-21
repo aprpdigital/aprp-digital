@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>APRP Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0e1116;--card:#171c24;--line:#262d38;--tx:#e8edf3;--mut:#8b97a7;--pri:#3b82f6;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+header b{font-size:17px}
+nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;position:sticky;top:49px;background:var(--bg);z-index:4;border-bottom:1px solid var(--line)}
+nav button{flex:none;background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:14px;position:relative}
+nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+nav i{font-style:normal;background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:5px}
+main{padding:14px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:11px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{display:block;font-size:22px}.stat span{color:var(--mut);font-size:13px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;background:#27303d;color:var(--mut)}
+.tag.pending,.tag.holding,.tag.sell_requested,.tag.shipped{background:#3a2f12;color:var(--warn)}
+.tag.approved,.tag.completed,.tag.verified,.tag.delivered,.tag.sold,.tag.active{background:#10301c;color:var(--ok)}
+.tag.rejected,.tag.cancelled,.tag.suspended,.tag.blocked{background:#3a1717;color:var(--bad)}
+button.b,a.b{display:inline-block;background:var(--pri);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-size:14px;text-decoration:none}
+button.b.ok{background:var(--ok);color:#052}button.b.no{background:var(--bad)}button.b.gh{background:#27303d;color:var(--tx)}
+button.b:disabled{opacity:.5}
+.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+input,select,textarea{width:100%;background:#0e1116;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;margin:4px 0 10px}
+label{font-size:13px;color:var(--mut)}
+h2{font-size:17px;margin:6px 0 10px}
+.seg{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.seg button{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:10px;padding:7px 12px}
+.seg button.on{color:#fff;border-color:var(--pri)}
+.ov{position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222c3a;border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:30;max-width:90%}
+.toast.err{background:#3a1717}
+.imgs img{width:100%;border-radius:10px;margin-top:8px;background:#000}
+.thumb{width:54px;height:54px;border-radius:8px;object-fit:cover;background:#222}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:3px 8px;font-size:14px}.kv span:nth-child(odd){color:var(--mut)}
+.center{max-width:380px;margin:12vh auto;padding:0 18px}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+const SUPABASE_URL="https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"৳"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const when=t=>t?new Date(t).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+let me=null, stats={}, page="home", names={};
+
+function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
+async function call(fn,args){const {data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
+async function guard(fn,btn){if(btn)btn.disabled=true;try{return await fn()}catch(e){toast(e.message||String(e),true)}finally{if(btn)btn.disabled=false}}
+function sheet(html){closeSheet();const o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML='<div class="sheet">'+html+'</div>';o.addEventListener("click",e=>{if(e.target===o)closeSheet()});document.body.appendChild(o);return o.firstChild}
+function closeSheet(){const o=$("#ov");if(o)o.remove()}
+function ask(title,withNote,cb,label){
+  const s=sheet('<h2>'+esc(title)+'</h2>'+(withNote?'<label>Note (optional)</label><textarea id="nt" rows="2"></textarea>':'')+'<div class="acts"><button class="b" id="yes">'+(label||"Confirm")+'</button><button class="b gh" id="no">Cancel</button></div>');
+  s.querySelector("#no").onclick=closeSheet;
+  s.querySelector("#yes").onclick=e=>guard(async()=>{await cb(withNote?s.querySelector("#nt").value:null);closeSheet()},e.target);
+}
+async function loadNames(ids){
+  ids=[...new Set(ids.filter(i=>i&&!names[i]))];if(!ids.length)return;
+  const {data}=await sb.from("account_profiles").select("user_id,username,phone").in("user_id",ids);
+  (data||[]).forEach(r=>names[r.user_id]=r.username+(r.phone?" · "+r.phone:""));
+}
+const nm=id=>esc(names[id]||String(id||"").slice(0,8));
+
+/* ---------- login ---------- */
+function loginView(msg){
+  $("#app").innerHTML='<div class="center"><h2 style="font-size:24px">APRP Admin</h2><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="b" style="width:100%" id="go">Sign in</button><p class="mut" id="msg">'+esc(msg||"")+'</p></div>';
+  $("#go").onclick=e=>guard(async()=>{
+    const {error}=await sb.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
+    if(error)throw error;await boot();
+  },e.target);
+}
+async function boot(){
+  if(!sb){loginView("Could not load the app library. Check your internet.");return}
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){loginView();return}
+  try{me=await call("admin_me")}catch(e){loginView(e.message);return}
+  if(!me||!(me.admin||me.finance||me.orders||me.content||me.kyc)){await sb.auth.signOut();loginView("This account is not allowed here.");return}
+  shell();
+}
+function tabs(){
+  const t=[["home","Home",1]];
+  if(me.finance){t.push(["deposits","Deposits",1],["withdrawals","Withdrawals",1])}
+  if(me.kyc)t.push(["kyc","KYC",1]);
+  if(me.orders||me.finance)t.push(["orders","Orders",1]);
+  if(me.content)t.push(["products","Products",1]);
+  if(me.admin||me.finance||me.kyc)t.push(["users","Users",1]);
+  if(me.admin)t.push(["settings","Settings",1],["logs","Logs",1]);
+  return t;
+}
+const badge={deposits:"pending_deposits",withdrawals:"pending_withdrawals",kyc:"pending_kyc"};
+async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}}
+function shell(){
+  $("#app").innerHTML='<header><b>APRP Admin</b><button class="b gh" id="out">Sign out</button></header><nav id="nav"></nav><main id="main"></main>';
+  $("#out").onclick=async()=>{await sb.auth.signOut();me=null;loginView()};
+  go(page);
+}
+async function go(p){
+  page=p;await refreshStats();
+  const n=$("#nav");n.innerHTML=tabs().map(t=>{
+    let c=badge[t[0]]?stats[badge[t[0]]]:t[0]==="orders"?(stats.pending_orders||0)+(stats.sell_requests||0):0;
+    return '<button data-p="'+t[0]+'" class="'+(t[0]===p?"on":"")+'">'+t[1]+(c?'<i>'+c+'</i>':"")+'</button>'}).join("");
+  n.querySelectorAll("button").forEach(b=>b.onclick=()=>go(b.dataset.p));
+  const m=$("#main");m.innerHTML='<p class="mut">Loading…</p>';
+  try{await views[p](m)}catch(e){m.innerHTML='<div class="card">'+esc(e.message||e)+'</div>'}
+}
+const views={};
+
+/* ---------- home ---------- */
+views.home=async m=>{
+  const s=stats;
+  m.innerHTML='<div class="grid">'+[
+   ["Users",s.users],["Pending deposits",s.pending_deposits],["Pending withdrawals",s.pending_withdrawals],["Pending KYC",s.pending_kyc],
+   ["Open delivery orders",s.pending_orders],["Sell requests",s.sell_requests],["Users’ available",money(s.total_available)],["Users’ reserved",money(s.total_reserved)]
+  ].map(x=>'<div class="stat"><b>'+esc(x[1]==null?"–":x[1])+'</b><span>'+x[0]+'</span></div>').join("")+'</div>';
+};
+
+/* ---------- deposits ---------- */
+function seg(opts,cur,fn,m){
+  const d=document.createElement("div");d.className="seg";
+  d.innerHTML=opts.map(o=>'<button data-v="'+o[0]+'" class="'+(o[0]===cur?"on":"")+'">'+o[1]+'</button>').join("");
+  d.querySelectorAll("button").forEach(b=>b.onclick=()=>fn(b.dataset.v));m.appendChild(d);
+}
+let depF="pending";
+views.deposits=async m=>{
+  m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],depF,v=>{depF=v;go("deposits")},m);
+  let q=sb.from("deposit_requests").select("*").order("created_at",{ascending:false}).limit(60);
+  if(depF==="pending")q=q.in("status",["pending","under_review"]);
+  const {data,error}=await q;if(error)throw error;
+  await loadNames(data.map(r=>r.user_id));
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b>'+money(r.amount)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>User</span><span>'+nm(r.user_id)+'</span><span>Sender</span><span>'+esc(r.sender_account)+'</span><span>TrxID</span><span><b>'+esc(r.user_transaction_reference)+'</b></span><span>Note</span><span>'+esc(r.payment_note||"–")+'</span><span>Time</span><span>'+when(r.created_at)+'</span><span>Ref</span><span>'+esc(r.deposit_id)+'</span></div>'+
+    (["pending","under_review"].includes(r.status)?'<div class="acts"><button class="b ok" data-a="approve">Approve</button><button class="b no" data-a="reject">Reject</button></div>':"");
+    c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>ask((b.dataset.a==="approve"?"Approve ":"Reject ")+money(r.amount)+"?",true,async note=>{await call("admin_review_deposit",{p_deposit:r.id,p_action:b.dataset.a,p_note:note||null});toast("Done");go("deposits")}));
+    m.appendChild(c);
+  });
+};
+
+/* ---------- withdrawals ---------- */
+let wdF="pending";
+views.withdrawals=async m=>{
+  m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],wdF,v=>{wdF=v;go("withdrawals")},m);
+  let q=sb.from("withdrawal_requests").select("*").order("created_at",{ascending:false}).limit(60);
+  if(wdF==="pending")q=q.in("status",["pending","approved","processing"]);
+  const {data,error}=await q;if(error)throw error;
+  await loadNames(data.map(r=>r.user_id));
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b>'+money(r.amount)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>User</span><span>'+nm(r.user_id)+'</span><span>Send to</span><span><b>'+esc(r.destination_account)+'</b></span><span>Name</span><span>'+esc(r.destination_name||"–")+'</span><span>Fee</span><span>'+money(r.fee)+'</span><span>Pay user</span><span><b>'+money(r.net_amount)+'</b></span><span>Time</span><span>'+when(r.created_at)+'</span></div>'+
+    (["pending","approved","processing"].includes(r.status)?'<div class="acts"><button class="b ok" data-a="approve">Mark paid</button><button class="b no" data-a="reject">Reject &amp; refund</button></div>':"");
+    c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{
+      const ap=b.dataset.a==="approve";
+      const s=sheet('<h2>'+(ap?"Mark as paid? Send "+money(r.net_amount)+" to "+esc(r.destination_account):"Reject and refund "+money(r.amount)+"?")+'</h2>'+(ap?'<label>Payment reference (optional)</label><input id="rf">':'')+'<label>Note (optional)</label><textarea id="nt" rows="2"></textarea><div class="acts"><button class="b" id="yes">Confirm</button><button class="b gh" id="no">Cancel</button></div>');
+      s.querySelector("#no").onclick=closeSheet;
+      s.querySelector("#yes").onclick=e=>guard(async()=>{await call("admin_review_withdrawal",{p_withdrawal:r.id,p_action:b.dataset.a,p_note:s.querySelector("#nt").value||null,p_reference:ap?s.querySelector("#rf").value||null:null});closeSheet();toast("Done");go("withdrawals")},e.target);
+    });
+    m.appendChild(c);
+  });
+};
+
+/* ---------- KYC ---------- */
+let kycF="pending";
+views.kyc=async m=>{
+  m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],kycF,v=>{kycF=v;go("kyc")},m);
+  let q=sb.from("kyc_submissions").select("*").order("created_at",{ascending:false}).limit(40);
+  if(kycF==="pending")q=q.in("status",["pending","under_review"]);
+  const {data,error}=await q;if(error)throw error;
+  await loadNames(data.map(r=>r.user_id));
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b>'+esc(r.full_name)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>User</span><span>'+nm(r.user_id)+'</span><span>Born</span><span>'+esc(r.dob)+'</span><span>'+esc(r.doc_type.toUpperCase())+'</span><span>'+esc(r.doc_number)+'</span><span>Address</span><span>'+esc(r.address)+'</span><span>Sent</span><span>'+when(r.created_at)+'</span></div><div class="acts"><button class="b gh" data-v="1">View documents</button>'+(["pending","under_review"].includes(r.status)?'<button class="b ok" data-a="approve">Verify</button><button class="b no" data-a="reject">Reject</button>':"")+'</div>';
+    c.querySelector("[data-v]").onclick=e=>guard(async()=>{
+      const paths=[["Front",r.front_path],["Back",r.back_path],["Selfie",r.selfie_path]].filter(x=>x[1]);
+      let h='<h2>'+esc(r.full_name)+'</h2><div class="imgs">';
+      for(const [l,p] of paths){const {data:u,error}=await sb.storage.from("kyc-documents").createSignedUrl(p,600);if(error)throw error;h+='<div class="mut">'+l+'</div><img src="'+esc(u.signedUrl)+'">'}
+      sheet(h+'</div><div class="acts"><button class="b gh" id="cl">Close</button></div>').querySelector("#cl").onclick=closeSheet;
+    },e.target);
+    c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>ask((b.dataset.a==="approve"?"Verify ":"Reject ")+r.full_name+"?",b.dataset.a==="reject",async note=>{await call("admin_review_kyc",{p_id:r.id,p_action:b.dataset.a,p_note:note||null});toast("Done");go("kyc")}));
+    m.appendChild(c);
+  });
+};
+
+/* ---------- orders ---------- */
+let ordF="delivery";
+views.orders=async m=>{
+  m.innerHTML="";seg([["delivery","Delivery"],["sell","Sell requests"],["holding","Holding"],["all","All"]],ordF,v=>{ordF=v;go("orders")},m);
+  let q=sb.from("shop_orders").select("*").order("created_at",{ascending:false}).limit(60);
+  if(ordF==="delivery")q=q.eq("kind","delivery").in("status",["pending","shipped"]);
+  else if(ordF==="sell")q=q.eq("status","sell_requested");
+  else if(ordF==="holding")q=q.eq("status","holding");
+  const {data,error}=await q;if(error)throw error;
+  await loadNames(data.map(r=>r.user_id));
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    let body='<div class="row"><b>'+esc(r.product_name)+'</b><span class="tag '+r.status+'">'+r.status.replace("_"," ")+'</span></div><div class="kv" style="margin-top:8px"><span>Order</span><span>'+esc(r.order_no)+'</span><span>User</span><span>'+nm(r.user_id)+'</span><span>Paid</span><span>'+money(r.price_paid)+'</span><span>Time</span><span>'+when(r.created_at)+'</span>';
+    if(r.kind==="delivery")body+='<span>Name</span><span>'+esc(r.delivery_name)+'</span><span>Phone</span><span>'+esc(r.delivery_phone)+'</span><span>Address</span><span>'+esc([r.area,r.thana,r.district,r.division].join(", "))+'</span>';
+    else body+='<span>Matures</span><span>'+when(r.matures_at)+'</span><span>After maturity</span><span>'+money(r.maturity_amount)+'</span><span>Early sale</span><span>'+money(r.early_amount)+'</span>'+(r.sell_amount?'<span>Pay out</span><span><b>'+money(r.sell_amount)+'</b></span>':"");
+    body+='</div>';
+    let a="";
+    if(r.kind==="delivery"&&r.status==="pending")a='<button class="b" data-s="shipped">Mark shipped</button><button class="b ok" data-s="delivered">Delivered</button><button class="b no" data-s="cancelled">Cancel &amp; refund</button>';
+    if(r.kind==="delivery"&&r.status==="shipped")a='<button class="b ok" data-s="delivered">Delivered</button><button class="b no" data-s="cancelled">Cancel &amp; refund</button>';
+    if(r.status==="sell_requested")a='<button class="b ok" data-x="approve">Approve payout</button><button class="b no" data-x="reject">Reject</button>';
+    c.innerHTML=body+(a?'<div class="acts">'+a+'</div>':"");
+    c.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>ask("Set order to "+b.dataset.s+"?",true,async note=>{await call("admin_set_delivery_status",{p_order:r.id,p_status:b.dataset.s,p_note:note||null});toast("Done");go("orders")}));
+    c.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>ask((b.dataset.x==="approve"?"Pay out "+money(r.sell_amount):"Reject sell request")+"?",true,async note=>{await call("admin_review_sell",{p_order:r.id,p_action:b.dataset.x,p_note:note||null});toast("Done");go("orders")}));
+    m.appendChild(c);
+  });
+};
+
+/* ---------- products ---------- */
+let cats=[];
+async function shrink(file){
+  const url=URL.createObjectURL(file);
+  const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
+  const k=Math.min(1,1100/Math.max(img.width,img.height));
+  const cv=document.createElement("canvas");cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+  cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);URL.revokeObjectURL(url);
+  return await new Promise(ok=>cv.toBlob(ok,"image/jpeg",.85));
+}
+async function uploadImg(file){
+  const blob=await shrink(file);
+  const path=(crypto.randomUUID?crypto.randomUUID():Date.now()+"-"+Math.random().toString(36).slice(2))+".jpg";
+  const {error}=await sb.storage.from("product-images").upload(path,blob,{contentType:"image/jpeg"});
+  if(error)throw error;
+  return sb.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+}
+views.products=async m=>{
+  const [{data:ps,error:e1},{data:cs,error:e2}]=await Promise.all([
+    sb.from("shop_products").select("*").order("created_at",{ascending:false}),
+    sb.from("shop_categories").select("*").order("sort_order").order("name")]);
+  if(e1)throw e1;if(e2)throw e2;cats=cs;
+  m.innerHTML='<div class="acts" style="margin:0 0 12px"><button class="b" id="np">+ New product</button><button class="b gh" id="cg">Categories</button></div>';
+  $("#np").onclick=()=>productForm();$("#cg").onclick=catSheet;
+  if(!ps.length)m.insertAdjacentHTML("beforeend",'<p class="mut">No products yet.</p>');
+  ps.forEach(p=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row" style="justify-content:flex-start"><img class="thumb" src="'+esc(p.image_url||"")+'" onerror="this.style.visibility=\'hidden\'"><div style="flex:1"><b>'+esc(p.name)+'</b><div class="mut">'+money(p.price)+' <s>'+money(p.original_price)+'</s> · '+p.discount_percent+'% off</div><div class="mut">Buyback '+p.buyback_percent+'% / '+p.buyback_days+'d · stock '+(p.stock==null?"∞":p.stock)+' · sold '+p.sold_count+'</div></div><span class="tag '+(p.active?"active":"suspended")+'">'+(p.active?"live":"hidden")+'</span></div>';
+    c.onclick=()=>productForm(p);m.appendChild(c);
+  });
+};
+function productForm(p){
+  p=p||{};const ex=(p.images||[]).slice();let main=p.image_url||"";
+  const s=sheet('<h2>'+(p.id?"Edit product":"New product")+'</h2>'+
+  '<label>Name</label><input id="f_name" value="'+esc(p.name||"")+'">'+
+  '<label>Category</label><select id="f_cat"><option value="">—</option>'+cats.map(c=>'<option value="'+c.id+'"'+(c.id===p.category_id?" selected":"")+'>'+esc(c.name)+'</option>').join("")+'</select>'+
+  '<div class="grid"><div><label>Original price (৳)</label><input id="f_op" type="number" inputmode="decimal" value="'+(p.original_price||"")+'"></div><div><label>Discount %</label><input id="f_dp" type="number" inputmode="decimal" value="'+(p.discount_percent==null?0:p.discount_percent)+'"></div>'+
+  '<div><label>Buyback % (0 = no buyback)</label><input id="f_bp" type="number" inputmode="decimal" value="'+(p.buyback_percent==null?0:p.buyback_percent)+'"></div><div><label>Buyback days</label><input id="f_bd" type="number" inputmode="numeric" value="'+(p.buyback_days||7)+'"></div></div>'+
+  '<div class="card" id="f_calc" style="font-size:14px"></div>'+
+  '<label>Stock (empty = unlimited)</label><input id="f_st" type="number" inputmode="numeric" value="'+(p.stock==null?"":p.stock)+'">'+
+  '<label>Short description</label><input id="f_sum" value="'+esc(p.summary||"")+'">'+
+  '<label>Full details</label><textarea id="f_desc" rows="4">'+esc(p.description||"")+'</textarea>'+
+  '<label>Specifications (one per line)</label><textarea id="f_spec" rows="4">'+esc(p.specs||"")+'</textarea>'+
+  '<label>Main image</label><div id="f_mainbox"></div><input id="f_mainfile" type="file" accept="image/*">'+
+  '<label>More images</label><div id="f_exbox"></div><input id="f_exfile" type="file" accept="image/*" multiple>'+
+  '<label><input id="f_act" type="checkbox" style="width:auto;margin-right:8px" '+(p.active===false?"":"checked")+'>Visible in shop</label>'+
+  '<div class="acts"><button class="b" id="sv">Save</button><button class="b gh" id="cx">Close</button>'+(p.id?'<button class="b no" id="dl">Delete</button>':"")+'</div>');
+  const q=i=>s.querySelector("#"+i);
+  const calc=()=>{const op=+q("f_op").value||0,dp=+q("f_dp").value||0,bp=+q("f_bp").value||0,bd=+q("f_bd").value||7;const pr=op*(100-dp)/100;
+    q("f_calc").innerHTML='Customer pays <b>'+money(pr)+'</b><br>'+(bp>0?'Buyback after '+bd+' days: <b>'+money(pr*(100+bp)/100)+'</b> · early sale (60% default): '+money(pr*.6):'No buyback')};
+  ["f_op","f_dp","f_bp","f_bd"].forEach(i=>q(i).oninput=calc);calc();
+  const draw=()=>{q("f_mainbox").innerHTML=main?'<img class="thumb" src="'+esc(main)+'">':'<span class="mut">none</span>';
+    q("f_exbox").innerHTML=ex.map((u,i)=>'<span style="position:relative;display:inline-block;margin:0 6px 6px 0"><img class="thumb" src="'+esc(u)+'"><b data-i="'+i+'" style="position:absolute;top:-6px;right:-6px;background:var(--bad);border-radius:50%;width:20px;height:20px;text-align:center;line-height:20px;font-size:13px">×</b></span>').join("");
+    q("f_exbox").querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ex.splice(+b.dataset.i,1);draw()})};draw();
+  q("f_mainfile").onchange=e=>guard(async()=>{if(e.target.files[0]){main=await uploadImg(e.target.files[0]);draw()}});
+  q("f_exfile").onchange=e=>guard(async()=>{for(const f of e.target.files){ex.push(await uploadImg(f))}draw()});
+  q("cx").onclick=closeSheet;
+  q("sv").onclick=e=>guard(async()=>{
+    const row={name:q("f_name").value.trim(),category_id:q("f_cat").value||null,original_price:+q("f_op").value,discount_percent:+q("f_dp").value||0,
+      buyback_percent:+q("f_bp").value||0,buyback_days:parseInt(q("f_bd").value)||7,stock:q("f_st").value===""?null:parseInt(q("f_st").value),
+      summary:q("f_sum").value.trim()||null,description:q("f_desc").value.trim()||null,specs:q("f_spec").value.trim()||null,
+      image_url:main||null,images:ex,active:q("f_act").checked,updated_at:new Date().toISOString()};
+    if(!row.name)throw new Error("Enter the product name.");
+    if(!(row.original_price>0))throw new Error("Enter the original price.");
+    const r=p.id?await sb.from("shop_products").update(row).eq("id",p.id):await sb.from("shop_products").insert(row);
+    if(r.error)throw r.error;closeSheet();toast("Saved");go("products");
+  },e.target);
+  if(p.id)q("dl").onclick=()=>ask("Delete this product? Past orders stay.",false,async()=>{const r=await sb.from("shop_products").delete().eq("id",p.id);if(r.error)throw r.error;toast("Deleted");go("products")},"Delete");
+}
+function catSheet(){
+  const s=sheet('<h2>Categories</h2><div id="cl"></div><label>New category</label><input id="cn"><div class="acts"><button class="b" id="ca">Add</button><button class="b gh" id="cx">Close</button></div>');
+  const draw=()=>{s.querySelector("#cl").innerHTML=cats.map(c=>'<div class="sw"><span>'+esc(c.name)+'</span><button class="b no" data-d="'+c.id+'">Delete</button></div>').join("")||'<p class="mut">None yet.</p>';
+    s.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>guard(async()=>{const r=await sb.from("shop_categories").delete().eq("id",b.dataset.d);if(r.error)throw r.error;cats=cats.filter(c=>c.id!==b.dataset.d);draw()}))};draw();
+  s.querySelector("#cx").onclick=()=>{closeSheet();go("products")};
+  s.querySelector("#ca").onclick=e=>guard(async()=>{const n=s.querySelector("#cn").value.trim();if(!n)return;const r=await sb.from("shop_categories").insert({name:n}).select().single();if(r.error)throw r.error;cats.push(r.data);s.querySelector("#cn").value="";draw()},e.target);
+}
+
+/* ---------- users ---------- */
+let usrQ="";
+views.users=async m=>{
+  m.innerHTML='<input id="sq" placeholder="Search email, username or phone" value="'+esc(usrQ)+'"><div id="ul"></div>';
+  const load=async()=>{
+    const data=await call("admin_users",{p_search:usrQ||null,p_limit:60});
+    const l=$("#ul");l.innerHTML="";
+    data.forEach(u=>{
+      const c=document.createElement("div");c.className="card";
+      c.innerHTML='<div class="row"><b>'+esc(u.username||"–")+'</b><span><span class="tag '+u.status+'">'+u.status+'</span> <span class="tag">'+esc(u.role)+'</span></span></div><div class="mut">'+esc(u.email||"")+(u.phone?" · "+esc(u.phone):"")+'</div><div class="row" style="margin-top:6px"><span>Available '+money(u.available_balance)+'</span><span class="mut">Reserved '+money(u.reserved_balance)+'</span></div><div class="mut">KYC: '+esc(u.kyc_status)+' · joined '+when(u.created_at)+'</div>'+
+      (me.admin?'<div class="acts"><button class="b gh" data-st="'+(u.status==="active"?"suspended":"active")+'">'+(u.status==="active"?"Suspend":"Activate")+'</button>'+(me.role==="super_admin"?'<button class="b gh" data-r="1">Role</button>':"")+'</div>':"");
+      c.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>ask(b.textContent+" "+(u.username||u.email)+"?",false,async()=>{await call("admin_set_user_status",{p_user:u.id,p_status:b.dataset.st});toast("Done");load()}));
+      c.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{
+        const s=sheet('<h2>Role for '+esc(u.username||u.email)+'</h2><select id="rl">'+["user","finance_staff","order_staff","content_staff","support_staff","admin"].map(r=>'<option'+(r===u.role?" selected":"")+'>'+r+'</option>').join("")+'</select><div class="acts"><button class="b" id="y">Save</button><button class="b gh" id="n">Cancel</button></div>');
+        s.querySelector("#n").onclick=closeSheet;
+        s.querySelector("#y").onclick=e=>guard(async()=>{await call("admin_set_user_role",{p_user:u.id,p_role:s.querySelector("#rl").value});closeSheet();toast("Done");load()},e.target);
+      });
+      l.appendChild(c);
+    });
+    if(!data.length)l.innerHTML='<p class="mut">No users found.</p>';
+  };
+  let t;$("#sq").oninput=e=>{usrQ=e.target.value.trim();clearTimeout(t);t=setTimeout(load,350)};
+  await load();
+};
+
+/* ---------- settings ---------- */
+views.settings=async m=>{
+  const [{data:ss,error:e1},ref,{data:svc,error:e2},{data:chs,error:e3},{data:pv}]=await Promise.all([
+    sb.from("shop_settings").select("*").eq("id",1).single(),
+    call("admin_referral_overview"),
+    sb.from("provider_services").select("id,provider_id,service_code,service_name,available,status,minimum_amount,fixed_fee,percentage_fee"),
+    sb.from("provider_channels").select("id,provider_service_id,channel_name,available,status"),
+    sb.from("providers").select("id,name")]);
+  if(e1)throw e1;if(e2)throw e2;if(e3)throw e3;
+  const pn={};(pv||[]).forEach(p=>pn[p.id]=p.name);
+  m.innerHTML='<div class="card"><h2>Shop</h2><label>Early-sale payout (% of price paid)</label><input id="s_ep" type="number" value="'+ss.early_percent+'"><label>Delivery charge (৳)</label><input id="s_dc" type="number" value="'+ss.delivery_charge+'"><label>Delivery time (days, e.g. 12-15)</label><input id="s_dd" value="'+esc(ss.delivery_days)+'"><button class="b" id="s_sv">Save</button></div>'+
+  '<div class="card"><h2>Referral</h2><div class="mut">Referrals '+ref.total+' · pending '+ref.pending+' · earned '+ref.earned+' · paid '+money(ref.paid)+'</div><label>Commission per referral (৳)</label><select id="r_rt">'+[50,100,150,200].map(v=>'<option'+(+ref.rate===v?" selected":"")+'>'+v+'</option>').join("")+'</select><label>Minimum total purchases of the referred user (৳)</label><input id="r_mn" type="number" value="'+ref.min_total+'"><button class="b" id="r_sv">Save</button></div>'+
+  '<div class="card"><h2>Payment channels</h2><div class="mut">Switch a deposit or withdrawal method on or off.</div><div id="chl"></div></div>';
+  $("#s_sv").onclick=e=>guard(async()=>{const r=await sb.from("shop_settings").update({early_percent:+$("#s_ep").value,delivery_charge:+$("#s_dc").value,delivery_days:$("#s_dd").value.trim()||"12-15",updated_at:new Date().toISOString()}).eq("id",1);if(r.error)throw r.error;toast("Saved")},e.target);
+  $("#r_sv").onclick=e=>guard(async()=>{await call("admin_set_referral_rate",{new_rate:+$("#r_rt").value,new_min:+$("#r_mn").value});toast("Saved")},e.target);
+  const L=$("#chl");
+  svc.forEach(s=>{
+    const row=document.createElement("div");row.className="sw";
+    row.innerHTML='<span><b>'+esc(pn[s.provider_id]||"")+' '+esc(s.service_name||s.service_code)+'</b><br><span class="mut">'+esc(s.service_code)+'</span></span><button class="b '+(s.available?"ok":"gh")+'">'+(s.available?"ON":"OFF")+'</button>';
+    row.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("settings")},e.target);
+    L.appendChild(row);
+    chs.filter(c=>c.provider_service_id===s.id).forEach(c=>{
+      const r2=document.createElement("div");r2.className="sw";r2.style.paddingLeft="16px";
+      r2.innerHTML='<span>↳ '+esc(c.channel_name)+'</span><button class="b '+(c.available?"ok":"gh")+'">'+(c.available?"ON":"OFF")+'</button>';
+      r2.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("settings")},e.target);
+      L.appendChild(r2);
+    });
+  });
+};
+
+/* ---------- logs ---------- */
+views.logs=async m=>{
+  const {data,error}=await sb.from("admin_logs").select("*").order("created_at",{ascending:false}).limit(80);
+  if(error)throw error;
+  await loadNames(data.map(r=>r.admin_id));
+  m.innerHTML=data.length?data.map(r=>'<div class="card"><div class="row"><b>'+esc(r.action)+'</b><span class="mut">'+when(r.created_at)+'</span></div><div class="mut">'+esc(r.target||"")+' · by '+nm(r.admin_id)+'</div></div>').join(""):'<p class="mut">No actions yet.</p>';
+};
+
+if(sb)sb.auth.onAuthStateChange((ev)=>{if(ev==="SIGNED_OUT"&&me){me=null;loginView()}});
+boot();
+</script>
+</body>
+</html>
