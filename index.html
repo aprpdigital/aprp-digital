@@ -3411,6 +3411,21 @@ function getSelectedDepositOption(){
   return depositOptions.find(o => o.id === selectedDepositId) || null;
 }
 
+let depositAccounts = {};
+
+async function loadDepositAccount(option){
+  const id = option?.channel?.id;
+  if(!id || !supabaseClient) return;
+  try{
+    const { data, error } = await supabaseClient.rpc("get_deposit_account", { p_channel:String(id) });
+    if(error) throw error;
+    depositAccounts[id] = data || null;
+  }catch(e){
+    depositAccounts[id] = null;
+  }
+  if(getSelectedDepositOption() === option) updateDepositUI();
+}
+
 function updateDepositUI(){
 
   const option = getSelectedDepositOption();
@@ -3450,6 +3465,15 @@ function updateDepositUI(){
 
   const details = [];
 
+  const acct = depositAccounts[option.channel?.id];
+  if(acct){
+    details.push("Send money to: " + acct.number + (acct.name ? " (" + acct.name + ")" : ""));
+    if(acct.instructions) details.push(acct.instructions);
+  }else if(acct === null){
+    details.push("No payment number is available right now. Please try again later.");
+  }
+  $("submitDepositButton").disabled = (acct === null);
+
   if(option.channel?.channel_name){
     details.push("Channel: " + option.channel.channel_name);
   }
@@ -3484,7 +3508,10 @@ function selectDepositChannel(id){
   $("depositSummaryReference").textContent = "—";
   $("depositFormMessage").className = "message hidden";
 
+  const chosen = getSelectedDepositOption();
+  if(chosen?.channel?.id) delete depositAccounts[chosen.channel.id];
   updateDepositUI();
+  loadDepositAccount(chosen);
 
   document.body.style.overflow = "hidden";
 
