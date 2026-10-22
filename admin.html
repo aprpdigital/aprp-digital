@@ -522,27 +522,74 @@ views.referral=async m=>{
   $("#r_sv").onclick=e=>guard(async()=>{await call("admin_set_referral_rate",{new_rate:+$("#r_rt").value,new_min:+$("#r_mn").value});toast("Saved")},e.target);
 };
 views.channels=async m=>{
-  const [{data:svc,error:e2},{data:chs,error:e3},{data:pv}]=await Promise.all([
-    sb.from("provider_services").select("id,provider_id,service_code,service_name,available,status"),
-    sb.from("provider_channels").select("id,provider_service_id,channel_name,available,status"),
-    sb.from("providers").select("id,name")]);
+  const [{data:svc,error:e2},{data:chs,error:e3},{data:pv},{data:accs,error:e4}]=await Promise.all([
+    sb.from("provider_services").select("id,provider_id,service_code,service_name,available,status,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description"),
+    sb.from("provider_channels").select("id,provider_service_id,channel_name,channel_type,notes,available,status,minimum_amount,maximum_amount"),
+    sb.from("providers").select("id,name"),
+    sb.from("channel_accounts").select("*").order("created_at")]);
   if(e2)throw e2;if(e3)throw e3;
   const pn={};(pv||[]).forEach(p=>pn[p.id]=p.name);
-  m.innerHTML='<div class="card"><div class="mut">Switch a deposit or withdrawal method on or off.</div><div id="chl"></div></div>';
+  const accounts=e4?[]:(accs||[]);
+  m.innerHTML='<p class="mut" style="margin:0 0 12px">Turn methods on or off, set limits and fees, and add the number customers send money to.</p><div id="chl"></div>';
   const L=$("#chl");
+  if(!svc.length)L.innerHTML='<div class="card">No payment services found.</div>';
   svc.forEach(s=>{
-    const row=document.createElement("div");row.className="sw";
-    row.innerHTML='<span><b>'+esc(pn[s.provider_id]||"")+' '+esc(s.service_name||s.service_code)+'</b><br><span class="mut">'+esc(s.service_code)+'</span></span><button class="b '+(s.available?"ok":"gh")+'">'+(s.available?"ON":"OFF")+'</button>';
-    row.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("channels")},e.target);
-    L.appendChild(row);
+    const isDep=s.service_code==="deposit";
+    const card=document.createElement("div");card.className="card";
+    card.innerHTML='<div class="row"><div><b>'+esc(pn[s.provider_id]||"")+' '+esc(s.service_name||s.service_code)+'</b><div class="mut">'+esc(s.service_code)+' · min '+money(s.minimum_amount)+(s.maximum_amount?' · max '+money(s.maximum_amount):"")+' · fee '+money(s.fixed_fee)+' + '+(+s.percentage_fee||0)+'%</div></div><button class="b '+(s.available?"ok":"gh")+'" data-t="1">'+(s.available?"ON":"OFF")+'</button></div><div class="acts"><button class="b gh" data-e="1">Edit rules</button><button class="b gh" data-a="1">+ Add channel</button></div><div class="chs"></div>';
+    card.querySelector("[data-t]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("channels")},e.target);
+    card.querySelector("[data-e]").onclick=()=>serviceForm(s);
+    card.querySelector("[data-a]").onclick=()=>channelForm(null,s);
+    const box=card.querySelector(".chs");
     chs.filter(c=>c.provider_service_id===s.id).forEach(c=>{
-      const r2=document.createElement("div");r2.className="sw";r2.style.paddingLeft="16px";
-      r2.innerHTML='<span>↳ '+esc(c.channel_name)+'</span><button class="b '+(c.available?"ok":"gh")+'">'+(c.available?"ON":"OFF")+'</button>';
-      r2.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("channels")},e.target);
-      L.appendChild(r2);
+      const mine=accounts.filter(a=>a.channel_id===c.id);
+      const r=document.createElement("div");r.className="sw";r.style.cssText="flex-wrap:wrap;gap:8px";
+      r.innerHTML='<span style="flex:1;min-width:140px"><b>'+esc(c.channel_name)+'</b><br><span class="mut">'+esc(c.channel_type||"")+(c.notes?" · "+esc(c.notes).slice(0,60):"")+'</span></span><span style="display:flex;gap:6px"><button class="b gh" data-ed="1">Edit</button>'+(isDep?'<button class="b gh" data-nm="1">Numbers ('+mine.filter(a=>a.active).length+')</button>':"")+'<button class="b '+(c.available?"ok":"gh")+'" data-ct="1">'+(c.available?"ON":"OFF")+'</button></span>';
+      r.querySelector("[data-ed]").onclick=()=>channelForm(c,s);
+      const nb=r.querySelector("[data-nm]");if(nb)nb.onclick=()=>accountsSheet(c,accounts,e4);
+      r.querySelector("[data-ct]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("channels")},e.target);
+      box.appendChild(r);
     });
+    L.appendChild(card);
   });
 };
+const num=v=>v===""||v==null?null:Number(v);
+function serviceForm(s){
+  const sh=sheet('<h2>Edit rules</h2><div class="grid"><div><label>Minimum (৳)</label><input id="v_min" type="number" inputmode="decimal" value="'+(s.minimum_amount??"")+'"></div><div><label>Maximum (৳)</label><input id="v_max" type="number" inputmode="decimal" value="'+(s.maximum_amount??"")+'"></div><div><label>Fixed fee (৳)</label><input id="v_fx" type="number" inputmode="decimal" value="'+(s.fixed_fee??0)+'"></div><div><label>Fee (%)</label><input id="v_pc" type="number" inputmode="decimal" value="'+(s.percentage_fee??0)+'"></div></div><label>Short note shown to customers</label><input id="v_ds" value="'+esc(s.description||"")+'"><div class="mut">The app never allows less than ৳500 for deposits and ৳1,000 for withdrawals.</div><div class="acts"><button class="b" id="v_sv">Save</button><button class="b gh" id="v_cx">Close</button></div>');
+  const q=i=>sh.querySelector("#"+i);q("v_cx").onclick=closeSheet;
+  q("v_sv").onclick=e=>guard(async()=>{await call("admin_update_service",{p_id:s.id,p_min:num(q("v_min").value),p_max:num(q("v_max").value),p_fixed:num(q("v_fx").value),p_pct:num(q("v_pc").value),p_desc:q("v_ds").value});closeSheet();toast("Saved");go("channels")},e.target);
+}
+function channelForm(c,s){
+  c=c||{};
+  const sh=sheet('<h2>'+(c.id?"Edit channel":"New channel")+'</h2><label>Name (customers see this)</label><input id="h_nm" value="'+esc(c.channel_name||"")+'"><label>Type (e.g. personal, agent, bank)</label><input id="h_ty" value="'+esc(c.channel_type||"")+'"><label>Instructions shown to customers</label><textarea id="h_nt" rows="4" placeholder="e.g. Use Send Money, not Cash Out.">'+esc(c.notes||"")+'</textarea>'+(c.id?'<div class="grid"><div><label>Minimum (৳)</label><input id="h_mn" type="number" inputmode="decimal" value="'+(c.minimum_amount??"")+'"></div><div><label>Maximum (৳)</label><input id="h_mx" type="number" inputmode="decimal" value="'+(c.maximum_amount??"")+'"></div></div>':'')+'<div class="acts"><button class="b" id="h_sv">Save</button><button class="b gh" id="h_cx">Close</button></div>');
+  const q=i=>sh.querySelector("#"+i);q("h_cx").onclick=closeSheet;
+  q("h_sv").onclick=e=>guard(async()=>{
+    if(c.id)await call("admin_update_channel",{p_id:c.id,p_name:q("h_nm").value,p_type:q("h_ty").value,p_notes:q("h_nt").value,p_min:num(q("h_mn").value),p_max:num(q("h_mx").value)});
+    else await call("admin_add_channel",{p_service:s.id,p_name:q("h_nm").value,p_type:q("h_ty").value,p_notes:q("h_nt").value});
+    closeSheet();toast("Saved");go("channels");
+  },e.target);
+}
+function accountsSheet(c,all,missing){
+  const sh=sheet('<h2>'+esc(c.channel_name)+' · numbers</h2><div class="mut">Customers see one active number. If you add several, they are shared between customers. Agent numbers will appear here later.</div><div id="al" style="margin:10px 0"></div><div class="card"><b>Add a number</b><label>Number</label><input id="n_no" inputmode="tel" placeholder="01XXXXXXXXX"><label>Account name (optional)</label><input id="n_nm"><label>Extra instructions (optional)</label><input id="n_in"><button class="b" id="n_ad">Add number</button></div><div class="acts"><button class="b gh" id="n_cx">Close</button></div>');
+  const q=i=>sh.querySelector("#"+i);q("n_cx").onclick=()=>{closeSheet();go("channels")};
+  if(missing){q("al").innerHTML='<div class="card">Run supabase_part3.sql in Supabase first.</div>';return}
+  let mine=all.filter(a=>a.channel_id===c.id);
+  const draw=()=>{
+    q("al").innerHTML=mine.length?"":'<p class="mut">No numbers yet. Customers cannot deposit on this channel until you add one.</p>';
+    mine.forEach(a=>{
+      const d=document.createElement("div");d.className="sw";
+      d.innerHTML='<span><b>'+esc(a.account_number)+'</b><br><span class="mut">'+esc(a.owner_type)+(a.account_name?" · "+esc(a.account_name):"")+'</span></span><span style="display:flex;gap:6px"><button class="b '+(a.active?"ok":"gh")+'" data-t="1">'+(a.active?"ON":"OFF")+'</button>'+(a.owner_type==="company"?'<button class="b no" data-d="1">Delete</button>':"")+'</span>';
+      d.querySelector("[data-t]").onclick=e=>guard(async()=>{const r=await sb.from("channel_accounts").update({active:!a.active}).eq("id",a.id);if(r.error)throw r.error;a.active=!a.active;draw()},e.target);
+      const del=d.querySelector("[data-d]");if(del)del.onclick=e=>guard(async()=>{const r=await sb.from("channel_accounts").delete().eq("id",a.id);if(r.error)throw r.error;mine=mine.filter(x=>x.id!==a.id);all.splice(all.indexOf(a),1);draw()},e.target);
+      q("al").appendChild(d);
+    });
+  };draw();
+  q("n_ad").onclick=e=>guard(async()=>{
+    const no=q("n_no").value.trim();if(no.length<6)throw new Error("Enter the number.");
+    const r=await sb.from("channel_accounts").insert({channel_id:c.id,owner_type:"company",account_number:no,account_name:q("n_nm").value.trim()||null,instructions:q("n_in").value.trim()||null}).select().single();
+    if(r.error)throw r.error;mine.push(r.data);all.push(r.data);q("n_no").value="";q("n_nm").value="";q("n_in").value="";draw();toast("Added");
+  },e.target);
+}
 
 /* ---------- logs ---------- */
 views.logs=async m=>{
