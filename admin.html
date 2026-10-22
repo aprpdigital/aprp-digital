@@ -7,45 +7,70 @@
 <title>APRP Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0e1116;--card:#171c24;--line:#262d38;--tx:#e8edf3;--mut:#8b97a7;--pri:#3b82f6;--ok:#22c55e;--bad:#ef4444;--warn:#f59e0b}
+:root{--bg:#050a17;--bg2:#0a1124;--card:#0b1328;--line:#18233d;--tx:#f1f5fb;--mut:#8b9ab5;--g:#10b981;--g2:#34d399;--gd:#06402f;--bad:#f43f5e;--warn:#fbbf24;--pri:#10b981}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:40px}
-header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-header b{font-size:17px}
-nav{display:flex;gap:6px;overflow-x:auto;padding:10px 14px;position:sticky;top:49px;background:var(--bg);z-index:4;border-bottom:1px solid var(--line)}
-nav button{flex:none;background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:14px;position:relative}
-nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
-nav i{font-style:normal;background:var(--bad);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px;margin-left:5px}
-main{padding:14px;max-width:760px;margin:auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:11px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
-.stat b{display:block;font-size:22px}.stat span{color:var(--mut);font-size:13px}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--tx);font:15px/1.45 "Roboto",system-ui,-apple-system,Segoe UI,sans-serif;padding-bottom:50px}
+.top{position:sticky;top:0;z-index:6;background:linear-gradient(180deg,#060d1f,#050a17);border-bottom:1px solid var(--line);padding:11px 14px;display:flex;align-items:center;gap:11px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#10b981,#06b6d4);color:#031a14;font-weight:800;display:grid;place-items:center;font-size:18px}
+.top b{font-size:17px;flex:1}
+.ib{background:#0d1730;border:1px solid var(--line);color:var(--tx);border-radius:11px;width:40px;height:40px;display:grid;place-items:center;font-size:18px;position:relative}
+.dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%;background:var(--g)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 4px;max-width:760px;margin:auto}
+.bar span{font:600 13px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.04em;color:var(--tx);text-transform:uppercase}
+.bar button{background:#111c36;color:var(--tx);border:1px solid var(--line);border-radius:11px;padding:9px 13px;font-size:14px}
+main{padding:10px 14px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}
+.hero{background:radial-gradient(120% 140% at 0% 0%,#0c2a2a 0%,var(--card) 55%);padding:20px}
+.hero small{font:600 12px ui-monospace,Menlo,monospace;color:var(--g2);letter-spacing:.05em;text-transform:uppercase}
+.hero h1{font-size:25px;line-height:1.15;margin:8px 0}
+.hero p{color:var(--mut);margin:0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}
+.stat .t{color:var(--mut);font-size:14px;display:flex;justify-content:space-between;gap:6px}
+.stat b{display:block;font-size:26px;margin:8px 0 4px;letter-spacing:.01em}
+.stat b.g{color:var(--g2)}
+.stat span.s{font-size:13px;color:var(--mut)}.stat span.w{font-size:13px;color:var(--warn)}
+.alert{background:#1a1408;border:1px solid #5c4410;color:var(--warn)}
 .row{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .mut{color:var(--mut);font-size:13px}
-.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;background:#27303d;color:var(--mut)}
-.tag.pending,.tag.holding,.tag.sell_requested,.tag.shipped{background:#3a2f12;color:var(--warn)}
-.tag.approved,.tag.completed,.tag.verified,.tag.delivered,.tag.sold,.tag.active{background:#10301c;color:var(--ok)}
-.tag.rejected,.tag.cancelled,.tag.suspended,.tag.blocked{background:#3a1717;color:var(--bad)}
-button.b,a.b{display:inline-block;background:var(--pri);color:#fff;border:0;border-radius:10px;padding:9px 14px;font-size:14px;text-decoration:none}
-button.b.ok{background:var(--ok);color:#052}button.b.no{background:var(--bad)}button.b.gh{background:#27303d;color:var(--tx)}
+.tag{display:inline-block;border-radius:8px;padding:2px 8px;font-size:12px;background:#17233f;color:var(--mut);font-family:ui-monospace,Menlo,monospace;text-transform:uppercase}
+.tag.pending,.tag.holding,.tag.sell_requested,.tag.shipped,.tag.under_review{background:#2e2409;color:var(--warn)}
+.tag.approved,.tag.completed,.tag.verified,.tag.delivered,.tag.sold,.tag.active{background:#06301f;color:var(--g2)}
+.tag.rejected,.tag.cancelled,.tag.suspended,.tag.blocked,.tag.reversed{background:#35101a;color:var(--bad)}
+button.b,a.b{display:inline-block;background:var(--g);color:#032016;font-weight:600;border:0;border-radius:12px;padding:10px 15px;font-size:14px;text-decoration:none}
+button.b.ok{background:var(--g);color:#032016}button.b.no{background:#2a0f18;color:#fb7185;border:1px solid #5b1a2a}button.b.gh{background:#111c36;color:var(--tx);font-weight:500;border:1px solid var(--line)}
 button.b:disabled{opacity:.5}
-.acts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-input,select,textarea{width:100%;background:#0e1116;color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;margin:4px 0 10px}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+input,select,textarea{width:100%;background:#060c1c;color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:15px;margin:4px 0 10px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--g)}
 label{font-size:13px;color:var(--mut)}
-h2{font-size:17px;margin:6px 0 10px}
-.seg{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.seg button{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:10px;padding:7px 12px}
-.seg button.on{color:#fff;border-color:var(--pri)}
-.ov{position:fixed;inset:0;background:#000b;z-index:20;display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--bg);border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:16px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222c3a;border:1px solid var(--line);padding:10px 16px;border-radius:12px;z-index:30;max-width:90%}
-.toast.err{background:#3a1717}
-.imgs img{width:100%;border-radius:10px;margin-top:8px;background:#000}
-.thumb{width:54px;height:54px;border-radius:8px;object-fit:cover;background:#222}
-.kv{display:grid;grid-template-columns:110px 1fr;gap:3px 8px;font-size:14px}.kv span:nth-child(odd){color:var(--mut)}
-.center{max-width:380px;margin:12vh auto;padding:0 18px}
-.sw{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+h2{font-size:18px;margin:6px 0 10px}
+.seg{display:flex;gap:6px;margin:6px 0 12px;flex-wrap:wrap}
+.seg button{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:11px;padding:8px 13px}
+.seg button.on{color:var(--g2);border-color:var(--g);background:#071f1a}
+.ov{position:fixed;inset:0;background:#000c;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg2);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:18px}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#12203d;border:1px solid var(--line);padding:11px 17px;border-radius:13px;z-index:40;max-width:90%}
+.toast.err{background:#35101a;border-color:#5b1a2a}
+.imgs img{width:100%;border-radius:12px;margin-top:8px;background:#000}
+.thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;background:#16213a}
+.kv{display:grid;grid-template-columns:105px 1fr;gap:4px 8px;font-size:14px}.kv span:nth-child(odd){color:var(--mut)}
+.center{max-width:390px;margin:9vh auto;padding:0 18px}
+.sw{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.tx{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:#08101f;border-radius:15px;padding:11px;margin-bottom:10px}
+.tx .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:none}
+.tx .ic.in{background:#06301f;color:var(--g2)}.tx .ic.out{background:#35101a;color:var(--bad)}.tx .ic.shop{background:#2e2409;color:var(--warn)}
+.tx .m{flex:1;min-width:0}.tx .m b{display:block}.tx .m span{font:12px ui-monospace,Menlo,monospace;color:var(--mut)}
+.tx .a{text-align:right}.tx .a b{display:block}
+.menu{position:fixed;inset:0;z-index:15;background:var(--bg);overflow:auto;padding:0 14px 40px}
+.menu h3{font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.07em;color:var(--mut);text-transform:uppercase;margin:22px 8px 8px}
+.menu button.it{display:flex;width:100%;align-items:center;gap:13px;background:none;border:1px solid transparent;color:var(--mut);font-size:16px;padding:13px 12px;border-radius:13px;text-align:left}
+.menu button.it.on{background:#071f1a;border-color:#0b5b43;color:var(--g2);font-weight:600}
+.menu button.it em{margin-left:auto;font-style:normal;background:var(--bad);color:#fff;border-radius:10px;font-size:12px;padding:1px 7px}
+.qr{background:#fff;border-radius:14px;padding:10px;width:220px;margin:8px auto;display:block}
+.sec{font:15px ui-monospace,Menlo,monospace;background:#060c1c;border:1px dashed var(--g);border-radius:12px;padding:11px;word-break:break-all;text-align:center;margin:6px 0}
+.code{font-size:26px;letter-spacing:.35em;text-align:center}
 </style>
 </head>
 <body>
@@ -54,14 +79,19 @@ h2{font-size:17px;margin:6px 0 10px}
 "use strict";
 const SUPABASE_URL="https://hdlskefeuodhoeaksflq.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
-const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY) : null;
+/* The admin sign-in is kept only in memory: closing or reloading the page signs you out,
+   and it is never shared with the customer app. */
+const memStore={};
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{
+  storageKey:"aprp-admin-auth",persistSession:false,autoRefreshToken:true,detectSessionInUrl:false,
+  storage:{getItem:k=>memStore[k]??null,setItem:(k,v)=>{memStore[k]=v},removeItem:k=>{delete memStore[k]}}}}) : null;
 const $=s=>document.querySelector(s);
 const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const money=n=>"৳"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
 const when=t=>t?new Date(t).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 let me=null, stats={}, page="home", names={};
 
-function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200)}
+function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3400)}
 async function call(fn,args){const {data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
 async function guard(fn,btn){if(btn)btn.disabled=true;try{return await fn()}catch(e){toast(e.message||String(e),true)}finally{if(btn)btn.disabled=false}}
 function sheet(html){closeSheet();const o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML='<div class="sheet">'+html+'</div>';o.addEventListener("click",e=>{if(e.target===o)closeSheet()});document.body.appendChild(o);return o.firstChild}
@@ -78,58 +108,135 @@ async function loadNames(ids){
 }
 const nm=id=>esc(names[id]||String(id||"").slice(0,8));
 
-/* ---------- login ---------- */
+/* ---------- sign-in: password, then Google Authenticator ---------- */
+function authShell(inner){$("#app").innerHTML='<div class="center"><div class="logo" style="width:54px;height:54px;font-size:26px;margin-bottom:14px">A</div><h2 style="font-size:26px;margin:0 0 4px">APRP Admin</h2>'+inner+'</div>'}
 function loginView(msg){
-  $("#app").innerHTML='<div class="center"><h2 style="font-size:24px">APRP Admin</h2><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="b" style="width:100%" id="go">Sign in</button><p class="mut" id="msg">'+esc(msg||"")+'</p></div>';
+  authShell('<p class="mut" style="margin:0 0 18px">Sign in to continue</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="b" style="width:100%" id="go">Sign in</button><p class="mut" id="msg" style="color:#fb7185">'+esc(msg||"")+'</p>');
+  $("#pw").onkeydown=e=>{if(e.key==="Enter")$("#go").click()};
   $("#go").onclick=e=>guard(async()=>{
     const {error}=await sb.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});
-    if(error)throw error;await boot();
+    if(error)throw error;await afterPassword();
   },e.target);
 }
+async function afterPassword(){
+  let info;
+  try{info=await call("admin_me")}catch(e){await signOut("Could not check your account.");return}
+  if(!info||!info.staff){await signOut("This account is not allowed here.");return}
+  const {data:lf}=await sb.auth.mfa.listFactors();
+  const verified=(lf&&lf.totp||[]).filter(f=>f.status==="verified");
+  const {data:aal}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+  if(aal&&aal.currentLevel==="aal2"){me=await call("admin_me");if(me.aal==="aal2"){shell();return}}
+  if(verified.length)codeView(verified[0].id);else await enrollView(lf);
+}
+function codeView(factorId,msg){
+  authShell('<p class="mut" style="margin:0 0 14px">Open Google Authenticator and enter the 6-digit code for <b>APRP Admin</b>.</p><input id="cd" class="code" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••"><button class="b" style="width:100%" id="vf">Verify</button><p class="mut" style="color:#fb7185">'+esc(msg||"")+'</p><button class="b gh" id="so" style="width:100%">Cancel</button>');
+  $("#so").onclick=()=>signOut();
+  $("#cd").oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"");if(e.target.value.length===6)$("#vf").click()};
+  $("#vf").onclick=e=>guard(async()=>{
+    const code=$("#cd").value.trim();if(code.length!==6)throw new Error("Enter the 6-digit code.");
+    const {data:ch,error:e1}=await sb.auth.mfa.challenge({factorId});if(e1)throw e1;
+    const {error:e2}=await sb.auth.mfa.verify({factorId,challengeId:ch.id,code});
+    if(e2){codeView(factorId,"Wrong code. Try the newest code.");return}
+    me=await call("admin_me");if(me.aal!=="aal2")throw new Error("Verification did not complete.");shell();
+  },e.target);
+}
+async function enrollView(lf){
+  for(const f of (lf&&lf.all||[]).filter(f=>f.status!=="verified")){try{await sb.auth.mfa.unenroll({factorId:f.id})}catch(_){}}
+  const {data,error}=await sb.auth.mfa.enroll({factorType:"totp",friendlyName:"APRP Admin "+Date.now().toString(36),issuer:"APRP Admin"});
+  if(error){await signOut("Could not start authenticator setup: "+error.message+" (In Supabase: Authentication → Sign In / Providers → Multi-Factor → enable TOTP.)");return}
+  const secret=data.totp.secret, uri=data.totp.uri;
+  authShell('<p class="mut" style="margin:0 0 10px">One-time setup. Add this account to <b>Google Authenticator</b>:</p>'+
+   '<a class="b" style="display:block;text-align:center" href="'+esc(uri)+'">Open in Google Authenticator</a>'+
+   '<p class="mut" style="margin:14px 0 4px">If that does not open the app: in Authenticator tap + → Enter a setup key, and type this key:</p><div class="sec" id="sk">'+esc(secret)+'</div>'+
+   '<button class="b gh" id="cp" style="width:100%;margin-bottom:12px">Copy key</button>'+
+   '<img class="qr" alt="" src="'+esc(data.totp.qr_code)+'">'+
+   '<label>Then enter the 6-digit code it shows</label><input id="cd" class="code" inputmode="numeric" maxlength="6" placeholder="••••••"><button class="b" style="width:100%" id="vf">Finish setup</button><p class="mut" id="msg" style="color:#fb7185"></p><button class="b gh" id="so" style="width:100%">Cancel</button>');
+  $("#so").onclick=()=>signOut();
+  $("#cp").onclick=async()=>{try{await navigator.clipboard.writeText(secret);toast("Copied")}catch(_){toast("Copy the key by long-press",true)}};
+  $("#cd").oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"")};
+  $("#vf").onclick=e=>guard(async()=>{
+    const code=$("#cd").value.trim();if(code.length!==6)throw new Error("Enter the 6-digit code.");
+    const {data:ch,error:e1}=await sb.auth.mfa.challenge({factorId:data.id});if(e1)throw e1;
+    const {error:e2}=await sb.auth.mfa.verify({factorId:data.id,challengeId:ch.id,code});
+    if(e2)throw new Error("Wrong code. Check the key and try again.");
+    me=await call("admin_me");if(me.aal!=="aal2")throw new Error("Verification did not complete.");shell();
+  },e.target);
+}
+async function signOut(msg){try{await sb.auth.signOut()}catch(_){}me=null;stats={};loginView(msg)}
 async function boot(){
-  if(!sb){loginView("Could not load the app library. Check your internet.");return}
-  const {data:{session}}=await sb.auth.getSession();
-  if(!session){loginView();return}
-  try{me=await call("admin_me")}catch(e){loginView(e.message);return}
-  if(!me||!(me.admin||me.finance||me.orders||me.content||me.kyc)){await sb.auth.signOut();loginView("This account is not allowed here.");return}
-  shell();
+  if(!sb){authShell('<p class="mut">Could not load the app library. Check your internet.</p>');return}
+  loginView();
 }
-function tabs(){
-  const t=[["home","Home",1]];
-  if(me.finance){t.push(["deposits","Deposits",1],["withdrawals","Withdrawals",1])}
-  if(me.kyc)t.push(["kyc","KYC",1]);
-  if(me.orders||me.finance)t.push(["orders","Orders",1]);
-  if(me.content)t.push(["products","Products",1]);
-  if(me.admin||me.finance||me.kyc)t.push(["users","Users",1]);
-  if(me.admin)t.push(["settings","Settings",1],["logs","Logs",1]);
-  return t;
-}
-const badge={deposits:"pending_deposits",withdrawals:"pending_withdrawals",kyc:"pending_kyc"};
+
+/* ---------- idle sign-out (10 minutes) ---------- */
+let idleT;function idleReset(){clearTimeout(idleT);if(me)idleT=setTimeout(()=>signOut("Signed out after 10 minutes without activity."),600000)}
+["click","touchstart","keydown"].forEach(ev=>document.addEventListener(ev,idleReset,{passive:true}));
+
+/* ---------- shell and menu ---------- */
+const MENU=[
+ ["Overview",[["home","▦","Dashboard",()=>true]]],
+ ["Financial operations",[["deposits","⇣","Deposits",()=>me.finance],["withdrawals","⇡","Withdrawals",()=>me.finance],["ledger","≡","Transactions & Ledger",()=>me.finance||me.admin]]],
+ ["Commerce",[["products","▣","Products & Catalog",()=>me.content],["orders","⚑","Orders & Buyback",()=>me.orders||me.finance]]],
+ ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin]]],
+ ["Administration",[["channels","⇄","Payment Channels",()=>me.admin],["shop","⚙","Shop Settings",()=>me.admin],["logs","⛨","Security & Audit Logs",()=>me.admin]]]
+];
+const TITLE={};MENU.forEach(g=>g[1].forEach(i=>TITLE[i[0]]=i[2]));
+const badge=()=>({deposits:stats.pending_deposits,withdrawals:stats.pending_withdrawals,kyc:stats.pending_kyc,orders:(stats.pending_orders||0)+(stats.sell_requests||0)});
 async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}}
 function shell(){
-  $("#app").innerHTML='<header><b>APRP Admin</b><button class="b gh" id="out">Sign out</button></header><nav id="nav"></nav><main id="main"></main>';
-  $("#out").onclick=async()=>{await sb.auth.signOut();me=null;loginView()};
-  go(page);
+  idleReset();
+  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin</b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
+  $("#bl").onclick=()=>signOut();$("#mm").onclick=openMenu;
+  go("home");
+}
+function openMenu(){
+  const b=badge();
+  const m=document.createElement("div");m.className="menu";m.id="menu";
+  m.innerHTML='<div class="bar" style="padding:14px 0 0"><span>Admin screen: '+esc(TITLE[page]||"")+'</span><button id="cm">✕ Close</button></div>'+
+   MENU.map(g=>{const its=g[1].filter(i=>i[3]());if(!its.length)return"";return'<h3>'+g[0]+'</h3>'+its.map(i=>'<button class="it '+(i[0]===page?"on":"")+'" data-p="'+i[0]+'"><span style="width:20px;text-align:center">'+i[1]+'</span>'+i[2]+(b[i[0]]?'<em>'+b[i[0]]+'</em>':"")+'</button>').join("")}).join("");
+  document.body.appendChild(m);
+  m.querySelector("#cm").onclick=()=>m.remove();
+  m.querySelectorAll("[data-p]").forEach(x=>x.onclick=()=>{m.remove();go(x.dataset.p)});
 }
 async function go(p){
-  page=p;await refreshStats();
-  const n=$("#nav");n.innerHTML=tabs().map(t=>{
-    let c=badge[t[0]]?stats[badge[t[0]]]:t[0]==="orders"?(stats.pending_orders||0)+(stats.sell_requests||0):0;
-    return '<button data-p="'+t[0]+'" class="'+(t[0]===p?"on":"")+'">'+t[1]+(c?'<i>'+c+'</i>':"")+'</button>'}).join("");
-  n.querySelectorAll("button").forEach(b=>b.onclick=()=>go(b.dataset.p));
+  page=p;idleReset();await refreshStats();
+  $("#ttl").textContent="Admin screen: "+(TITLE[p]||"");
   const m=$("#main");m.innerHTML='<p class="mut">Loading…</p>';
+  window.scrollTo(0,0);
   try{await views[p](m)}catch(e){m.innerHTML='<div class="card">'+esc(e.message||e)+'</div>'}
 }
 const views={};
 
-/* ---------- home ---------- */
+/* ---------- dashboard ---------- */
 views.home=async m=>{
   const s=stats;
-  m.innerHTML='<div class="grid">'+[
-   ["Users",s.users],["Pending deposits",s.pending_deposits],["Pending withdrawals",s.pending_withdrawals],["Pending KYC",s.pending_kyc],
-   ["Open delivery orders",s.pending_orders],["Sell requests",s.sell_requests],["Users’ available",money(s.total_available)],["Users’ reserved",money(s.total_reserved)]
-  ].map(x=>'<div class="stat"><b>'+esc(x[1]==null?"–":x[1])+'</b><span>'+x[0]+'</span></div>').join("")+'</div>';
+  let h='<div class="card hero"><small>Central ledger &amp; engine: operational</small><h1>Executive Financial &amp; Operational Console</h1><p>Deposits, withdrawals, shop orders, buyback and users in one place.</p></div>';
+  h+='<div class="grid">'+
+   '<div class="stat"><div class="t">Users’ main balance <span>◧</span></div><b>'+money(s.total_available)+'</b><span class="s">'+(s.users||0)+' registered accounts</span></div>'+
+   '<div class="stat"><div class="t">Reserved (buyback) <span>◷</span></div><b class="g">'+money(s.total_reserved)+'</b><span class="s">held in buyback products</span></div>'+
+   '<div class="stat"><div class="t">Pending deposits <span style="color:var(--g2)">⇣</span></div><b>'+(s.pending_deposits||0)+'</b><span class="'+(s.pending_deposits?"w":"s")+'">'+(s.pending_deposits?"Needs review":"All clear")+'</span></div>'+
+   '<div class="stat"><div class="t">Pending withdrawals <span style="color:var(--bad)">⇡</span></div><b>'+(s.pending_withdrawals||0)+'</b><span class="'+(s.pending_withdrawals?"w":"s")+'">'+(s.pending_withdrawals?"Needs payment":"All clear")+'</span></div>'+
+   '<div class="stat"><div class="t">Pending KYC <span>✔</span></div><b>'+(s.pending_kyc||0)+'</b><span class="s">identity checks</span></div>'+
+   '<div class="stat"><div class="t">Orders &amp; sell requests <span>⚑</span></div><b>'+((s.pending_orders||0)+(s.sell_requests||0))+'</b><span class="s">'+(s.pending_orders||0)+' delivery · '+(s.sell_requests||0)+' sell</span></div>'+
+  '</div>';
+  m.innerHTML=h;
+  if(me.finance||me.admin){
+    const box=document.createElement("div");box.className="card";box.innerHTML='<div class="row"><h2 style="margin:0">Central Ledger Transactions</h2><a class="mut" href="#" id="vl" style="color:var(--g2)">View full ledger →</a></div><div style="margin-top:12px" id="lg"></div>';
+    m.appendChild(box);$("#vl").onclick=e=>{e.preventDefault();go("ledger")};
+    await ledgerRows($("#lg"),6);
+  }
 };
+async function ledgerRows(el,n){
+  const {data,error}=await sb.from("transactions").select("transaction_id,user_id,transaction_type,status,amount,created_at").order("created_at",{ascending:false}).limit(n);
+  if(error){el.innerHTML='<p class="mut">'+esc(error.message)+'</p>';return}
+  await loadNames(data.map(r=>r.user_id));
+  if(!data.length){el.innerHTML='<p class="mut">No transactions yet.</p>';return}
+  el.innerHTML=data.map(r=>{
+    const t=r.transaction_type,out=/withdraw/.test(t),shop=/purchase|buyback/.test(t);
+    const ic=out?'<div class="ic out">⇡</div>':shop?'<div class="ic shop">▣</div>':'<div class="ic in">⇣</div>';
+    return'<div class="tx">'+ic+'<div class="m"><b>'+nm(r.user_id)+'</b><span>'+esc(r.transaction_id)+' · '+esc(t.toUpperCase())+'</span></div><div class="a"><b>'+money(r.amount)+'</b><span class="tag '+esc(r.status)+'">'+esc(r.status)+'</span></div></div>'}).join("");
+}
+views.ledger=async m=>{m.innerHTML='<div class="card"><div id="lg"></div></div>';await ledgerRows($("#lg"),100)};
 
 /* ---------- deposits ---------- */
 function seg(opts,cur,fn,m){
@@ -330,31 +437,35 @@ views.users=async m=>{
   await load();
 };
 
-/* ---------- settings ---------- */
-views.settings=async m=>{
-  const [{data:ss,error:e1},ref,{data:svc,error:e2},{data:chs,error:e3},{data:pv}]=await Promise.all([
-    sb.from("shop_settings").select("*").eq("id",1).single(),
-    call("admin_referral_overview"),
-    sb.from("provider_services").select("id,provider_id,service_code,service_name,available,status,minimum_amount,fixed_fee,percentage_fee"),
+/* ---------- settings pages ---------- */
+views.shop=async m=>{
+  const {data:ss,error}=await sb.from("shop_settings").select("*").eq("id",1).single();if(error)throw error;
+  m.innerHTML='<div class="card"><label>Early-sale payout (% of price paid)</label><input id="s_ep" type="number" value="'+ss.early_percent+'"><label>Delivery charge (৳)</label><input id="s_dc" type="number" value="'+ss.delivery_charge+'"><label>Delivery time (days, e.g. 12-15)</label><input id="s_dd" value="'+esc(ss.delivery_days)+'"><button class="b" id="s_sv">Save</button></div>';
+  $("#s_sv").onclick=e=>guard(async()=>{const r=await sb.from("shop_settings").update({early_percent:+$("#s_ep").value,delivery_charge:+$("#s_dc").value,delivery_days:$("#s_dd").value.trim()||"12-15",updated_at:new Date().toISOString()}).eq("id",1);if(r.error)throw r.error;toast("Saved")},e.target);
+};
+views.referral=async m=>{
+  const ref=await call("admin_referral_overview");
+  m.innerHTML='<div class="card"><div class="mut">Referrals '+ref.total+' · pending '+ref.pending+' · earned '+ref.earned+' · paid '+money(ref.paid)+'</div><label style="display:block;margin-top:12px">Commission per referral (৳)</label><select id="r_rt">'+[50,100,150,200].map(v=>'<option'+(+ref.rate===v?" selected":"")+'>'+v+'</option>').join("")+'</select><label>Minimum total purchases of the referred user (৳)</label><input id="r_mn" type="number" value="'+ref.min_total+'"><button class="b" id="r_sv">Save</button></div>';
+  $("#r_sv").onclick=e=>guard(async()=>{await call("admin_set_referral_rate",{new_rate:+$("#r_rt").value,new_min:+$("#r_mn").value});toast("Saved")},e.target);
+};
+views.channels=async m=>{
+  const [{data:svc,error:e2},{data:chs,error:e3},{data:pv}]=await Promise.all([
+    sb.from("provider_services").select("id,provider_id,service_code,service_name,available,status"),
     sb.from("provider_channels").select("id,provider_service_id,channel_name,available,status"),
     sb.from("providers").select("id,name")]);
-  if(e1)throw e1;if(e2)throw e2;if(e3)throw e3;
+  if(e2)throw e2;if(e3)throw e3;
   const pn={};(pv||[]).forEach(p=>pn[p.id]=p.name);
-  m.innerHTML='<div class="card"><h2>Shop</h2><label>Early-sale payout (% of price paid)</label><input id="s_ep" type="number" value="'+ss.early_percent+'"><label>Delivery charge (৳)</label><input id="s_dc" type="number" value="'+ss.delivery_charge+'"><label>Delivery time (days, e.g. 12-15)</label><input id="s_dd" value="'+esc(ss.delivery_days)+'"><button class="b" id="s_sv">Save</button></div>'+
-  '<div class="card"><h2>Referral</h2><div class="mut">Referrals '+ref.total+' · pending '+ref.pending+' · earned '+ref.earned+' · paid '+money(ref.paid)+'</div><label>Commission per referral (৳)</label><select id="r_rt">'+[50,100,150,200].map(v=>'<option'+(+ref.rate===v?" selected":"")+'>'+v+'</option>').join("")+'</select><label>Minimum total purchases of the referred user (৳)</label><input id="r_mn" type="number" value="'+ref.min_total+'"><button class="b" id="r_sv">Save</button></div>'+
-  '<div class="card"><h2>Payment channels</h2><div class="mut">Switch a deposit or withdrawal method on or off.</div><div id="chl"></div></div>';
-  $("#s_sv").onclick=e=>guard(async()=>{const r=await sb.from("shop_settings").update({early_percent:+$("#s_ep").value,delivery_charge:+$("#s_dc").value,delivery_days:$("#s_dd").value.trim()||"12-15",updated_at:new Date().toISOString()}).eq("id",1);if(r.error)throw r.error;toast("Saved")},e.target);
-  $("#r_sv").onclick=e=>guard(async()=>{await call("admin_set_referral_rate",{new_rate:+$("#r_rt").value,new_min:+$("#r_mn").value});toast("Saved")},e.target);
+  m.innerHTML='<div class="card"><div class="mut">Switch a deposit or withdrawal method on or off.</div><div id="chl"></div></div>';
   const L=$("#chl");
   svc.forEach(s=>{
     const row=document.createElement("div");row.className="sw";
     row.innerHTML='<span><b>'+esc(pn[s.provider_id]||"")+' '+esc(s.service_name||s.service_code)+'</b><br><span class="mut">'+esc(s.service_code)+'</span></span><button class="b '+(s.available?"ok":"gh")+'">'+(s.available?"ON":"OFF")+'</button>';
-    row.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("settings")},e.target);
+    row.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("channels")},e.target);
     L.appendChild(row);
     chs.filter(c=>c.provider_service_id===s.id).forEach(c=>{
       const r2=document.createElement("div");r2.className="sw";r2.style.paddingLeft="16px";
       r2.innerHTML='<span>↳ '+esc(c.channel_name)+'</span><button class="b '+(c.available?"ok":"gh")+'">'+(c.available?"ON":"OFF")+'</button>';
-      r2.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("settings")},e.target);
+      r2.querySelector("button").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("channels")},e.target);
       L.appendChild(r2);
     });
   });
@@ -368,7 +479,7 @@ views.logs=async m=>{
   m.innerHTML=data.length?data.map(r=>'<div class="card"><div class="row"><b>'+esc(r.action)+'</b><span class="mut">'+when(r.created_at)+'</span></div><div class="mut">'+esc(r.target||"")+' · by '+nm(r.admin_id)+'</div></div>').join(""):'<p class="mut">No actions yet.</p>';
 };
 
-if(sb)sb.auth.onAuthStateChange((ev)=>{if(ev==="SIGNED_OUT"&&me){me=null;loginView()}});
+
 boot();
 </script>
 </body>
