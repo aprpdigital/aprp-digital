@@ -70,6 +70,7 @@ h2{font-size:18px;margin:6px 0 10px}
 .menu button.it em{margin-left:auto;font-style:normal;background:var(--bad);color:#fff;border-radius:10px;font-size:12px;padding:1px 7px}
 .qr{background:#fff;border-radius:14px;padding:10px;width:220px;margin:8px auto;display:block}
 .sec{font:15px ui-monospace,Menlo,monospace;background:#060c1c;border:1px dashed var(--g);border-radius:12px;padding:11px;word-break:break-all;text-align:center;margin:6px 0}
+.ck{display:flex;align-items:center;gap:9px;margin:8px 0;color:var(--tx);font-size:14px}.ck input{width:auto;margin:0}
 .code{font-size:26px;letter-spacing:.35em;text-align:center}
 </style>
 </head>
@@ -185,8 +186,8 @@ let idleT;function idleReset(){clearTimeout(idleT);if(me)idleT=setTimeout(()=>si
 const MENU=[
  ["Overview",[["home","▦","Dashboard",()=>true]]],
  ["Financial operations",[["deposits","⇣","Deposits",()=>me.finance],["withdrawals","⇡","Withdrawals",()=>me.finance],["ledger","≡","Transactions & Ledger",()=>me.finance||me.admin]]],
- ["Commerce",[["products","▣","Products & Catalog",()=>me.content],["orders","⚑","Orders & Buyback",()=>me.orders||me.finance]]],
- ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin]]],
+ ["Commerce",[["products","▣","Products & Catalog",()=>me.content],["orders","⚑","Orders & Buyback",()=>me.orders||me.finance],["reviews","★","Product Reviews",()=>me.content]]],
+ ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin],["updates","✎","Updates (posts)",()=>me.content]]],
  ["Administration",[["channels","⇄","Payment Channels",()=>me.admin],["shop","⚙","Shop Settings",()=>me.admin],["logs","⛨","Security & Audit Logs",()=>me.admin]]]
 ];
 const TITLE={};MENU.forEach(g=>g[1].forEach(i=>TITLE[i[0]]=i[2]));
@@ -395,7 +396,7 @@ function productForm(p){
   '<label>Specifications (one per line)</label><textarea id="f_spec" rows="4">'+esc(p.specs||"")+'</textarea>'+
   '<label>Main image</label><div id="f_mainbox"></div><input id="f_mainfile" type="file" accept="image/*">'+
   '<label>More images</label><div id="f_exbox"></div><input id="f_exfile" type="file" accept="image/*" multiple>'+
-  '<label><input id="f_act" type="checkbox" style="width:auto;margin-right:8px" '+(p.active===false?"":"checked")+'>Visible in shop</label>'+
+  '<label class="ck"><input id="f_act" type="checkbox" '+(p.active===false?"":"checked")+'>Visible in shop</label>'+
   '<div class="acts"><button class="b" id="sv">Save</button><button class="b gh" id="cx">Close</button>'+(p.id?'<button class="b no" id="dl">Delete</button>':"")+'</div>');
   const q=i=>s.querySelector("#"+i);
   const calc=()=>{const op=+q("f_op").value||0,dp=+q("f_dp").value||0,bp=+q("f_bp").value||0,bd=+q("f_bd").value||7;const pr=op*(100-dp)/100;
@@ -452,11 +453,68 @@ views.users=async m=>{
   await load();
 };
 
+/* ---------- updates (posts for customers) ---------- */
+const KINDS={offer:"Offer",notice:"Notice",help:"Help"};
+views.updates=async m=>{
+  const [{data:ups,error:e1},{data:ps,error:e2}]=await Promise.all([
+    sb.from("app_updates").select("*").order("pinned",{ascending:false}).order("created_at",{ascending:false}).limit(80),
+    sb.from("shop_products").select("id,name").order("name")]);
+  if(e1)throw e1;if(e2)throw e2;
+  m.innerHTML='<div class="acts" style="margin:0 0 12px"><button class="b" id="nu">+ New update</button></div>';
+  $("#nu").onclick=()=>updateForm(null,ps);
+  if(!ups.length)m.insertAdjacentHTML("beforeend",'<p class="mut">No updates yet. Post offers, notices or help for your customers.</p>');
+  ups.forEach(u=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b>'+(u.pinned?"📌 ":"")+esc(u.title)+'</b><span class="tag '+(u.active?"active":"suspended")+'">'+(u.active?"live":"hidden")+'</span></div><div class="mut">'+esc(KINDS[u.kind]||u.kind)+' · '+when(u.created_at)+'</div>'+(u.body?'<div style="margin-top:8px">'+esc(u.body).slice(0,160)+'</div>':"");
+    c.onclick=()=>updateForm(u,ps);m.appendChild(c);
+  });
+};
+function updateForm(u,ps){
+  u=u||{};let img=u.image_url||"";
+  const s=sheet('<h2>'+(u.id?"Edit update":"New update")+'</h2>'+
+   '<label>Type</label><select id="u_k">'+Object.keys(KINDS).map(k=>'<option value="'+k+'"'+((u.kind||"notice")===k?" selected":"")+'>'+KINDS[k]+'</option>').join("")+'</select>'+
+   '<label>Title</label><input id="u_t" maxlength="120" value="'+esc(u.title||"")+'">'+
+   '<label>Message</label><textarea id="u_b" rows="5">'+esc(u.body||"")+'</textarea>'+
+   '<label>Image (optional)</label><div id="u_ib"></div><input id="u_if" type="file" accept="image/*">'+
+   '<label>Link to a product (optional)</label><select id="u_p"><option value="">—</option>'+ps.map(p=>'<option value="'+p.id+'"'+(p.id===u.product_id?" selected":"")+'>'+esc(p.name)+'</option>').join("")+'</select>'+
+   '<label class="ck"><input id="u_pin" type="checkbox" '+(u.pinned?"checked":"")+'>Pin to the top</label>'+
+   '<label class="ck"><input id="u_ac" type="checkbox" '+(u.active===false?"":"checked")+'>Visible to customers</label>'+
+   '<div class="acts"><button class="b" id="u_sv">Save</button><button class="b gh" id="u_cx">Close</button>'+(u.id?'<button class="b no" id="u_dl">Delete</button>':"")+'</div>');
+  const q=i=>s.querySelector("#"+i);
+  const draw=()=>{q("u_ib").innerHTML=img?'<img class="thumb" src="'+esc(img)+'"> <button class="b gh" id="u_rm" type="button">Remove</button>':'<span class="mut">none</span>';const r=q("u_rm");if(r)r.onclick=()=>{img="";draw()}};draw();
+  q("u_if").onchange=e=>guard(async()=>{if(e.target.files[0]){img=await uploadImg(e.target.files[0]);draw()}});
+  q("u_cx").onclick=closeSheet;
+  q("u_sv").onclick=e=>guard(async()=>{
+    const row={kind:q("u_k").value,title:q("u_t").value.trim(),body:q("u_b").value.trim()||null,image_url:img||null,product_id:q("u_p").value||null,pinned:q("u_pin").checked,active:q("u_ac").checked,updated_at:new Date().toISOString()};
+    if(!row.title)throw new Error("Enter a title.");
+    const r=u.id?await sb.from("app_updates").update(row).eq("id",u.id):await sb.from("app_updates").insert(row);
+    if(r.error)throw r.error;closeSheet();toast("Saved");go("updates");
+  },e.target);
+  if(u.id)q("u_dl").onclick=()=>ask("Delete this update?",false,async()=>{const r=await sb.from("app_updates").delete().eq("id",u.id);if(r.error)throw r.error;toast("Deleted");go("updates")},"Delete");
+}
+
+/* ---------- product reviews (admin can delete) ---------- */
+views.reviews=async m=>{
+  const {data,error}=await sb.from("shop_reviews").select("*").order("created_at",{ascending:false}).limit(80);
+  if(error)throw error;
+  await loadNames(data.map(r=>r.user_id));
+  const ids=[...new Set(data.map(r=>r.product_id))];
+  const pn={};
+  if(ids.length){const {data:ps}=await sb.from("shop_products").select("id,name").in("id",ids);(ps||[]).forEach(p=>pn[p.id]=p.name)}
+  m.innerHTML=data.length?"":'<p class="mut">No reviews yet.</p>';
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b>'+esc(pn[r.product_id]||"Product")+'</b><span style="color:var(--warn)">'+"★".repeat(r.rating)+"☆".repeat(5-r.rating)+'</span></div><div class="mut">'+nm(r.user_id)+' · '+when(r.created_at)+'</div>'+(r.comment?'<div style="margin-top:8px">'+esc(r.comment)+'</div>':"")+((r.images||[]).length?'<div class="imgs" style="display:flex;gap:8px;flex-wrap:wrap">'+r.images.map(u=>'<img src="'+esc(u)+'" style="width:70px;height:70px;object-fit:cover;margin:6px 0 0">').join("")+'</div>':"")+'<div class="acts"><button class="b no">Delete review</button></div>';
+    c.querySelector("button").onclick=()=>ask("Delete this review?",false,async()=>{await call("admin_delete_review",{p_id:r.id});toast("Deleted");go("reviews")},"Delete");
+    m.appendChild(c);
+  });
+};
+
 /* ---------- settings pages ---------- */
 views.shop=async m=>{
   const {data:ss,error}=await sb.from("shop_settings").select("*").eq("id",1).single();if(error)throw error;
-  m.innerHTML='<div class="card"><label>Early-sale payout (% of price paid)</label><input id="s_ep" type="number" value="'+ss.early_percent+'"><label>Delivery charge (৳)</label><input id="s_dc" type="number" value="'+ss.delivery_charge+'"><label>Delivery time (days, e.g. 12-15)</label><input id="s_dd" value="'+esc(ss.delivery_days)+'"><button class="b" id="s_sv">Save</button></div>';
-  $("#s_sv").onclick=e=>guard(async()=>{const r=await sb.from("shop_settings").update({early_percent:+$("#s_ep").value,delivery_charge:+$("#s_dc").value,delivery_days:$("#s_dd").value.trim()||"12-15",updated_at:new Date().toISOString()}).eq("id",1);if(r.error)throw r.error;toast("Saved")},e.target);
+  m.innerHTML='<div class="card"><label>Early-sale payout (% of price paid)</label><input id="s_ep" type="number" value="'+ss.early_percent+'"><label>Delivery charge (৳)</label><input id="s_dc" type="number" value="'+ss.delivery_charge+'"><label>Delivery time (days, e.g. 12-15)</label><input id="s_dd" value="'+esc(ss.delivery_days)+'"><label>Support link (Telegram or website, https://…)</label><input id="s_su" value="'+esc(ss.support_url||"")+'"><button class="b" id="s_sv">Save</button></div>';
+  $("#s_sv").onclick=e=>guard(async()=>{const r=await sb.from("shop_settings").update({early_percent:+$("#s_ep").value,delivery_charge:+$("#s_dc").value,delivery_days:$("#s_dd").value.trim()||"12-15",support_url:$("#s_su").value.trim()||null,updated_at:new Date().toISOString()}).eq("id",1);if(r.error)throw r.error;toast("Saved")},e.target);
 };
 views.referral=async m=>{
   const ref=await call("admin_referral_overview");
