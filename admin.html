@@ -94,8 +94,11 @@ let me=null, stats={}, page="home", names={};
 function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3400)}
 async function call(fn,args){const {data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
 async function guard(fn,btn){if(btn)btn.disabled=true;try{return await fn()}catch(e){toast(e.message||String(e),true)}finally{if(btn)btn.disabled=false}}
-function sheet(html){closeSheet();const o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML='<div class="sheet">'+html+'</div>';o.addEventListener("click",e=>{if(e.target===o)closeSheet()});document.body.appendChild(o);return o.firstChild}
-function closeSheet(){const o=$("#ov");if(o)o.remove()}
+let ovCount=0,ignorePop=0;
+function ovPush(){history.pushState({ov:1},"");ovCount++}
+function ovClosed(){if(ovCount>0){ovCount--;ignorePop++;history.back()}}
+function sheet(html){const had=$("#ov");if(had)had.remove();else ovPush();const o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML='<div class="sheet">'+html+'</div>';o.addEventListener("click",e=>{if(e.target===o)closeSheet()});document.body.appendChild(o);return o.firstChild}
+function closeSheet(){const o=$("#ov");if(o){o.remove();ovClosed()}}
 function ask(title,withNote,cb,label){
   const s=sheet('<h2>'+esc(title)+'</h2>'+(withNote?'<label>Note (optional)</label><textarea id="nt" rows="2"></textarea>':'')+'<div class="acts"><button class="b" id="yes">'+(label||"Confirm")+'</button><button class="b gh" id="no">Cancel</button></div>');
   s.querySelector("#no").onclick=closeSheet;
@@ -162,7 +165,13 @@ async function enrollView(lf){
     me=await call("admin_me");if(me.aal!=="aal2")throw new Error("Verification did not complete.");shell();
   },e.target);
 }
-async function signOut(msg){try{await sb.auth.signOut()}catch(_){}me=null;stats={};loginView(msg)}
+window.addEventListener("popstate",e=>{
+  if(ignorePop>0){ignorePop--;return}
+  const mn=$("#menu");if(mn){mn.remove();ovCount=Math.max(0,ovCount-1);return}
+  const ov=$("#ov");if(ov){ov.remove();ovCount=Math.max(0,ovCount-1);return}
+  if(me&&e.state&&e.state.p&&e.state.p!==page)go(e.state.p,true);
+});
+async function signOut(msg){const a=$("#menu");if(a)a.remove();const b=$("#ov");if(b)b.remove();ovCount=0;try{await sb.auth.signOut()}catch(_){}me=null;stats={};loginView(msg)}
 async function boot(){
   if(!sb){authShell('<p class="mut">Could not load the app library. Check your internet.</p>');return}
   loginView();
@@ -187,18 +196,24 @@ function shell(){
   idleReset();
   $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin</b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
   $("#bl").onclick=()=>signOut();$("#mm").onclick=openMenu;
-  go("home");
+  page="home";history.replaceState({p:"home"},"","#home");
+  go("home",true);
 }
 function openMenu(){
   const b=badge();
   const m=document.createElement("div");m.className="menu";m.id="menu";
   m.innerHTML='<div class="bar" style="padding:14px 0 0"><span>Admin screen: '+esc(TITLE[page]||"")+'</span><button id="cm">✕ Close</button></div>'+
    MENU.map(g=>{const its=g[1].filter(i=>i[3]());if(!its.length)return"";return'<h3>'+g[0]+'</h3>'+its.map(i=>'<button class="it '+(i[0]===page?"on":"")+'" data-p="'+i[0]+'"><span style="width:20px;text-align:center">'+i[1]+'</span>'+i[2]+(b[i[0]]?'<em>'+b[i[0]]+'</em>':"")+'</button>').join("")}).join("");
-  document.body.appendChild(m);
-  m.querySelector("#cm").onclick=()=>m.remove();
-  m.querySelectorAll("[data-p]").forEach(x=>x.onclick=()=>{m.remove();go(x.dataset.p)});
+  document.body.appendChild(m);ovPush();
+  m.querySelector("#cm").onclick=()=>{m.remove();ovClosed()};
+  m.querySelectorAll("[data-p]").forEach(x=>x.onclick=()=>{
+    const t=x.dataset.p;m.remove();ovCount--;
+    if(t===page){ignorePop++;history.back();return}
+    history.replaceState({p:t},"","#"+t);go(t,true);
+  });
 }
-async function go(p){
+async function go(p,noPush){
+  if(!noPush&&p!==page)history.pushState({p},"","#"+p);
   page=p;idleReset();await refreshStats();
   $("#ttl").textContent="Admin screen: "+(TITLE[p]||"");
   const m=$("#main");m.innerHTML='<p class="mut">Loading…</p>';
