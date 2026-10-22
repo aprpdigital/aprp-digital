@@ -561,11 +561,11 @@ function serviceForm(s){
 }
 function channelForm(c,s){
   c=c||{};
-  const sh=sheet('<h2>'+(c.id?"Edit channel":"New channel")+'</h2><label>Name (customers see this)</label><input id="h_nm" value="'+esc(c.channel_name||"")+'"><label>Type (e.g. personal, agent, bank)</label><input id="h_ty" value="'+esc(c.channel_type||"")+'"><label>Instructions shown to customers</label><textarea id="h_nt" rows="4" placeholder="e.g. Use Send Money, not Cash Out.">'+esc(c.notes||"")+'</textarea>'+(c.id?'<div class="grid"><div><label>Minimum (৳)</label><input id="h_mn" type="number" inputmode="decimal" value="'+(c.minimum_amount??"")+'"></div><div><label>Maximum (৳)</label><input id="h_mx" type="number" inputmode="decimal" value="'+(c.maximum_amount??"")+'"></div></div>':'')+'<div class="acts"><button class="b" id="h_sv">Save</button><button class="b gh" id="h_cx">Close</button></div>');
+  const sh=sheet('<h2>'+(c.id?"Edit channel":"New channel")+'</h2><label>Name (customers see this)</label><input id="h_nm" value="'+esc(c.channel_name||"")+'"><label>Instructions shown to customers</label><textarea id="h_nt" rows="4" placeholder="e.g. Use Send Money, not Cash Out.">'+esc(c.notes||"")+'</textarea>'+(c.id?'<div class="grid"><div><label>Minimum (৳)</label><input id="h_mn" type="number" inputmode="decimal" value="'+(c.minimum_amount??"")+'"></div><div><label>Maximum (৳)</label><input id="h_mx" type="number" inputmode="decimal" value="'+(c.maximum_amount??"")+'"></div></div>':'')+'<div class="acts"><button class="b" id="h_sv">Save</button><button class="b gh" id="h_cx">Close</button></div>');
   const q=i=>sh.querySelector("#"+i);q("h_cx").onclick=closeSheet;
   q("h_sv").onclick=e=>guard(async()=>{
-    if(c.id)await call("admin_update_channel",{p_id:c.id,p_name:q("h_nm").value,p_type:q("h_ty").value,p_notes:q("h_nt").value,p_min:num(q("h_mn").value),p_max:num(q("h_mx").value)});
-    else await call("admin_add_channel",{p_service:s.id,p_name:q("h_nm").value,p_type:q("h_ty").value,p_notes:q("h_nt").value});
+    if(c.id)await call("admin_update_channel",{p_id:c.id,p_name:q("h_nm").value,p_type:null,p_notes:q("h_nt").value,p_min:num(q("h_mn").value),p_max:num(q("h_mx").value)});
+    else await call("admin_add_channel",{p_service:s.id,p_name:q("h_nm").value,p_type:null,p_notes:q("h_nt").value});
     closeSheet();toast("Saved");go("channels");
   },e.target);
 }
