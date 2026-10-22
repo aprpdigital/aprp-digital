@@ -189,6 +189,78 @@ button:disabled{opacity:.55;cursor:wait}
 .step small{display:block;color:var(--muted);font-size:11px}
 .field select{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;outline:none;background:#080f1d;color:var(--text)}
 .field input[type=file]{padding:10px;font-size:12px}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-top:6px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 14px;border:1px solid var(--border);border-radius:999px;background:var(--panel2);color:var(--text);font-size:12px;font-weight:750}
+.chip.active{background:var(--greenDark);border-color:#17684e;color:#68efb9}
+.detail-img{width:100%;aspect-ratio:4/3;border-radius:18px;overflow:hidden;display:grid;place-items:center;background:#111b2c;color:#69809e}
+.detail-img img{width:100%;height:100%;object-fit:cover}
+.qty{display:flex;align-items:center;gap:12px;margin-top:12px}
+.qty button{width:40px;height:40px;border:1px solid var(--border);border-radius:12px;background:var(--panel2);color:var(--text);font-size:18px}
+.qty strong{min-width:28px;text-align:center;font-size:16px}
+.order-card{padding:14px;margin-top:12px;border:1px solid #1f2d44;border-radius:16px;background:#0d1626}
+.order-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.order-card .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.order-card .actions .btn{flex:1;min-width:130px}
+
+/* ---- Shop (new) ---- */
+.tap{cursor:pointer}
+.img-wrap{position:relative}
+.img-wrap.big{border-radius:18px;overflow:hidden}
+.off-badge{position:absolute;top:9px;right:9px;z-index:2;padding:4px 9px;border-radius:999px;background:#e11d48;color:#fff;font-size:11px;font-weight:850;letter-spacing:.2px}
+.heart-btn{position:absolute;top:8px;left:8px;z-index:2;width:34px;height:34px;border:0;border-radius:50%;background:rgba(7,11,23,.62);color:#fff;font-size:19px;line-height:1;display:grid;place-items:center}
+.heart-btn.on{color:#ff4d6d}
+.price-now{color:#65f0c1;font-weight:850}
+.price-old{color:var(--muted);text-decoration:line-through;font-size:12px;font-weight:600;margin-left:4px}
+.gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:18px}
+.gallery::-webkit-scrollbar{display:none}
+.gallery img,.gallery .detail-img{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:1/1;object-fit:cover;width:100%}
+.detail-price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-top:14px;font-size:26px}
+.detail-price .price-old{font-size:15px}
+.buyback-box{margin-top:12px;padding:13px 14px;border:1px solid #17684e;border-radius:15px;background:#0b241f}
+.bb-title{font-size:11px;font-weight:850;letter-spacing:1px;text-transform:uppercase;color:#68efb9;margin-bottom:8px}
+.bb-line{display:flex;justify-content:space-between;gap:10px;padding:4px 0}
+.bb-line span{color:#bdeadd}.green{color:#65f0c1}
+.detail-title{font-size:20px;line-height:1.35;margin:16px 0 0;letter-spacing:-.3px}
+.order-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.order-buttons .btn:only-child{grid-column:1/3}
+.order-buttons .btn{padding:13px 10px;font-size:14px}
+.desc-short{margin-top:16px;color:#c6d3e6;line-height:1.7;overflow-wrap:anywhere}
+.more-link{display:block;margin:10px 0 0;padding:6px 0;background:none;border:0;color:#68efb9;font-weight:750;font-size:13px}
+.more-box{margin-top:6px}
+.more-box details{border:1px solid #1f2d44;border-radius:13px;background:#0d1626;margin-top:9px;padding:0 13px}
+.more-box summary{padding:13px 0;font-weight:750;cursor:pointer}
+.det-body{padding:0 0 13px;color:#c6d3e6;line-height:1.7;overflow-wrap:anywhere}
+.det-body ul,.terms{margin:0;padding-left:18px;line-height:1.7}
+.terms{margin-top:12px;color:#c6d3e6}
+.review{padding:13px;margin-top:10px;border:1px solid #1f2d44;border-radius:14px;background:#0d1626}
+.rv-top{display:flex;justify-content:space-between;gap:10px}
+.stars{color:#ffd27a;letter-spacing:1px}
+.rv-text{margin-top:7px;line-height:1.6;color:#d3deee;overflow-wrap:anywhere}
+.rv-imgs{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.rv-imgs img{width:72px;height:72px;border-radius:10px;object-fit:cover;cursor:pointer}
+.zoom-img{width:100%;border-radius:14px;margin-top:6px}
+.star-pick{display:flex;gap:6px;margin:10px 0 4px}
+.star-pick button{background:none;border:0;font-size:32px;color:#3a4961;padding:0 2px}
+.star-pick button.on{color:#ffd27a}
+.mini-product{display:flex;gap:12px;align-items:center;margin:8px 0 6px}
+.mini-img{width:58px;height:58px;flex:none;border-radius:12px;overflow:hidden;background:#111b2c;display:grid;place-items:center;color:#69809e;font-size:10px}
+.mini-img img{width:100%;height:100%;object-fit:cover}
+.check-row{display:flex;gap:9px;align-items:center;margin-top:14px;color:#c8d5e7;font-size:13px}
+.check-row input{width:auto}
+.order-main{display:flex;gap:11px;align-items:center;min-width:0}
+.update-card{padding:15px;margin-top:12px;border:1px solid #1f2d44;border-radius:17px;background:#0d1626}
+.update-card.pinned{border-color:#17684e;background:#0b1f1d}
+.update-card h3{margin:11px 0 0;font-size:16px;line-height:1.4}
+.up-body{margin-top:8px;line-height:1.7;color:#c6d3e6;overflow-wrap:anywhere}
+.up-img{width:100%;border-radius:13px;margin-top:11px}
+.nav-icon{position:relative}
+.nav-dot{position:absolute;top:-2px;right:-7px;width:9px;height:9px;border-radius:50%;background:#ff4d6d;display:block}
+.nav-dot.hidden{display:none}
+.shop-toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-14px);opacity:0;pointer-events:none;z-index:60;max-width:88%;padding:11px 16px;border-radius:13px;background:#14233a;border:1px solid var(--border);color:var(--text);font-size:13px;transition:.2s}
+.shop-toast.show{opacity:1;transform:translate(-50%,0)}
+.shop-toast.ok{border-color:#17684e;color:#78edc1}.shop-toast.bad{border-color:#713442;color:#ffabb6}
 </style>
 </head>
 
@@ -254,13 +326,15 @@ button:disabled{opacity:.55;cursor:wait}
     <!-- Forgot password: code by email, then new password -->
     <form id="authResetForm" class="hidden">
       <div class="field">
-        <label for="resetEmail">Email address</label>
-        <input id="resetEmail" type="email" autocomplete="email" required>
+        <label for="resetEmail">Email or phone number</label>
+        <input id="resetEmail" type="text" inputmode="email" autocomplete="username" autocapitalize="none" required>
       </div>
 
       <button class="btn btn-block" id="resetSendButton" type="button" style="margin-top:10px">Send code to my email</button>
 
-      <div class="field">
+      <a class="btn btn-block hidden" id="resetTelegramLink" href="#" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;margin-top:10px">Open Telegram</a>
+
+      <div class="field" id="resetCodeWrap">
         <label for="resetCode">Code from email</label>
         <input id="resetCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
       </div>
@@ -461,9 +535,11 @@ button:disabled{opacity:.55;cursor:wait}
       <p data-i18n="productsSubtitle">Explore available products.</p>
     </div>
 
+    <div id="categoryChips" class="chips"></div>
+
     <div class="field">
       <label for="productSearch" data-i18n="searchProducts">Search products</label>
-      <input id="productSearch" type="search" placeholder="Search by product name">
+      <input id="productSearch" type="search">
     </div>
 
     <div id="allProductsMessage" class="message" style="margin-top:12px">Loading products...</div>
@@ -483,6 +559,11 @@ button:disabled{opacity:.55;cursor:wait}
 
 
     <div class="panel" style="margin-top:14px">
+
+      <button class="drawer-item" data-page="savedPage" type="button">
+        <span class="menu-icon">♥</span>
+        <span><strong>Saved items</strong></span>
+      </button>
 
       <div class="menu-group-title" style="margin-top:4px">Account & Wallet</div>
 
@@ -555,42 +636,48 @@ button:disabled{opacity:.55;cursor:wait}
   </section>
 
 
-  <!-- ===================== ORDER ===================== -->
+  <!-- ===================== PRODUCT PAGE ===================== -->
+  <section id="productDetailPage" class="hidden">
+    <button class="btn" id="detailBackButton" type="button" style="margin-bottom:12px">‹ <span>Back</span></button>
+    <div id="productView"></div>
+  </section>
+
+
+  <!-- ===================== ORDERS (Order | Buyback) ===================== -->
   <section id="orderPage" class="hidden">
     <div class="welcome">
       <div class="eyebrow">APRP Digital</div>
       <h1 data-i18n="order">Order</h1>
-      <p>Review and manage your product orders.</p>
     </div>
-    <div class="panel">
-      <div class="message">Order management will appear here when the secure product purchase and order database workflow is connected.</div>
+    <div class="chips" style="margin-top:0">
+      <button class="chip active" id="orderTabOrder" type="button">Order</button>
+      <button class="chip" id="orderTabBuyback" type="button">Buyback</button>
     </div>
+    <div id="orderMessage" class="message hidden"></div>
+    <div id="orderList"></div>
   </section>
 
 
-  <!-- ===================== BUYBACK ===================== -->
-  <section id="buybackPage" class="hidden">
+  <!-- ===================== UPDATES ===================== -->
+  <section id="updatesPage" class="hidden">
     <div class="welcome">
       <div class="eyebrow">APRP Digital</div>
-      <h1 data-i18n="buyback">Buyback</h1>
-      <p>Buyback services and requests.</p>
+      <h1 data-i18n="updates">Updates</h1>
     </div>
-    <div class="panel">
-      <div class="message">Buyback services will appear here when the secure buyback workflow is connected.</div>
-    </div>
+    <div id="updatesMessage" class="message hidden"></div>
+    <div id="updatesList"></div>
+    <button class="btn btn-block" id="updatesSupport" type="button" style="margin-top:16px">Contact support</button>
   </section>
 
 
-  <!-- ===================== COMMUNITY (kept, not in bottom nav) ===================== -->
-  <section id="communityPage" class="hidden">
+  <!-- ===================== SAVED ITEMS ===================== -->
+  <section id="savedPage" class="hidden">
     <div class="welcome">
       <div class="eyebrow">APRP Digital</div>
-      <h1 data-i18n="community">Community</h1>
-      <p>Community updates, discussions and member activities.</p>
+      <h1>Saved items</h1>
     </div>
-    <div class="panel">
-      <div class="message">Community features will appear here when the community system is connected.</div>
-    </div>
+    <div id="savedMessage" class="message hidden"></div>
+    <div id="savedGrid" class="product-grid" style="margin-top:12px"></div>
   </section>
 
 
@@ -1088,9 +1175,9 @@ button:disabled{opacity:.55;cursor:wait}
     <span class="nav-label" data-i18n="order">Order</span>
   </button>
 
-  <button class="nav-button" data-page="buybackPage" type="button">
-    <span class="nav-icon">↻</span>
-    <span class="nav-label" data-i18n="buyback">Buyback</span>
+  <button class="nav-button" data-page="updatesPage" type="button">
+    <span class="nav-icon">✦<i id="updatesDot" class="nav-dot hidden"></i></span>
+    <span class="nav-label" data-i18n="updates">Updates</span>
   </button>
 
   <button class="nav-button" data-page="accountPage" type="button">
@@ -1215,6 +1302,7 @@ let deferredInstallPrompt = null;
 let profile = null;
 let pendingSignupEmail = null;
 let pendingPhone = null;
+let pendingReset = null;
 let phonePollTimer = null;
 const PHONE_DOMAIN = "phone.aprp.app";
 
@@ -1308,6 +1396,7 @@ const translations = {
     order:"Order",
     buyback:"Buyback",
     community:"Community",
+    updates:"Updates",
     depositNotReady:"Deposit requests are not connected in this version. No payment has been initiated.",
     withdrawNotReady:"Withdrawal requests are not connected in this version. No funds have been moved."
   },
@@ -1386,6 +1475,7 @@ const translations = {
     order:"অর্ডার",
     buyback:"বায়ব্যাক",
     community:"কমিউনিটি",
+    updates:"আপডেট",
     depositNotReady:"এই সংস্করণে ডিপোজিট আবেদন সংযুক্ত নয়। কোনো পেমেন্ট শুরু হয়নি।",
     withdrawNotReady:"এই সংস্করণে উইথড্র আবেদন সংযুক্ত নয়। কোনো টাকা স্থানান্তর হয়নি।"
   }
@@ -1521,8 +1611,24 @@ Object.assign(BN_EXTRA, {
  "Code from email": "ইমেইলে আসা কোড"
 });
 
+
+Object.assign(BN_EXTRA, {"Saved items": "সেভ করা পণ্য", "Order Now": "এখনই অর্ডার", "Buyback": "বাইব্যাক", "Buyback offer": "বাইব্যাক অফার", "You pay": "আপনি দেবেন", "After": "পরে", "days": "দিন", "More": "আরও", "Less": "কম", "Full details": "পূর্ণ বিবরণ", "Specifications": "স্পেসিফিকেশন", "Delivery information": "ডেলিভারি তথ্য", "Buyback terms": "বাইব্যাকের শর্ত", "Reviews": "রিভিউ", "Write a review": "রিভিউ লিখুন", "Related products": "সম্পর্কিত পণ্য", "No reviews yet.": "এখনো কোনো রিভিউ নেই।", "reviews": "রিভিউ", "More reviews": "আরও রিভিউ", "Your review": "আপনার রিভিউ", "Photos (up to 3)": "ছবি (সর্বোচ্চ ৩টি)", "Submit review": "রিভিউ জমা দিন", "Review saved": "রিভিউ সেভ হয়েছে", "Photo": "ছবি", "Deliver to": "ডেলিভারি ঠিকানা", "Change": "বদলান", "Delivery phone": "ডেলিভারির ফোন", "Division": "বিভাগ", "District": "জেলা", "Select": "বেছে নিন", "Thana / Upazila": "থানা / উপজেলা", "Area / Village / House": "এলাকা / গ্রাম / বাড়ি", "Save as my default address": "আমার ডিফল্ট ঠিকানা হিসেবে সেভ করুন", "Delivery in": "ডেলিভারি", "Delivery charge": "ডেলিভারি চার্জ", "Confirm order": "অর্ডার নিশ্চিত করুন", "Please fill in all the delivery details.": "ডেলিভারির সব তথ্য দিন।", "Order placed.": "অর্ডার হয়েছে।", "Order placed": "অর্ডার হয়েছে", "Shipped": "পাঠানো হয়েছে", "Delivered": "ডেলিভারি হয়েছে", "Cancelled · refunded": "বাতিল · টাকা ফেরত", "Holding": "আপনার কাছে", "Waiting for approval": "অনুমোদনের অপেক্ষায়", "Sold": "বিক্রি হয়েছে", "Order": "অর্ডার", "Confirm buyback": "বাইব্যাক নিশ্চিত করুন", "Cancel": "বাতিল", "Are you sure?": "আপনি কি নিশ্চিত?", "You will pay": "আপনি দেবেন", "for": "জন্য", "from your balance.": "আপনার ব্যালেন্স থেকে।", "Yes, buy": "হ্যাঁ, কিনুন", "Buyback purchase completed.": "বাইব্যাক কেনা সম্পন্ন।", "Not enough balance. Please deposit first.": "ব্যালেন্স যথেষ্ট নয়। আগে ডিপোজিট করুন।", "now from your balance.": "এখনই আপনার ব্যালেন্স থেকে।", "the company buys it back for": "কোম্পানি ফেরত কিনবে", "If you sell before": "যদি এর আগে বিক্রি করেন", "you receive": "পাবেন", "of the price paid": "কেনা দামের", "The buyback amount stays in your Reserved Balance until you sell it back.": "বিক্রি না করা পর্যন্ত বাইব্যাকের টাকা আপনার রিজার্ভড ব্যালেন্সে থাকবে।", "Every sale is confirmed by the company.": "প্রতিটি বিক্রি কোম্পানি নিশ্চিত করে।", "Price paid": "কেনা দাম", "After maturity": "মেয়াদ শেষে", "Matured": "মেয়াদ পূর্ণ", "Matures on": "মেয়াদ শেষ", "Sale amount": "বিক্রির টাকা", "Sell back": "বিক্রি করুন", "This product has matured.": "এই পণ্যের মেয়াদ পূর্ণ হয়েছে।", "You will receive": "আপনি পাবেন", "The company confirms every sale.": "কোম্পানি প্রতিটি বিক্রি নিশ্চিত করে।", "Confirm sale": "বিক্রি নিশ্চিত করুন", "Sale request sent.": "বিক্রির অনুরোধ পাঠানো হয়েছে।", "No orders yet.": "এখনো কোনো অর্ডার নেই।", "No buyback purchases yet.": "এখনো কোনো বাইব্যাক কেনা নেই।", "No saved items yet. Tap the heart on a product.": "কিছু সেভ করা নেই। পণ্যের হার্ট চাপুন।", "Saved": "সেভ হয়েছে", "Removed from saved": "সেভ থেকে সরানো হয়েছে", "No updates yet.": "এখনো কোনো আপডেট নেই।", "Offer": "অফার", "Notice": "নোটিশ", "Help": "সহায়তা", "View product": "পণ্য দেখুন", "Contact support": "সাপোর্টে যোগাযোগ", "Back": "পেছনে", "Out of stock": "স্টক নেই", "Loading...": "লোড হচ্ছে..."});
+
 function tx(text){
   return (currentLang() === "bn" && BN_EXTRA[text]) ? BN_EXTRA[text] : text;
+}
+
+Object.assign(BN_EXTRA, {"Full name": "পূর্ণ নাম", "Phone number": "ফোন নাম্বার", "Delivery address": "ডেলিভারির ঠিকানা", "Confirm": "নিশ্চিত করুন", "No products found.": "কোনো প্রোডাক্ট পাওয়া যায়নি।", "View": "দেখুন", "Out of stock": "স্টক নেই", "All": "সব", "Loading...": "লোড হচ্ছে...", "after": "পরে", "days": "দিন", "Buy now": "এখনই কিনুন", "Purchase completed.": "কেনা সম্পন্ন হয়েছে।", "Not enough balance. Please deposit first.": "ব্যালেন্স যথেষ্ট নয়। আগে ডিপোজিট করুন।", "Purchased": "কেনা হয়েছে", "Delivery requested": "ডেলিভারির আবেদন করা হয়েছে", "Delivered": "ডেলিভারি হয়েছে", "Buyback pending": "বাইব্যাক অপেক্ষমাণ", "Sold back": "কোম্পানিকে ফেরত", "Cancelled": "বাতিল", "Take product": "প্রোডাক্ট নিন", "Buyback price": "বাইব্যাক দাম", "available on": "পাওয়া যাবে", "Sell back": "বাইব্যাক করুন", "Delivery requested.": "ডেলিভারির আবেদন পাঠানো হয়েছে।", "Buyback requested.": "বাইব্যাকের আবেদন পাঠানো হয়েছে।", "No orders yet.": "এখনো কোনো অর্ডার নেই।", "Nothing to sell back yet.": "বাইব্যাক করার মতো কিছু নেই।", "Company buyback": "কোম্পানি বাইব্যাক", "Total": "মোট", "Back to products": "প্রোডাক্টে ফিরুন", "Product": "প্রোডাক্ট"});
+
+Object.assign(BN_EXTRA, {"Enter your email or phone number.": "আপনার ইমেইল বা ফোন নাম্বার দিন।", "Open Telegram and share your phone number, then set the new password below.": "টেলিগ্রাম খুলে ফোন নাম্বার শেয়ার করুন, তারপর নিচে নতুন পাসওয়ার্ড দিন।", "Could not reset the password.": "পাসওয়ার্ড রিসেট করা যায়নি।", "Reset password": "পাসওয়ার্ড রিসেট"});
+
+function translateTree(root){
+  if(currentLang() !== "bn") return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while(w.nextNode()){
+    const n = w.currentNode, raw = n.nodeValue.trim();
+    if(raw && BN_EXTRA[raw]) n.nodeValue = BN_EXTRA[raw];
+  }
 }
 
 function translatePlainText(){
@@ -1604,8 +1710,8 @@ const pageIds = [
   "productsPage",
   "accountPage",
   "orderPage",
-  "buybackPage",
-  "communityPage",
+  "updatesPage",
+  "savedPage",
   "transactionsPage",
   "depositPage",
   "withdrawPage",
@@ -1613,6 +1719,7 @@ const pageIds = [
   "referralPage",
   "downloadPage",
   "languagePage",
+  "productDetailPage",
   "settingsPage",
   "notificationsPage",
   "supportPage",
@@ -1652,7 +1759,7 @@ function showPage(pageId, opts={}){
     }
   });
 
-  /* highlight the matching bottom-nav button (Home, Product, Order, Buyback, Account) */
+  /* highlight the matching bottom-nav button (Home, Product, Order, Updates, Account) */
   document.querySelectorAll("#bottomNav .nav-button").forEach(button=>{
     button.classList.toggle("active", button.dataset.page === pageId);
   });
@@ -1677,6 +1784,14 @@ function showPage(pageId, opts={}){
 
   if(pageId === "transactionsPage")  loadTransactions();
   if(pageId === "productsPage")      loadProducts();
+  if(pageId === "orderPage")         { $("orderMessage").classList.add("hidden"); loadOrders(); }
+  if(pageId === "updatesPage")       loadUpdates();
+  if(pageId === "savedPage")         renderSaved();
+  if(pageId === "productDetailPage"){
+    if(!currentProduct && history.state && history.state.pid) currentProduct = productsCache.find(x=> x.id === history.state.pid) || null;
+    if(currentProduct) renderProductPage();
+    else { showPage("productsPage", { replace:true }); return; }
+  }
   if(pageId === "withdrawPage")      loadWithdrawalMethods();
   if(pageId === "depositPage")       loadDepositChannels();
   if(pageId === "notificationsPage") loadNotifications();
@@ -1694,6 +1809,16 @@ function showPage(pageId, opts={}){
 
 window.addEventListener("popstate", e=>{
   if(!user) return;
+  if(ignorePop > 0){ ignorePop--; return; }
+  if(sheetOpen){
+    const sh = $("shopSheet"); if(sh) sh.remove();
+    sheetOpen = false; document.body.style.overflow = "";
+    return;
+  }
+  if(e.state && e.state.pid){
+    const hit = productsCache.find(x=> x.id === e.state.pid);
+    if(hit) currentProduct = hit;
+  }
   const page = (e.state && e.state.page)
     || (location.hash || "").replace("#","")
     || "homePage";
@@ -1746,6 +1871,9 @@ function showApp(){
 
   refreshNotificationBadge();
   loadProfile();
+  loadShopSettings();
+  loadSavedSet();
+  refreshUpdatesBadge();
 }
 
 
@@ -1875,6 +2003,7 @@ function renderProfile(){
   /* phone-only accounts have no real email */
   const phoneOnly = isPhoneAccount();
   setHidden("emailRow", phoneOnly);
+  setHidden("forgotOldPasswordButton", phoneOnly);
   if(phoneOnly){
     setHidden("showPhoneChangeButton", true);
     setHidden("emailChangeForm", true);
@@ -2319,211 +2448,758 @@ async function loadTransactions(){
 
 
 /* =========================================================
-   PRODUCTS
+   SHOP: products, product page, order / buyback, saved, reviews, updates
    ========================================================= */
 
-function renderProducts(items, grid, messageId, limit=null){
+const shopEsc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const taka = n => "৳" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits:2 });
+const shortDate = d => d ? new Date(d).toLocaleDateString("en-GB", { day:"numeric", month:"short", year:"numeric" }) : "";
 
+let shopCategories = [];
+let activeCategory = "all";
+let currentProduct = null;
+let shopSettings = { early_percent:60, delivery_charge:170, delivery_days:"12-15", support_url:null };
+let savedIds = new Set();
+let sheetOpen = false;
+let ignorePop = 0;
+let ordersTab = "order";
+let ordersCache = [];
+
+const BD_DISTRICTS = {
+  "Barishal":["Barguna","Barishal","Bhola","Jhalokati","Patuakhali","Pirojpur"],
+  "Chattogram":["Bandarban","Brahmanbaria","Chandpur","Chattogram","Cox's Bazar","Cumilla","Feni","Khagrachhari","Lakshmipur","Noakhali","Rangamati"],
+  "Dhaka":["Dhaka","Faridpur","Gazipur","Gopalganj","Kishoreganj","Madaripur","Manikganj","Munshiganj","Narayanganj","Narsingdi","Rajbari","Shariatpur","Tangail"],
+  "Khulna":["Bagerhat","Chuadanga","Jashore","Jhenaidah","Khulna","Kushtia","Magura","Meherpur","Narail","Satkhira"],
+  "Mymensingh":["Jamalpur","Mymensingh","Netrokona","Sherpur"],
+  "Rajshahi":["Bogura","Chapainawabganj","Joypurhat","Naogaon","Natore","Pabna","Rajshahi","Sirajganj"],
+  "Rangpur":["Dinajpur","Gaibandha","Kurigram","Lalmonirhat","Nilphamari","Panchagarh","Rangpur","Thakurgaon"],
+  "Sylhet":["Habiganj","Moulvibazar","Sunamganj","Sylhet"]
+};
+
+/* ---------- popups (bottom sheets) that work with the phone Back button ---------- */
+
+function openSheet(html){
+  const had = $("shopSheet");
+  if(had) had.remove();
+  const o = document.createElement("div");
+  o.className = "deposit-modal";
+  o.id = "shopSheet";
+  o.innerHTML = '<div class="deposit-sheet">' + html + '</div>';
+  o.addEventListener("click", e=>{ if(e.target === o) closeSheet(); });
+  document.body.appendChild(o);
+  document.body.style.overflow = "hidden";
+  if(!sheetOpen){
+    sheetOpen = true;
+    try{ history.pushState({ page:(history.state && history.state.page) || "homePage", pid:history.state && history.state.pid, sheet:1 }, "", location.hash); }catch(e){}
+  }
+  translateTree(o);
+  return o.firstChild;
+}
+
+function closeSheet(){
+  const o = $("shopSheet");
+  if(o) o.remove();
+  document.body.style.overflow = "";
+  if(sheetOpen){
+    sheetOpen = false;
+    ignorePop++;
+    try{ history.back(); }catch(e){ ignorePop = 0; }
+  }
+}
+
+/* close the popup and open a page in its place (no extra Back step) */
+function closeSheetThenShow(pageId){
+  const o = $("shopSheet");
+  if(o) o.remove();
+  document.body.style.overflow = "";
+  sheetOpen = false;
+  showPage(pageId, { replace:true });
+}
+
+function sheetHead(title){
+  return '<div class="sheet-head"><h2>' + shopEsc(tx(title)) + '</h2><button class="btn" type="button" data-close>✕</button></div>';
+}
+
+function wireClose(sheet){
+  sheet.querySelectorAll("[data-close]").forEach(b=> b.addEventListener("click", closeSheet));
+}
+
+function toast(text, type){
+  let el = $("shopToast");
+  if(!el){
+    el = document.createElement("div");
+    el.id = "shopToast";
+    el.className = "shop-toast";
+    document.body.appendChild(el);
+  }
+  el.textContent = tx(text);
+  el.className = "shop-toast show " + (type || "");
+  clearTimeout(el._t);
+  el._t = setTimeout(()=> el.classList.remove("show"), 3200);
+}
+
+/* ---------- settings + saved items ---------- */
+
+async function loadShopSettings(){
+  if(!supabaseClient) return;
+  try{
+    const { data } = await supabaseClient.from("shop_settings").select("*").eq("id", 1).maybeSingle();
+    if(data) shopSettings = Object.assign(shopSettings, data);
+  }catch(e){}
+}
+
+async function loadSavedSet(){
+  if(!supabaseClient || !user?.id) return;
+  try{
+    const { data } = await supabaseClient.from("shop_saved").select("product_id").eq("user_id", user.id);
+    savedIds = new Set((data || []).map(r=> r.product_id));
+    refreshHearts();
+  }catch(e){}
+}
+
+function refreshHearts(){
+  document.querySelectorAll("[data-heart]").forEach(b=>{
+    const on = savedIds.has(b.dataset.heart);
+    b.classList.toggle("on", on);
+    b.textContent = on ? "♥" : "♡";
+  });
+}
+
+async function toggleSave(id){
+  if(!requireDb($("allProductsMessage"))) return;
+  try{
+    const { data, error } = await supabaseClient.rpc("toggle_saved", { p_product:id });
+    if(error) throw error;
+    if(data) savedIds.add(id); else savedIds.delete(id);
+    refreshHearts();
+    if(!$("savedPage").classList.contains("hidden")) renderSaved();
+    toast(data ? "Saved" : "Removed from saved");
+  }catch(e){
+    toast(e?.message || "Failed.", "bad");
+  }
+}
+
+function heartButton(id){
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "heart-btn";
+  b.dataset.heart = id;
+  b.setAttribute("aria-label", "Save");
+  b.addEventListener("click", e=>{ e.stopPropagation(); toggleSave(id); });
+  return b;
+}
+
+/* ---------- product images + cards ---------- */
+
+function productImageBox(url, alt, cls){
+  const box = document.createElement("div");
+  box.className = cls;
+  if(typeof url === "string" && /^https?:\/\//i.test(url)){
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = alt || "";
+    img.loading = "lazy";
+    img.onerror = ()=>{ img.remove(); box.textContent = "Product"; };
+    box.appendChild(img);
+  }else{
+    box.textContent = "Product";
+  }
+  return box;
+}
+
+function discountBadge(p){
+  if(!(Number(p.discount_percent) > 0)) return null;
+  const b = document.createElement("div");
+  b.className = "off-badge";
+  b.textContent = (Math.round(Number(p.discount_percent) * 10) / 10) + "% OFF";
+  return b;
+}
+
+function priceHtml(p){
+  return '<span class="price-now">' + taka(p.price) + '</span>' +
+    (Number(p.discount_percent) > 0 ? ' <span class="price-old">' + taka(p.original_price) + '</span>' : "");
+}
+
+function renderProducts(items, grid, messageId, limit){
   const gridElement = $(grid);
   const message = $(messageId);
-
   gridElement.replaceChildren();
-
   if(!items.length){
-    showMessage(message, "No products are available to display yet.");
+    if(message) showMessage(message, tx("No products found."));
     return;
   }
-
-  message.hidden = true;
-
+  if(message) message.hidden = true;
   const fragment = document.createDocumentFragment();
-
-  items.slice(0, limit || items.length).forEach(product=>{
-
+  items.slice(0, limit || items.length).forEach(p=>{
     const card = document.createElement("article");
-    card.className = "product-card";
-
-    const imageBox = document.createElement("div");
-    imageBox.className = "product-image";
-
-    const imageUrl =
-      product.image_url
-      || product.image
-      || product.image_path
-      || product.thumbnail_url
-      || "";
-
-    if(typeof imageUrl === "string" && /^https?:\/\//i.test(imageUrl)){
-
-      const img = document.createElement("img");
-      img.src = imageUrl;
-      img.alt = product.name || product.title || "Product";
-      img.loading = "lazy";
-
-      img.onerror = ()=>{
-        img.remove();
-        imageBox.textContent = "Product image unavailable";
-      };
-
-      imageBox.appendChild(img);
-
-    }else{
-      imageBox.textContent = "Product";
-    }
-
-    card.appendChild(imageBox);
-
+    card.className = "product-card tap";
+    const wrap = document.createElement("div");
+    wrap.className = "img-wrap";
+    wrap.appendChild(productImageBox(p.image_url, p.name, "product-image"));
+    const bd = discountBadge(p);
+    if(bd) wrap.appendChild(bd);
+    wrap.appendChild(heartButton(p.id));
     const info = document.createElement("div");
     info.className = "product-info";
-
-    const name = document.createElement("div");
-    name.className = "product-name";
-    name.textContent =
-      product.name
-      || product.title
-      || product.product_name
-      || "Unnamed product";
-    info.appendChild(name);
-
-    const priceValue = product.price ?? product.selling_price ?? product.sale_price;
-
-    const price = document.createElement("div");
-    price.className = "product-price";
-    price.textContent =
-      priceValue !== undefined && priceValue !== null
-        ? formatMoney(priceValue, product.currency || "BDT")
-        : "Price unavailable";
-    info.appendChild(price);
-
-    if(
-      product.sold_count !== undefined
-      || product.total_sold !== undefined
-      || product.sales_count !== undefined
-    ){
-      const sold = document.createElement("div");
-      sold.className = "product-meta";
-      sold.textContent =
-        "Sold: " + Number(product.sold_count ?? product.total_sold ?? product.sales_count);
-      info.appendChild(sold);
-    }
-
-    const btn = document.createElement("button");
-    btn.className = "btn";
-    btn.type = "button";
-    btn.textContent = "View Details";
-
-    btn.addEventListener("click", ()=>{
-      alert("Product details and checkout are not connected until the actual product schema and secure purchase flow are verified.");
-    });
-
-    info.appendChild(btn);
-    card.appendChild(info);
+    info.innerHTML = '<div class="product-name">' + shopEsc(p.name) + '</div><div class="product-price">' + priceHtml(p) + '</div>' +
+      ((p.stock !== null && p.stock !== undefined && p.stock <= 0) ? '<div class="product-meta">' + shopEsc(tx("Out of stock")) + '</div>' : "");
+    card.append(wrap, info);
+    card.addEventListener("click", ()=> openProduct(p.id));
     fragment.appendChild(card);
-
   });
-
   gridElement.replaceChildren(fragment);
+  refreshHearts();
+}
 
+function renderCategoryChips(){
+  const box = $("categoryChips");
+  box.replaceChildren();
+  const make = (id, label)=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (activeCategory === id ? " active" : "");
+    b.textContent = label;
+    b.addEventListener("click", ()=>{ activeCategory = id; renderCategoryChips(); filterProducts(); });
+    box.appendChild(b);
+  };
+  make("all", tx("All"));
+  shopCategories.forEach(c=> make(c.id, c.name));
 }
 
 async function loadProducts(){
-
   const request = ++productRequestNumber;
-
-  showMessage($("topProductsMessage"), "Loading products...");
-  showMessage($("allProductsMessage"), "Loading products...");
-
+  showMessage($("topProductsMessage"), tx("Loading..."));
+  showMessage($("allProductsMessage"), tx("Loading..."));
   if(!supabaseClient){
     const msg = "The database library could not be loaded. Check your internet connection and refresh the page.";
     showMessage($("topProductsMessage"), msg, "error");
     showMessage($("allProductsMessage"), msg, "error");
     return;
   }
-
-  const candidates = ["products", "product_catalog", "store_products"];
-
-  let found = null;
-  let lastError = null;
-
   try{
-
-    for(const table of candidates){
-
-      const result = await supabaseClient
-        .from(table)
-        .select("*")
-        .limit(100);
-
-      if(request !== productRequestNumber) return;
-
-      if(!result.error && Array.isArray(result.data)){
-        found = result.data;
-        break;
-      }
-
-      lastError = result.error;
-
-    }
-
-    if(found === null){
-
-      const msg = "Product catalogue could not be loaded. Configure the correct product table and its read permissions before showing products.";
-
-      showMessage($("topProductsMessage"), msg, "error");
-      showMessage($("allProductsMessage"), msg, "error");
-
-      console.warn("Product catalogue not found:", lastError);
-      return;
-
-    }
-
-    productsCache = found;
-
-    if(!found.length){
-
-      showMessage($("topProductsMessage"), "No products found in the catalogue.");
-      showMessage($("allProductsMessage"), "No products found in the catalogue.");
-
-      $("topProductsGrid").replaceChildren();
-      $("allProductsGrid").replaceChildren();
-      return;
-
-    }
-
-    const sorted = [...found].sort((a,b)=>
-      Number(b.sold_count ?? b.total_sold ?? b.sales_count ?? 0)
-      - Number(a.sold_count ?? a.total_sold ?? a.sales_count ?? 0)
-    );
-
-    renderProducts(sorted, "topProductsGrid", "topProductsMessage", 4);
-    renderProducts(found, "allProductsGrid", "allProductsMessage");
-
+    const [cats, prods] = await Promise.all([
+      supabaseClient.from("shop_categories").select("id,name,sort_order").eq("active", true).order("sort_order").order("name"),
+      supabaseClient.from("shop_products").select("*").eq("active", true).order("created_at", { ascending:false }).limit(200)
+    ]);
+    if(request !== productRequestNumber) return;
+    if(cats.error) throw cats.error;
+    if(prods.error) throw prods.error;
+    shopCategories = cats.data || [];
+    productsCache  = prods.data || [];
+    renderCategoryChips();
+    const top = [...productsCache].sort((a,b)=> (b.sold_count||0) - (a.sold_count||0));
+    renderProducts(top, "topProductsGrid", "topProductsMessage", 4);
     filterProducts();
-
+    if(!$("productDetailPage").classList.contains("hidden") && currentProduct){
+      const fresh = productsCache.find(x=> x.id === currentProduct.id);
+      if(fresh){ currentProduct = fresh; renderProductPage(); }
+    }
   }catch(error){
-
     console.error("Products error:", error);
-
-    showMessage($("topProductsMessage"), "Products could not be loaded.", "error");
-    showMessage($("allProductsMessage"), "Products could not be loaded.", "error");
-
+    let msg = error?.message || "Products could not be loaded.";
+    if(/shop_|schema cache|does not exist/i.test(msg)) msg = "Products are not set up yet. Run supabase_part1.sql in Supabase first.";
+    showMessage($("topProductsMessage"), msg, "error");
+    showMessage($("allProductsMessage"), msg, "error");
   }
-
 }
 
 function filterProducts(){
-
   const query = $("productSearch").value.trim().toLowerCase();
-
   const filtered = productsCache.filter(p=>
-    String(p.name || p.title || p.product_name || "")
-      .toLowerCase()
-      .includes(query)
-  );
-
+    (activeCategory === "all" || p.category_id === activeCategory)
+    && String(p.name || "").toLowerCase().includes(query));
   renderProducts(filtered, "allProductsGrid", "allProductsMessage");
-
 }
+
+/* ---------- product page ---------- */
+
+function buybackTermsText(p){
+  const mat = Math.round(p.price * (100 + Number(p.buyback_percent)) ) / 100;
+  const early = Math.round(p.price * Number(shopSettings.early_percent)) / 100;
+  return [
+    tx("You pay") + " " + taka(p.price) + " " + tx("now from your balance."),
+    tx("After") + " " + p.buyback_days + " " + tx("days the company buys it back for") + " " + taka(mat) + " (+" + p.buyback_percent + "%).",
+    tx("If you sell before") + " " + p.buyback_days + " " + tx("days, you receive") + " " + shopSettings.early_percent + "% " + tx("of the price paid") + ": " + taka(early) + ".",
+    tx("The buyback amount stays in your Reserved Balance until you sell it back."),
+    tx("Every sale is confirmed by the company.")
+  ];
+}
+
+function openProduct(id){
+  const p = productsCache.find(x=> x.id === id);
+  if(!p) return;
+  currentProduct = p;
+  const onDetail = !$("productDetailPage").classList.contains("hidden");
+  if(onDetail){
+    try{ history.pushState({ page:"productDetailPage", pid:id }, "", "#productDetailPage"); }catch(e){}
+    renderProductPage();
+    window.scrollTo({ top:0, behavior:"smooth" });
+  }else{
+    showPage("productDetailPage");
+    try{ history.replaceState({ page:"productDetailPage", pid:id }, "", "#productDetailPage"); }catch(e){}
+  }
+}
+
+function renderProductPage(){
+  const p = currentProduct;
+  const view = $("productView");
+  if(!p){ view.replaceChildren(); return; }
+
+  const imgs = [p.image_url].concat(p.images || []).filter(u=> typeof u === "string" && /^https?:\/\//i.test(u));
+  const out = p.stock !== null && p.stock !== undefined && p.stock <= 0;
+  const hasBuyback = Number(p.buyback_percent) > 0;
+  const mat = Math.round(p.price * (100 + Number(p.buyback_percent))) / 100;
+  const longText = (p.description || "").trim();
+  const shortText = (p.summary && p.summary.trim()) || (longText.length > 150 ? longText.slice(0, 150).trim() + "…" : longText);
+  const specs = (p.specs || "").split("\n").map(s=> s.trim()).filter(Boolean);
+
+  view.innerHTML =
+    '<div class="img-wrap big">' +
+      '<div class="gallery">' + (imgs.length ? imgs.map(u=> '<img src="' + shopEsc(u) + '" alt="">').join("") : '<div class="detail-img">Product</div>') + '</div>' +
+      (Number(p.discount_percent) > 0 ? '<div class="off-badge">' + (Math.round(Number(p.discount_percent) * 10) / 10) + '% OFF</div>' : "") +
+    '</div>' +
+    '<div class="detail-price">' + priceHtml(p) + (out ? ' <span class="badge bad">' + shopEsc(tx("Out of stock")) + '</span>' : "") + '</div>' +
+    (hasBuyback ?
+      '<div class="buyback-box"><div class="bb-title">' + shopEsc(tx("Buyback offer")) + '</div>' +
+      '<div class="bb-line"><span>' + shopEsc(tx("You pay")) + '</span><strong>' + taka(p.price) + '</strong></div>' +
+      '<div class="bb-line"><span>' + shopEsc(tx("After")) + ' ' + p.buyback_days + ' ' + shopEsc(tx("days")) + '</span><strong class="green">' + taka(mat) + ' (+' + p.buyback_percent + '%)</strong></div></div>' : "") +
+    '<h1 class="detail-title">' + shopEsc(p.name) + '</h1>' +
+    '<div class="order-buttons">' +
+      '<button class="btn btn-primary" id="orderNowBtn" type="button"' + (out ? " disabled" : "") + '>' + shopEsc(tx("Order Now")) + '</button>' +
+      (hasBuyback ? '<button class="btn" id="buybackBtn" type="button"' + (out ? " disabled" : "") + '>' + shopEsc(tx("Buyback")) + '</button>' : "") +
+    '</div>' +
+    (shortText ? '<div class="desc-short" id="descShort">' + shopEsc(shortText) + '</div>' : "") +
+    '<button class="more-link" id="moreBtn" type="button">' + shopEsc(tx("More")) + ' ▾</button>' +
+    '<div id="moreBox" class="more-box hidden">' +
+      (longText ? '<details open><summary>' + shopEsc(tx("Full details")) + '</summary><div class="det-body">' + shopEsc(longText).replace(/\n/g, "<br>") + '</div></details>' : "") +
+      (specs.length ? '<details><summary>' + shopEsc(tx("Specifications")) + '</summary><div class="det-body"><ul>' + specs.map(s=> '<li>' + shopEsc(s) + '</li>').join("") + '</ul></div></details>' : "") +
+      '<details><summary>' + shopEsc(tx("Delivery information")) + '</summary><div class="det-body">' + shopEsc(tx("Delivery in")) + ' ' + shopEsc(shopSettings.delivery_days) + ' ' + shopEsc(tx("days")) + '. ' + shopEsc(tx("Delivery charge")) + ' ' + taka(shopSettings.delivery_charge) + '.</div></details>' +
+      (hasBuyback ? '<details><summary>' + shopEsc(tx("Buyback terms")) + '</summary><div class="det-body"><ul>' + buybackTermsText(p).map(s=> '<li>' + shopEsc(s) + '</li>').join("") + '</ul></div></details>' : "") +
+    '</div>' +
+    '<div class="section"><div class="section-heading"><div><h2>' + shopEsc(tx("Reviews")) + '</h2><p id="reviewSummary"></p></div><button class="btn hidden" id="writeReviewBtn" type="button">' + shopEsc(tx("Write a review")) + '</button></div>' +
+      '<div id="reviewList" class="message">' + shopEsc(tx("Loading...")) + '</div>' +
+      '<button class="more-link hidden" id="moreReviewsBtn" type="button"></button></div>' +
+    '<div class="section hidden" id="relatedSection"><div class="section-heading"><h2>' + shopEsc(tx("Related products")) + '</h2></div><div id="relatedGrid" class="product-grid"></div></div>';
+
+  const heart = heartButton(p.id);
+  view.querySelector(".img-wrap").appendChild(heart);
+  refreshHearts();
+
+  const orderBtn = $("orderNowBtn"); if(orderBtn) orderBtn.addEventListener("click", openOrderSheet);
+  const bbBtn = $("buybackBtn"); if(bbBtn) bbBtn.addEventListener("click", openBuybackTerms);
+  $("moreBtn").addEventListener("click", ()=>{
+    const box = $("moreBox"); const open = box.classList.toggle("hidden") === false;
+    $("moreBtn").textContent = tx(open ? "Less" : "More") + (open ? " ▴" : " ▾");
+    const ds = $("descShort"); if(ds) ds.classList.toggle("hidden", open);
+  });
+
+  const related = productsCache.filter(x=> x.id !== p.id && x.category_id && x.category_id === p.category_id);
+  if(related.length){
+    $("relatedSection").classList.remove("hidden");
+    renderProducts(related, "relatedGrid", null, 4);
+  }
+
+  translateTree(view);
+  loadReviews(p);
+}
+
+/* ---------- reviews ---------- */
+
+let reviewsData = [];
+
+function starText(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
+
+async function loadReviews(p){
+  const list = $("reviewList");
+  if(!supabaseClient || !list) return;
+  try{
+    const [rev, can] = await Promise.all([
+      supabaseClient.rpc("product_reviews", { p_product:p.id }),
+      supabaseClient.rpc("can_review", { p_product:p.id })
+    ]);
+    if(!currentProduct || currentProduct.id !== p.id) return;
+    if(rev.error) throw rev.error;
+    reviewsData = rev.data || [];
+    renderReviewList(false);
+    const wb = $("writeReviewBtn");
+    if(wb && can.data === true){
+      wb.classList.remove("hidden");
+      wb.onclick = ()=> openReviewSheet(p);
+    }
+  }catch(e){
+    list.textContent = e?.message || "Reviews could not be loaded.";
+  }
+}
+
+function renderReviewList(all){
+  const list = $("reviewList"); if(!list) return;
+  const more = $("moreReviewsBtn");
+  if(!reviewsData.length){
+    list.className = "message";
+    list.textContent = tx("No reviews yet.");
+    $("reviewSummary").textContent = "";
+    more.classList.add("hidden");
+    return;
+  }
+  const avg = reviewsData.reduce((s,r)=> s + r.rating, 0) / reviewsData.length;
+  $("reviewSummary").textContent = "★ " + avg.toFixed(1) + " · " + reviewsData.length + " " + tx("reviews");
+  list.className = "";
+  const shown = all ? reviewsData : reviewsData.slice(0, 2);
+  list.innerHTML = shown.map(r=>
+    '<div class="review"><div class="rv-top"><strong>' + shopEsc(r.username) + '</strong><span class="stars">' + starText(r.rating) + '</span></div>' +
+    (r.comment ? '<div class="rv-text">' + shopEsc(r.comment) + '</div>' : "") +
+    ((r.images && r.images.length) ? '<div class="rv-imgs">' + r.images.map(u=> '<img src="' + shopEsc(u) + '" alt="" data-zoom="' + shopEsc(u) + '">').join("") + '</div>' : "") +
+    '<div class="product-meta">' + shortDate(r.created_at) + '</div></div>').join("");
+  list.querySelectorAll("[data-zoom]").forEach(img=> img.addEventListener("click", ()=>{
+    const s = openSheet(sheetHead("Photo") + '<img class="zoom-img" src="' + shopEsc(img.dataset.zoom) + '" alt="">');
+    wireClose(s);
+  }));
+  if(reviewsData.length > 2){
+    more.classList.remove("hidden");
+    more.textContent = all ? tx("Less") + " ▴" : tx("More reviews") + " (" + (reviewsData.length - 2) + ") ▾";
+    more.onclick = ()=> renderReviewList(!all);
+  }else{
+    more.classList.add("hidden");
+  }
+}
+
+function openReviewSheet(p){
+  let rating = 5;
+  const s = openSheet(sheetHead("Write a review") +
+    '<div class="star-pick" id="starPick">' + [1,2,3,4,5].map(n=> '<button type="button" data-s="' + n + '">★</button>').join("") + '</div>' +
+    '<div class="field"><label>' + shopEsc(tx("Your review")) + '</label><textarea id="rvText" maxlength="600"></textarea></div>' +
+    '<div class="field"><label>' + shopEsc(tx("Photos (up to 3)")) + '</label><input id="rvFiles" type="file" accept="image/*" multiple></div>' +
+    '<div id="rvMsg" class="message hidden" style="margin-top:12px"></div>' +
+    '<button class="btn btn-primary btn-block" id="rvSend" type="button" style="margin-top:14px">' + shopEsc(tx("Submit review")) + '</button>');
+  wireClose(s);
+  const paint = ()=> s.querySelectorAll("#starPick button").forEach(b=> b.classList.toggle("on", Number(b.dataset.s) <= rating));
+  s.querySelectorAll("#starPick button").forEach(b=> b.addEventListener("click", ()=>{ rating = Number(b.dataset.s); paint(); }));
+  paint();
+  s.querySelector("#rvSend").addEventListener("click", async e=>{
+    const btn = e.currentTarget; btn.disabled = true;
+    const msg = s.querySelector("#rvMsg");
+    try{
+      const files = [...s.querySelector("#rvFiles").files].slice(0, 3);
+      const urls = [];
+      for(const f of files){
+        const blob = await compressImage(f, 1200, 0.8);
+        const path = user.id + "/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".jpg";
+        const up = await supabaseClient.storage.from("review-images").upload(path, blob, { contentType:"image/jpeg" });
+        if(up.error) throw up.error;
+        urls.push(supabaseClient.storage.from("review-images").getPublicUrl(path).data.publicUrl);
+      }
+      const { error } = await supabaseClient.rpc("add_review", { p_product:p.id, p_rating:rating, p_comment:s.querySelector("#rvText").value, p_images:urls });
+      if(error) throw error;
+      closeSheet();
+      toast("Review saved", "ok");
+      loadReviews(p);
+    }catch(err){
+      btn.disabled = false;
+      showMessage(msg, err?.message || "Failed.", "error");
+    }
+  });
+}
+
+/* ---------- Order Now ---------- */
+
+async function getSavedAddress(){
+  try{
+    const { data } = await supabaseClient.from("account_profiles")
+      .select("addr_name,addr_phone,addr_division,addr_district,addr_thana,addr_area").eq("user_id", user.id).maybeSingle();
+    return data || {};
+  }catch(e){ return {}; }
+}
+
+async function openOrderSheet(){
+  const p = currentProduct; if(!p) return;
+  const a = await getSavedAddress();
+  const complete = a.addr_name && a.addr_phone && a.addr_division && a.addr_district && a.addr_thana && a.addr_area;
+  const divOpts = Object.keys(BD_DISTRICTS).map(d=> '<option value="' + shopEsc(d) + '">' + shopEsc(d) + '</option>').join("");
+
+  const s = openSheet(sheetHead("Order Now") +
+    '<div class="mini-product"><div id="miniImg"></div><div><div class="product-name">' + shopEsc(p.name) + '</div><div class="product-price">' + priceHtml(p) + '</div></div></div>' +
+    '<div id="addrSummary" class="row-item' + (complete ? "" : " hidden") + '"><div class="row-text"><div class="row-label">' + shopEsc(tx("Deliver to")) + '</div><div class="row-value" id="addrText"></div></div><button class="btn" id="addrEdit" type="button">✎ ' + shopEsc(tx("Change")) + '</button></div>' +
+    '<div id="addrForm" class="' + (complete ? "hidden" : "") + '">' +
+      '<div class="field"><label>' + shopEsc(tx("Full name")) + '</label><input id="oName" type="text" maxlength="60"></div>' +
+      '<div class="field"><label>' + shopEsc(tx("Delivery phone")) + '</label><input id="oPhone" type="tel" maxlength="16" inputmode="tel"></div>' +
+      '<div class="field"><label>' + shopEsc(tx("Division")) + '</label><select id="oDiv"><option value="">' + shopEsc(tx("Select")) + '</option>' + divOpts + '</select></div>' +
+      '<div class="field"><label>' + shopEsc(tx("District")) + '</label><select id="oDist"><option value="">' + shopEsc(tx("Select")) + '</option></select></div>' +
+      '<div class="field"><label>' + shopEsc(tx("Thana / Upazila")) + '</label><input id="oThana" type="text" maxlength="60"></div>' +
+      '<div class="field"><label>' + shopEsc(tx("Area / Village / House")) + '</label><input id="oArea" type="text" maxlength="160"></div>' +
+      '<label class="check-row"><input id="oSave" type="checkbox" checked> ' + shopEsc(tx("Save as my default address")) + '</label>' +
+    '</div>' +
+    '<div class="muted" style="margin-top:12px;line-height:1.6">' + shopEsc(tx("Delivery in")) + ' ' + shopEsc(shopSettings.delivery_days) + ' ' + shopEsc(tx("days")) + '. ' + shopEsc(tx("Delivery charge")) + ' ' + taka(shopSettings.delivery_charge) + '.</div>' +
+    '<div id="oMsg" class="message hidden" style="margin-top:12px"></div>' +
+    '<button class="btn btn-primary btn-block" id="oConfirm" type="button" style="margin-top:14px">' + shopEsc(tx("Confirm order")) + ' · ' + taka(p.price) + '</button>');
+  wireClose(s);
+  s.querySelector("#miniImg").replaceWith(productImageBox(p.image_url, p.name, "mini-img"));
+
+  const q = id => s.querySelector("#" + id);
+  const fillDistricts = (div, keep)=>{
+    q("oDist").innerHTML = '<option value="">' + shopEsc(tx("Select")) + '</option>' + (BD_DISTRICTS[div] || []).map(d=> '<option value="' + shopEsc(d) + '">' + shopEsc(d) + '</option>').join("");
+    if(keep) q("oDist").value = keep;
+  };
+  q("oName").value = a.addr_name || (profile?.full_name || "");
+  q("oPhone").value = a.addr_phone || "";
+  q("oDiv").value = a.addr_division || "";
+  fillDistricts(a.addr_division, a.addr_district);
+  q("oThana").value = a.addr_thana || "";
+  q("oArea").value = a.addr_area || "";
+  q("oDiv").addEventListener("change", ()=> fillDistricts(q("oDiv").value));
+  const sum = ()=>{ q("addrText").textContent = q("oName").value + " · " + q("oPhone").value + " · " + [q("oArea").value, q("oThana").value, q("oDist").value, q("oDiv").value].filter(Boolean).join(", "); };
+  sum();
+  q("addrEdit").addEventListener("click", ()=>{ q("addrSummary").classList.add("hidden"); q("addrForm").classList.remove("hidden"); });
+
+  q("oConfirm").addEventListener("click", async e=>{
+    const btn = e.currentTarget, msg = q("oMsg");
+    const v = { name:q("oName").value.trim(), phone:q("oPhone").value.trim(), div:q("oDiv").value, dist:q("oDist").value, thana:q("oThana").value.trim(), area:q("oArea").value.trim() };
+    if(!v.name || !v.phone || !v.div || !v.dist || !v.thana || v.area.length < 3){
+      q("addrSummary").classList.add("hidden"); q("addrForm").classList.remove("hidden");
+      showMessage(msg, tx("Please fill in all the delivery details."), "error"); return;
+    }
+    btn.disabled = true;
+    try{
+      const { error } = await supabaseClient.rpc("buy_product_delivery", {
+        p_product:p.id, p_name:v.name, p_phone:v.phone, p_division:v.div, p_district:v.dist, p_thana:v.thana, p_area:v.area,
+        p_save: q("oSave") ? q("oSave").checked : true });
+      if(error) throw error;
+      ordersTab = "order";
+      loadWallet();
+      closeSheetThenShow("orderPage");
+      toast("Order placed.", "ok");
+    }catch(err){
+      btn.disabled = false;
+      let m = err?.message || "Order failed.";
+      if(/Not enough balance/i.test(m)) m = tx("Not enough balance. Please deposit first.");
+      showMessage(msg, m, "error");
+    }
+  });
+}
+
+/* ---------- Buyback purchase: terms, then "are you sure" ---------- */
+
+function openBuybackTerms(){
+  const p = currentProduct; if(!p) return;
+  const s = openSheet(sheetHead("Buyback terms") +
+    '<div class="mini-product"><div id="miniImg"></div><div><div class="product-name">' + shopEsc(p.name) + '</div><div class="product-price">' + priceHtml(p) + '</div></div></div>' +
+    '<ul class="terms">' + buybackTermsText(p).map(x=> '<li>' + shopEsc(x) + '</li>').join("") + '</ul>' +
+    '<button class="btn btn-primary btn-block" id="bbGo" type="button" style="margin-top:14px">' + shopEsc(tx("Confirm buyback")) + '</button>' +
+    '<button class="btn btn-block" data-close type="button" style="margin-top:8px">' + shopEsc(tx("Cancel")) + '</button>');
+  wireClose(s);
+  s.querySelector("#miniImg").replaceWith(productImageBox(p.image_url, p.name, "mini-img"));
+  s.querySelector("#bbGo").addEventListener("click", ()=> openBuybackSure(p));
+}
+
+function openBuybackSure(p){
+  const s = openSheet(sheetHead("Are you sure?") +
+    '<p class="muted" style="line-height:1.6">' + shopEsc(tx("You will pay")) + ' <strong>' + taka(p.price) + '</strong> ' + shopEsc(tx("for")) + ' ' + shopEsc(p.name) + ' ' + shopEsc(tx("from your balance.")) + '</p>' +
+    '<div id="bMsg" class="message hidden" style="margin-top:12px"></div>' +
+    '<button class="btn btn-primary btn-block" id="bbYes" type="button" style="margin-top:14px">' + shopEsc(tx("Yes, buy")) + '</button>' +
+    '<button class="btn btn-block" data-close type="button" style="margin-top:8px">' + shopEsc(tx("Cancel")) + '</button>');
+  wireClose(s);
+  s.querySelector("#bbYes").addEventListener("click", async e=>{
+    const btn = e.currentTarget; btn.disabled = true;
+    try{
+      const { error } = await supabaseClient.rpc("buy_product_buyback", { p_product:p.id });
+      if(error) throw error;
+      ordersTab = "buyback";
+      loadWallet();
+      closeSheetThenShow("orderPage");
+      toast("Buyback purchase completed.", "ok");
+    }catch(err){
+      btn.disabled = false;
+      let m = err?.message || "Failed.";
+      if(/Not enough balance/i.test(m)) m = tx("Not enough balance. Please deposit first.");
+      showMessage(s.querySelector("#bMsg"), m, "error");
+    }
+  });
+}
+
+/* ---------- Orders page (Order | Buyback) ---------- */
+
+const ORDER_STATUS = {
+  pending:["Order placed","warn"], shipped:["Shipped","warn"], delivered:["Delivered","ok"], cancelled:["Cancelled · refunded","bad"],
+  holding:["Holding",""], sell_requested:["Waiting for approval","warn"], sold:["Sold","ok"]
+};
+
+function setOrdersTab(tab){
+  ordersTab = tab;
+  $("orderTabOrder").classList.toggle("active", tab === "order");
+  $("orderTabBuyback").classList.toggle("active", tab === "buyback");
+  renderOrders();
+}
+
+function orderThumb(o){ return productImageBox(o.image_url, o.product_name, "mini-img"); }
+
+function renderOrders(){
+  const list = $("orderList");
+  const msg = $("orderMessage");
+  const rows = ordersCache.filter(o=> o.kind === (ordersTab === "order" ? "delivery" : "buyback"));
+  list.replaceChildren();
+  if(!rows.length){
+    showMessage(msg, tx(ordersTab === "order" ? "No orders yet." : "No buyback purchases yet."));
+    return;
+  }
+  msg.classList.add("hidden");
+  rows.forEach(o=>{
+    const st = ORDER_STATUS[o.status] || [o.status, ""];
+    const card = document.createElement("div");
+    card.className = "order-card";
+    const matured = o.kind === "buyback" && o.matures_at && new Date(o.matures_at) <= new Date();
+    let body = "";
+    if(o.kind === "delivery"){
+      body = '<div class="row-sub">' + shopEsc([o.delivery_name, o.delivery_phone].filter(Boolean).join(" · ")) + '</div>' +
+             '<div class="row-sub">' + shopEsc([o.area, o.thana, o.district, o.division].filter(Boolean).join(", ")) + '</div>' +
+             (o.status === "pending" || o.status === "shipped" ? '<div class="row-sub">' + shopEsc(tx("Delivery in")) + ' ' + shopEsc(shopSettings.delivery_days) + ' ' + shopEsc(tx("days")) + '</div>' : "");
+    }else{
+      body = '<div class="deposit-summary-row"><span>' + shopEsc(tx("Price paid")) + '</span><strong>' + taka(o.price_paid) + '</strong></div>' +
+             '<div class="deposit-summary-row"><span>' + shopEsc(tx("After maturity")) + '</span><strong class="green">' + taka(o.maturity_amount) + '</strong></div>' +
+             (o.status === "holding" ? '<div class="deposit-summary-row"><span>' + shopEsc(tx(matured ? "Matured" : "Matures on")) + '</span><strong>' + shortDate(o.matures_at) + '</strong></div>' : "") +
+             (o.status === "sold" || o.status === "sell_requested" ? '<div class="deposit-summary-row"><span>' + shopEsc(tx("Sale amount")) + '</span><strong>' + taka(o.sell_amount) + '</strong></div>' : "");
+    }
+    card.innerHTML = '<div class="order-top"><div class="order-main"><div class="thumb-slot"></div><div><div class="product-name">' + shopEsc(o.product_name) + '</div><div class="product-meta">' + shopEsc(o.order_no) + ' · ' + shortDate(o.created_at) + '</div></div></div><span class="badge ' + st[1] + '">' + shopEsc(tx(st[0])) + '</span></div>' +
+      '<div class="product-price" style="margin-top:10px">' + taka(o.price_paid) + '</div>' + body +
+      (o.admin_note && o.status !== "holding" ? '<div class="row-sub">' + shopEsc(o.admin_note) + '</div>' : "");
+    card.querySelector(".thumb-slot").replaceWith(orderThumb(o));
+    if(o.kind === "buyback" && o.status === "holding"){
+      const b = document.createElement("button");
+      b.className = "btn btn-primary btn-block"; b.type = "button"; b.style.marginTop = "12px";
+      b.textContent = tx("Sell back");
+      b.addEventListener("click", ()=> openSellSheet(o));
+      card.appendChild(b);
+    }
+    list.appendChild(card);
+  });
+  translateTree(list);
+}
+
+function openSellSheet(o){
+  const matured = new Date(o.matures_at) <= new Date();
+  const amount = matured ? o.maturity_amount : o.early_amount;
+  const s = openSheet(sheetHead("Sell back") +
+    '<div class="product-name">' + shopEsc(o.product_name) + '</div>' +
+    '<ul class="terms">' +
+      '<li>' + shopEsc(matured ? tx("This product has matured.") : tx("This product has not matured yet. Selling now pays only") + " " + shopSettings.early_percent + "% " + tx("of the price paid.")) + '</li>' +
+      '<li>' + shopEsc(tx("You will receive")) + ' <strong>' + taka(amount) + '</strong>.</li>' +
+      (!matured ? '<li>' + shopEsc(tx("If you wait until")) + ' ' + shortDate(o.matures_at) + ' ' + shopEsc(tx("you receive")) + ' <strong>' + taka(o.maturity_amount) + '</strong>.</li>' : "") +
+      '<li>' + shopEsc(tx("The company confirms every sale.")) + '</li>' +
+    '</ul>' +
+    '<div id="sMsg" class="message hidden" style="margin-top:12px"></div>' +
+    '<button class="btn btn-primary btn-block" id="sellYes" type="button" style="margin-top:14px">' + shopEsc(tx("Confirm sale")) + '</button>' +
+    '<button class="btn btn-block" data-close type="button" style="margin-top:8px">' + shopEsc(tx("Cancel")) + '</button>');
+  wireClose(s);
+  s.querySelector("#sellYes").addEventListener("click", async e=>{
+    const btn = e.currentTarget; btn.disabled = true;
+    try{
+      const { error } = await supabaseClient.rpc("request_sell", { p_order:o.id });
+      if(error) throw error;
+      closeSheet();
+      toast("Sale request sent.", "ok");
+      loadOrders();
+    }catch(err){
+      btn.disabled = false;
+      showMessage(s.querySelector("#sMsg"), err?.message || "Failed.", "error");
+    }
+  });
+}
+
+async function loadOrders(){
+  if(!supabaseClient || !user?.id) return;
+  try{
+    const { data, error } = await supabaseClient.from("shop_orders").select("*").eq("user_id", user.id).order("created_at", { ascending:false }).limit(150);
+    if(error) throw error;
+    ordersCache = data || [];
+    setOrdersTab(ordersTab);
+  }catch(error){
+    let m = error?.message || "Orders could not be loaded.";
+    if(/shop_|schema cache|does not exist/i.test(m)) m = "Orders are not set up yet. Run supabase_part1.sql in Supabase first.";
+    showMessage($("orderMessage"), m, "error");
+  }
+}
+
+/* ---------- Saved items ---------- */
+
+async function renderSaved(){
+  const msg = $("savedMessage");
+  if(!supabaseClient || !user?.id) return;
+  if(!productsCache.length){
+    try{
+      const { data } = await supabaseClient.from("shop_products").select("*").eq("active", true).limit(200);
+      productsCache = data || [];
+    }catch(e){}
+  }
+  await loadSavedSet();
+  const items = productsCache.filter(p=> savedIds.has(p.id));
+  renderProducts(items, "savedGrid", "savedMessage");
+  if(!items.length) showMessage(msg, tx("No saved items yet. Tap the heart on a product."));
+}
+
+/* ---------- Updates ---------- */
+
+const UPDATES_SEEN_KEY = "aprp_updates_seen";
+const UPDATE_KIND = { offer:["Offer","ok"], notice:["Notice","warn"], help:["Help",""] };
+
+async function refreshUpdatesBadge(){
+  if(!supabaseClient || !user?.id) return;
+  try{
+    const { data } = await supabaseClient.from("app_updates").select("updated_at").eq("active", true).order("updated_at", { ascending:false }).limit(1);
+    const latest = data && data[0] && data[0].updated_at;
+    let seen = ""; try{ seen = localStorage.getItem(UPDATES_SEEN_KEY) || ""; }catch(e){}
+    $("updatesDot").classList.toggle("hidden", !(latest && latest > seen));
+  }catch(e){}
+}
+
+async function loadUpdates(){
+  const list = $("updatesList"), msg = $("updatesMessage");
+  if(!supabaseClient || !list) return;
+  showMessage(msg, tx("Loading..."));
+  try{
+    const { data, error } = await supabaseClient.from("app_updates").select("*").eq("active", true)
+      .order("pinned", { ascending:false }).order("created_at", { ascending:false }).limit(60);
+    if(error) throw error;
+    if(!productsCache.length){ try{ const r = await supabaseClient.from("shop_products").select("*").eq("active", true).limit(200); productsCache = r.data || []; }catch(e){} }
+    list.replaceChildren();
+    if(!data.length){ showMessage(msg, tx("No updates yet.")); }
+    else msg.classList.add("hidden");
+    data.forEach(u=>{
+      const k = UPDATE_KIND[u.kind] || ["Notice",""];
+      const card = document.createElement("div");
+      card.className = "update-card" + (u.pinned ? " pinned" : "");
+      card.innerHTML = '<div class="order-top"><span class="badge ' + k[1] + '">' + shopEsc(tx(k[0])) + '</span><span class="product-meta">' + (u.pinned ? "📌 " : "") + shortDate(u.created_at) + '</span></div>' +
+        '<h3>' + shopEsc(u.title) + '</h3>' +
+        (u.body ? '<div class="up-body">' + shopEsc(u.body).replace(/\n/g, "<br>") + '</div>' : "") +
+        (u.image_url && /^https?:\/\//i.test(u.image_url) ? '<img class="up-img" src="' + shopEsc(u.image_url) + '" alt="">' : "");
+      const prod = u.product_id && productsCache.find(p=> p.id === u.product_id);
+      if(prod){
+        const b = document.createElement("button");
+        b.className = "btn btn-primary btn-block"; b.type = "button"; b.style.marginTop = "12px";
+        b.textContent = tx("View product");
+        b.addEventListener("click", ()=> openProduct(prod.id));
+        card.appendChild(b);
+      }
+      list.appendChild(card);
+    });
+    translateTree(list);
+    try{ localStorage.setItem(UPDATES_SEEN_KEY, new Date().toISOString()); }catch(e){}
+    $("updatesDot").classList.add("hidden");
+  }catch(error){
+    let m = error?.message || "Updates could not be loaded.";
+    if(/app_updates|schema cache|does not exist/i.test(m)) m = "Updates are not set up yet. Run supabase_part2.sql in Supabase first.";
+    showMessage(msg, m, "error");
+  }
+}
+
+on("updatesSupport", "click", ()=>{
+  const url = shopSettings.support_url;
+  if(url && /^https?:\/\//i.test(url)) window.open(url, "_blank", "noopener");
+  else showPage("supportPage");
+});
+on("orderTabOrder", "click", ()=> setOrdersTab("order"));
+on("orderTabBuyback", "click", ()=> setOrdersTab("buyback"));
+on("detailBackButton", "click", ()=>{
+  if(history.state && history.state.page === "productDetailPage" && history.length > 1) history.back();
+  else showPage("productsPage");
+});
 
 
 /* =========================================================
@@ -4129,7 +4805,7 @@ async function sendResetCode(email, messageElement, button){
   }
 
   if(!email.includes("@")){
-    showMessage(messageElement, tx("Password reset works with email accounts only. Contact support."), "error");
+    startPhoneReset(email, messageElement, button);
     return;
   }
 
@@ -4177,12 +4853,75 @@ async function finishReset(email, code, newPassword, messageElement){
 
 }
 
+async function startPhoneReset(value, messageElement, button){
+
+  const digits = parsePhone(value);
+
+  if(!digits){
+    showMessage(messageElement, tx("Enter a valid email or phone number."), "error");
+    return;
+  }
+
+  button.disabled = true;
+
+  try{
+
+    const r = await phoneApi({ action:"reset_start", phone: digits });
+    pendingReset = { digits, secret: r.secret };
+
+    $("resetTelegramLink").href = "https://t.me/" + TELEGRAM_BOT_USERNAME + "?start=" + encodeURIComponent(r.token);
+    $("resetTelegramLink").classList.remove("hidden");
+    $("resetCodeWrap").classList.add("hidden");
+    $("resetCode").required = false;
+
+    showMessage(messageElement, tx("Open Telegram and share your phone number, then set the new password below."), "success");
+
+  }catch(error){
+    showMessage(messageElement, error.message, "error");
+  }finally{
+    setTimeout(()=>{ button.disabled = false; }, 15000);
+  }
+
+}
+
+async function finishPhoneReset(newPassword, messageElement){
+
+  if(newPassword.length < 6){
+    showMessage(messageElement, "New password must be at least 6 characters.", "error");
+    return false;
+  }
+
+  try{
+
+    await phoneApi({ action:"reset_finish", phone: pendingReset.digits, secret: pendingReset.secret, password: newPassword });
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email: pendingReset.digits + "@" + PHONE_DOMAIN,
+      password: newPassword
+    });
+    if(error) throw error;
+
+    user = data.user;
+    pendingReset = null;
+    return true;
+
+  }catch(error){
+    showMessage(messageElement, error.message || "Could not reset the password.", "error");
+    return false;
+  }
+
+}
+
 function showResetForm(){
   $("authForm").classList.add("hidden");
   $("authResetForm").classList.remove("hidden");
-  $("authHeading").textContent = "Reset password";
-  $("authIntro").textContent = "We will email you a code, then you can set a new password.";
+  $("authHeading").textContent = tx("Reset password");
+  $("authIntro").textContent = tx("Enter your email or phone number.");
   $("resetEmail").value = $("authEmail").value.trim();
+  pendingReset = null;
+  $("resetTelegramLink").classList.add("hidden");
+  $("resetCodeWrap").classList.remove("hidden");
+  $("resetCode").required = true;
   $("authMessage").classList.add("hidden");
 }
 
@@ -4241,12 +4980,18 @@ on("accountResetForm", "submit", async e=>{
 
 on("forgotPasswordButton", "click", showResetForm);
 on("resetBackButton", "click", hideResetForm);
+on("resetEmail", "input", ()=>{ pendingReset = null; $("resetTelegramLink").classList.add("hidden"); $("resetCodeWrap").classList.remove("hidden"); $("resetCode").required = true; });
 on("resetSendButton", "click", ()=> sendResetCode($("resetEmail").value.trim(), $("authMessage"), $("resetSendButton")));
 on("authResetForm", "submit", async e=>{
   e.preventDefault();
   const button = $("resetSubmitButton");
   button.disabled = true;
-  const ok = await finishReset($("resetEmail").value.trim(), cleanCode($("resetCode").value), $("resetPassword").value, $("authMessage"));
+  let ok;
+  if(pendingReset){
+    ok = await finishPhoneReset($("resetPassword").value, $("authMessage"));
+  }else{
+    ok = await finishReset($("resetEmail").value.trim(), cleanCode($("resetCode").value), $("resetPassword").value, $("authMessage"));
+  }
   button.disabled = false;
   if(ok){
     alert(tx("Password changed. You are signed in."));
