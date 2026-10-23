@@ -389,6 +389,8 @@ button:disabled{opacity:.55;cursor:wait}
       <p data-i18n="homeSubtitle">Your wallet, products and account services.</p>
     </div>
 
+    <div id="payoutConfirm"></div>
+
     <section class="wallet-card">
       <div class="wallet-label" data-i18n="available">Available Balance</div>
       <div class="balance" id="availableBalance">BDT ৳ —</div>
@@ -493,6 +495,7 @@ button:disabled{opacity:.55;cursor:wait}
             <div class="acct-row"><strong id="acctNumber" class="acct-num"></strong><button class="btn" id="acctCopy" type="button">⧉ Copy</button></div>
             <div id="acctName" class="acct-name"></div>
             <div id="acctNote" class="acct-note"></div>
+            <div id="acctRange" class="acct-note hidden" style="font-weight:700"></div>
           </div>
 
           <div id="depositDetails" class="deposit-details hidden">
@@ -514,6 +517,11 @@ button:disabled{opacity:.55;cursor:wait}
           <div class="field">
             <label for="depositReference">Transaction ID</label>
             <input id="depositReference" type="text" maxlength="150" autocomplete="off" placeholder="Enter transaction ID" required>
+          </div>
+
+          <div class="field">
+            <label for="depositReceipt">Payment screenshot (required)</label>
+            <input id="depositReceipt" type="file" accept="image/*" required>
           </div>
 
           <div class="field">
@@ -1508,6 +1516,12 @@ function t(key){
 
 
 const BN_EXTRA = {
+ "Payment screenshot (required)": "পেমেন্টের স্ক্রিনশট (বাধ্যতামূলক)",
+ "Please add a screenshot of your payment.": "পেমেন্টের স্ক্রিনশট দিন।",
+ "Yes, received": "হ্যাঁ, পেয়েছি",
+ "I did not receive": "পাইনি",
+ "Thank you": "ধন্যবাদ",
+ "Reported. Our team will check": "জানানো হয়েছে। আমাদের টিম দেখবে।",
  "Forgot password?": "পাসওয়ার্ড ভুলে গেছেন?",
  "Email verification code": "ইমেইলে আসা কোড",
  "Send code to my email": "কোড পাঠান",
@@ -1893,6 +1907,41 @@ function showApp(){
    WALLET
    ========================================================= */
 
+/* A withdrawal paid by an agent: the customer confirms the money arrived, or reports a problem */
+async function loadPayoutConfirm(){
+  const box = $("payoutConfirm");
+  if(!box || !supabaseClient) return;
+  let rows = [];
+  try{
+    const { data, error } = await supabaseClient.rpc("my_agent_withdrawals");
+    if(error) throw error;
+    rows = data || [];
+  }catch(e){ rows = []; }
+  box.innerHTML = "";
+  rows.forEach(w=>{
+    const c = document.createElement("div");
+    c.className = "card";
+    c.style.cssText = "margin:0 0 14px;padding:15px;border:1px solid #17684e;border-radius:18px;background:rgba(16,185,129,.08)";
+    c.innerHTML = '<div style="font-weight:800">Did you receive ' + formatMoney(w.net_amount, "BDT") + '?</div>' +
+      '<div class="muted" style="margin-top:4px">Sent to ' + shopEsc(w.destination_account) + '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-primary" data-ok style="flex:1">Yes, received</button><button class="btn" data-no style="flex:1">I did not receive</button></div>';
+    c.querySelector("[data-ok]").onclick = async e=>{
+      e.target.disabled = true;
+      const { error } = await supabaseClient.rpc("confirm_withdrawal_received", { p_id:w.id });
+      if(error){ toast(error.message, "error"); e.target.disabled = false; return; }
+      toast("Thank you", "success"); loadPayoutConfirm();
+    };
+    c.querySelector("[data-no]").onclick = async e=>{
+      if(!confirm("Report that you did not receive this money?")) return;
+      e.target.disabled = true;
+      const { error } = await supabaseClient.rpc("report_withdrawal_problem", { p_id:w.id, p_note:null });
+      if(error){ toast(error.message, "error"); e.target.disabled = false; return; }
+      toast("Reported. Our team will check", "success"); loadPayoutConfirm();
+    };
+    box.appendChild(c);
+  });
+}
+
 async function loadWallet(){
 
   if(!user?.id || !supabaseClient) return;
@@ -1923,6 +1972,7 @@ async function loadWallet(){
     $("availableBalance").textContent = formatMoney(data.available_balance, currency);
     $("reservedBalance").textContent  = formatMoney(data.reserved_balance, currency);
     $("walletStatus").textContent     = readableLabel(data.status);
+    loadPayoutConfirm();
 
   }catch(error){
 
@@ -3479,6 +3529,9 @@ function updateDepositUI(){
   $("depositSummaryMethod").textContent = option.providerName + " — " + option.channelName;
 
   const limits = getLimits(option);
+  const acct0 = depositAccounts[option.channel?.id];
+  if(acct0 && acct0.min != null){ limits.min = Math.max(limits.min, Number(acct0.min)); }
+  if(acct0 && acct0.max != null){ limits.max = (limits.max === null) ? Number(acct0.max) : Math.min(limits.max, Number(acct0.max)); }
 
   $("depositAmount").min = String(limits.min);
 
@@ -3503,6 +3556,11 @@ function updateDepositUI(){
     $("acctName").classList.toggle("hidden", !acct.name);
     $("acctNote").textContent = acct.instructions || "";
     $("acctNote").classList.toggle("hidden", !acct.instructions);
+    const rg = $("acctRange");
+    if(acct.max != null){
+      rg.textContent = "Minimum " + formatMoney(limits.min, option.currency || "BDT") + " · Maximum " + formatMoney(limits.max, option.currency || "BDT");
+      rg.classList.remove("hidden");
+    }else{ rg.classList.add("hidden"); }
     acctBox.classList.remove("hidden");
   }else{
     acctBox.classList.add("hidden");
@@ -3641,6 +3699,9 @@ async function handleDepositSubmit(event){
 
   const amount = Number($("depositAmount").value);
   const limits = getLimits(option);
+  const acctS = depositAccounts[option.channel?.id];
+  if(acctS && acctS.min != null){ limits.min = Math.max(limits.min, Number(acctS.min)); }
+  if(acctS && acctS.max != null){ limits.max = (limits.max === null) ? Number(acctS.max) : Math.min(limits.max, Number(acctS.max)); }
 
   if(!Number.isFinite(amount) || amount < limits.min){
     showMessage(msg, "Minimum deposit is " + formatMoney(limits.min, option.currency || "BDT") + ".", "error");
@@ -3661,10 +3722,21 @@ async function handleDepositSubmit(event){
     return;
   }
 
+  const receiptFile = $("depositReceipt").files[0];
+  if(!receiptFile){
+    showMessage(msg, "Please add a screenshot of your payment.", "error");
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = "Submitting...";
 
   try{
+
+    const rBlob = await compressImage(receiptFile);
+    const receiptPath = user.id + "/" + Date.now() + "_receipt.jpg";
+    const up = await supabaseClient.storage.from("deposit-receipts").upload(receiptPath, rBlob, { contentType:"image/jpeg", upsert:false });
+    if(up.error) throw up.error;
 
     const depositId = makeRequestId("DP");
 
@@ -3678,7 +3750,8 @@ async function handleDepositSubmit(event){
       p_sender_number: sender,
       p_transaction_reference: txn,
       p_user_note: note || null,
-      p_idempotency_key: makeRequestId("DPI")
+      p_idempotency_key: makeRequestId("DPI"),
+      p_receipt_path: receiptPath
     });
 
     if(error) throw error;
