@@ -261,6 +261,11 @@ button:disabled{opacity:.55;cursor:wait}
 .shop-toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-14px);opacity:0;pointer-events:none;z-index:60;max-width:88%;padding:11px 16px;border-radius:13px;background:#14233a;border:1px solid var(--border);color:var(--text);font-size:13px;transition:.2s}
 .shop-toast.show{opacity:1;transform:translate(-50%,0)}
 .shop-toast.ok{border-color:#17684e;color:#78edc1}.shop-toast.bad{border-color:#713442;color:#ffabb6}
+.acct-box{margin-top:15px;padding:14px;border:1px solid #17684e;border-radius:15px;background:#0b241f}
+.acct-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.acct-num{font-size:24px;letter-spacing:.5px;color:#65f0c1;overflow-wrap:anywhere;user-select:all}
+.acct-name{margin-top:6px;color:#bdeadd}
+.acct-note{margin-top:8px;color:#bdeadd;line-height:1.6;overflow-wrap:anywhere}
 </style>
 </head>
 
@@ -482,6 +487,13 @@ button:disabled{opacity:.55;cursor:wait}
 
           <div class="muted" data-i18n="selectedChannel">Selected channel</div>
           <div id="depositSelectedLabel" style="font-weight:800;margin-top:5px;overflow-wrap:anywhere">—</div>
+
+          <div id="depositAccount" class="acct-box hidden">
+            <div class="muted">Send money to</div>
+            <div class="acct-row"><strong id="acctNumber" class="acct-num"></strong><button class="btn" id="acctCopy" type="button">⧉ Copy</button></div>
+            <div id="acctName" class="acct-name"></div>
+            <div id="acctNote" class="acct-note"></div>
+          </div>
 
           <div id="depositDetails" class="deposit-details hidden">
             <div class="muted" data-i18n="paymentDetails">Payment details</div>
@@ -3305,7 +3317,8 @@ async function fetchChannelGroups(serviceCode, isStale){
     .select("id,provider_id,service_code,service_name,status,available,minimum_amount,maximum_amount,fixed_fee,percentage_fee,description")
     .eq("service_code", serviceCode)
     .eq("status", "active")
-    .eq("available", true);
+    .eq("available", true)
+    .order("service_name", { ascending:true });
 
   if(isStale()) return null;
   if(serviceError) throw serviceError;
@@ -3319,7 +3332,8 @@ async function fetchChannelGroups(serviceCode, isStale){
     .select("id,provider_service_id,channel_code,channel_name,channel_type,status,available,minimum_amount,maximum_amount,notes")
     .in("provider_service_id", services.map(s => s.id))
     .eq("status", "active")
-    .eq("available", true);
+    .eq("available", true)
+    .order("channel_name", { ascending:true });
 
   if(isStale()) return null;
   if(channelError) throw channelError;
@@ -3413,6 +3427,26 @@ function getSelectedDepositOption(){
 
 let depositAccounts = {};
 
+async function copyAccountNumber(){
+  const value = $("acctNumber").textContent.trim();
+  if(!value) return;
+  let ok = false;
+  try{ await navigator.clipboard.writeText(value); ok = true; }catch(e){}
+  if(!ok){
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = value; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      ok = document.execCommand("copy");
+      ta.remove();
+    }catch(e){}
+  }
+  const b = $("acctCopy");
+  b.textContent = ok ? "✓ Copied" : "Copy failed";
+  setTimeout(()=>{ b.textContent = "⧉ Copy"; }, 1800);
+}
+on("acctCopy", "click", copyAccountNumber);
+
 async function loadDepositAccount(option){
   const id = option?.channel?.id;
   if(!id || !supabaseClient) return;
@@ -3454,10 +3488,6 @@ function updateDepositUI(){
     hint += " · Maximum: " + formatMoney(limits.max, option.currency || "BDT");
   }
 
-  if(option.service?.description){
-    hint += " · " + option.service.description;
-  }
-
   $("depositAmountHint").textContent = hint;
 
   $("depositSummaryAmount").textContent =
@@ -3466,24 +3496,22 @@ function updateDepositUI(){
   const details = [];
 
   const acct = depositAccounts[option.channel?.id];
+  const acctBox = $("depositAccount");
   if(acct){
-    details.push("Send money to: " + acct.number + (acct.name ? " (" + acct.name + ")" : ""));
-    if(acct.instructions) details.push(acct.instructions);
-  }else if(acct === null){
-    details.push("No payment number is available right now. Please try again later.");
+    $("acctNumber").textContent = acct.number;
+    $("acctName").textContent = acct.name || "";
+    $("acctName").classList.toggle("hidden", !acct.name);
+    $("acctNote").textContent = acct.instructions || "";
+    $("acctNote").classList.toggle("hidden", !acct.instructions);
+    acctBox.classList.remove("hidden");
+  }else{
+    acctBox.classList.add("hidden");
+    if(acct === null) details.push("No payment number is available right now. Please try again later.");
   }
   $("submitDepositButton").disabled = (acct === null);
 
-  if(option.channel?.channel_name){
-    details.push("Channel: " + option.channel.channel_name);
-  }
-
-  if(option.channel?.channel_type){
-    details.push("Type: " + readableLabel(option.channel.channel_type));
-  }
-
   if(option.channel?.notes){
-    details.push("Details: " + option.channel.notes);
+    details.push(option.channel.notes);
   }
 
   if(details.length){
