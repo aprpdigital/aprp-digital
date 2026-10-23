@@ -195,7 +195,7 @@ const badge=()=>({deposits:stats.pending_deposits,withdrawals:stats.pending_with
 async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}}
 function shell(){
   idleReset();
-  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin</b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
+  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v6</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
   $("#bl").onclick=()=>signOut();$("#mm").onclick=openMenu;
   page="home";history.replaceState({p:"home"},"","#home");
   go("home",true);
@@ -213,13 +213,15 @@ function openMenu(){
     history.replaceState({p:t},"","#"+t);go(t,true);
   });
 }
-async function go(p,noPush){
+async function go(p,noPush,keep){
   if(!noPush&&p!==page)history.pushState({p},"","#"+p);
+  const y=keep?window.scrollY:0;
   page=p;idleReset();await refreshStats();
   $("#ttl").textContent="Admin screen: "+(TITLE[p]||"");
-  const m=$("#main");m.innerHTML='<p class="mut">Loading…</p>';
-  window.scrollTo(0,0);
+  const m=$("#main");
+  if(!keep){m.innerHTML='<p class="mut">Loading…</p>';window.scrollTo(0,0)}
   try{await views[p](m)}catch(e){m.innerHTML='<div class="card">'+esc(e.message||e)+'</div>'}
+  if(keep)window.scrollTo(0,y);
 }
 const views={};
 
@@ -530,6 +532,10 @@ views.channels=async m=>{
   if(e2)throw e2;if(e3)throw e3;
   const pn={};(pv||[]).forEach(p=>pn[p.id]=p.name);
   const accounts=e4?[]:(accs||[]);
+  /* fixed order: all deposits first, then withdrawals; inside each, by provider and name */
+  const ord=c=>c==="deposit"?0:c==="withdrawal"?1:2;
+  svc.sort((a,b)=>ord(a.service_code)-ord(b.service_code)||String(pn[a.provider_id]||"").localeCompare(String(pn[b.provider_id]||""))||String(a.service_name||"").localeCompare(String(b.service_name||"")));
+  chs.sort((a,b)=>String(a.channel_name||"").localeCompare(String(b.channel_name||"")));
   m.innerHTML='<p class="mut" style="margin:0 0 12px">Turn methods on or off, set limits and fees, and add the number customers send money to.</p><div id="chl"></div>';
   const L=$("#chl");
   if(!svc.length)L.innerHTML='<div class="card">No payment services found.</div>';
@@ -537,7 +543,7 @@ views.channels=async m=>{
     const isDep=s.service_code==="deposit";
     const card=document.createElement("div");card.className="card";
     card.innerHTML='<div class="row"><div><b>'+esc(pn[s.provider_id]||"")+' '+esc(s.service_name||s.service_code)+'</b><div class="mut">'+esc(s.service_code)+' · min '+money(s.minimum_amount)+(s.maximum_amount?' · max '+money(s.maximum_amount):"")+' · fee '+money(s.fixed_fee)+' + '+(+s.percentage_fee||0)+'%</div></div><button class="b '+(s.available?"ok":"gh")+'" data-t="1">'+(s.available?"ON":"OFF")+'</button></div><div class="acts"><button class="b gh" data-e="1">Edit rules</button><button class="b gh" data-a="1">+ Add channel</button></div><div class="chs"></div>';
-    card.querySelector("[data-t]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("channels")},e.target);
+    card.querySelector("[data-t]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"service",p_id:s.id,p_available:!s.available});go("channels",true,true)},e.target);
     card.querySelector("[data-e]").onclick=()=>serviceForm(s);
     card.querySelector("[data-a]").onclick=()=>channelForm(null,s);
     const box=card.querySelector(".chs");
@@ -547,7 +553,7 @@ views.channels=async m=>{
       r.innerHTML='<span style="flex:1;min-width:140px"><b>'+esc(c.channel_name)+'</b><br><span class="mut">'+esc(c.channel_type||"")+(c.notes?" · "+esc(c.notes).slice(0,60):"")+'</span></span><span style="display:flex;gap:6px"><button class="b gh" data-ed="1">Edit</button>'+(isDep?'<button class="b gh" data-nm="1">Numbers ('+mine.filter(a=>a.active).length+')</button>':"")+'<button class="b '+(c.available?"ok":"gh")+'" data-ct="1">'+(c.available?"ON":"OFF")+'</button></span>';
       r.querySelector("[data-ed]").onclick=()=>channelForm(c,s);
       const nb=r.querySelector("[data-nm]");if(nb)nb.onclick=()=>accountsSheet(c,accounts,e4);
-      r.querySelector("[data-ct]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("channels")},e.target);
+      r.querySelector("[data-ct]").onclick=e=>guard(async()=>{await call("admin_set_channel",{p_kind:"channel",p_id:c.id,p_available:!c.available});go("channels",true,true)},e.target);
       box.appendChild(r);
     });
     L.appendChild(card);
@@ -557,7 +563,7 @@ const num=v=>v===""||v==null?null:Number(v);
 function serviceForm(s){
   const sh=sheet('<h2>Edit rules</h2><div class="grid"><div><label>Minimum (৳)</label><input id="v_min" type="number" inputmode="decimal" value="'+(s.minimum_amount??"")+'"></div><div><label>Maximum (৳)</label><input id="v_max" type="number" inputmode="decimal" value="'+(s.maximum_amount??"")+'"></div><div><label>Fixed fee (৳)</label><input id="v_fx" type="number" inputmode="decimal" value="'+(s.fixed_fee??0)+'"></div><div><label>Fee (%)</label><input id="v_pc" type="number" inputmode="decimal" value="'+(s.percentage_fee??0)+'"></div></div><label>Short note shown to customers</label><input id="v_ds" value="'+esc(s.description||"")+'"><div class="mut">The app never allows less than ৳500 for deposits and ৳1,000 for withdrawals.</div><div class="acts"><button class="b" id="v_sv">Save</button><button class="b gh" id="v_cx">Close</button></div>');
   const q=i=>sh.querySelector("#"+i);q("v_cx").onclick=closeSheet;
-  q("v_sv").onclick=e=>guard(async()=>{await call("admin_update_service",{p_id:s.id,p_min:num(q("v_min").value),p_max:num(q("v_max").value),p_fixed:num(q("v_fx").value),p_pct:num(q("v_pc").value),p_desc:q("v_ds").value});closeSheet();toast("Saved");go("channels")},e.target);
+  q("v_sv").onclick=e=>guard(async()=>{await call("admin_update_service",{p_id:s.id,p_min:num(q("v_min").value),p_max:num(q("v_max").value),p_fixed:num(q("v_fx").value),p_pct:num(q("v_pc").value),p_desc:q("v_ds").value});closeSheet();toast("Saved");go("channels",true,true)},e.target);
 }
 function channelForm(c,s){
   c=c||{};
@@ -566,12 +572,12 @@ function channelForm(c,s){
   q("h_sv").onclick=e=>guard(async()=>{
     if(c.id)await call("admin_update_channel",{p_id:c.id,p_name:q("h_nm").value,p_type:null,p_notes:q("h_nt").value,p_min:num(q("h_mn").value),p_max:num(q("h_mx").value)});
     else await call("admin_add_channel",{p_service:s.id,p_name:q("h_nm").value,p_type:null,p_notes:q("h_nt").value});
-    closeSheet();toast("Saved");go("channels");
+    closeSheet();toast("Saved");go("channels",true,true);
   },e.target);
 }
 function accountsSheet(c,all,missing){
   const sh=sheet('<h2>'+esc(c.channel_name)+' · numbers</h2><div class="mut">Customers see one active number. If you add several, they are shared between customers. Agent numbers will appear here later.</div><div id="al" style="margin:10px 0"></div><div class="card"><b>Add a number</b><label>Number</label><input id="n_no" inputmode="tel" placeholder="01XXXXXXXXX"><label>Account name (optional)</label><input id="n_nm"><label>Extra instructions (optional)</label><input id="n_in"><button class="b" id="n_ad">Add number</button></div><div class="acts"><button class="b gh" id="n_cx">Close</button></div>');
-  const q=i=>sh.querySelector("#"+i);q("n_cx").onclick=()=>{closeSheet();go("channels")};
+  const q=i=>sh.querySelector("#"+i);q("n_cx").onclick=()=>{closeSheet();go("channels",true,true)};
   if(missing){q("al").innerHTML='<div class="card">Run supabase_part3.sql in Supabase first.</div>';return}
   let mine=all.filter(a=>a.channel_id===c.id);
   const draw=()=>{
