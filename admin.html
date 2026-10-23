@@ -27,6 +27,7 @@ main{padding:10px 14px;max-width:760px;margin:auto}
 .hero p{color:var(--mut);margin:0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px}
+.stat[data-go]{cursor:pointer}.stat[data-go]:active{border-color:var(--g)}
 .stat .t{color:var(--mut);font-size:14px;display:flex;justify-content:space-between;gap:6px}
 .stat b{display:block;font-size:26px;margin:8px 0 4px;letter-spacing:.01em}
 .stat b.g{color:var(--g2)}
@@ -195,7 +196,7 @@ const badge=()=>({deposits:stats.pending_deposits,withdrawals:stats.pending_with
 async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}}
 function shell(){
   idleReset();
-  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v6</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
+  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v7</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
   $("#bl").onclick=()=>signOut();$("#mm").onclick=openMenu;
   page="home";history.replaceState({p:"home"},"","#home");
   go("home",true);
@@ -230,14 +231,19 @@ views.home=async m=>{
   const s=stats;
   let h='<div class="card hero"><small>Central ledger &amp; engine: operational</small><h1>Executive Financial &amp; Operational Console</h1><p>Deposits, withdrawals, shop orders, buyback and users in one place.</p></div>';
   h+='<div class="grid">'+
-   '<div class="stat"><div class="t">Users’ main balance <span>◧</span></div><b>'+money(s.total_available)+'</b><span class="s">'+(s.users||0)+' registered accounts</span></div>'+
-   '<div class="stat"><div class="t">Reserved (buyback) <span>◷</span></div><b class="g">'+money(s.total_reserved)+'</b><span class="s">held in buyback products</span></div>'+
-   '<div class="stat"><div class="t">Pending deposits <span style="color:var(--g2)">⇣</span></div><b>'+(s.pending_deposits||0)+'</b><span class="'+(s.pending_deposits?"w":"s")+'">'+(s.pending_deposits?"Needs review":"All clear")+'</span></div>'+
-   '<div class="stat"><div class="t">Pending withdrawals <span style="color:var(--bad)">⇡</span></div><b>'+(s.pending_withdrawals||0)+'</b><span class="'+(s.pending_withdrawals?"w":"s")+'">'+(s.pending_withdrawals?"Needs payment":"All clear")+'</span></div>'+
-   '<div class="stat"><div class="t">Pending KYC <span>✔</span></div><b>'+(s.pending_kyc||0)+'</b><span class="s">identity checks</span></div>'+
-   '<div class="stat"><div class="t">Orders &amp; sell requests <span>⚑</span></div><b>'+((s.pending_orders||0)+(s.sell_requests||0))+'</b><span class="s">'+(s.pending_orders||0)+' delivery · '+(s.sell_requests||0)+' sell</span></div>'+
+   '<div class="stat" data-go="users"><div class="t">Users’ main balance <span>◧</span></div><b>'+money(s.total_available)+'</b><span class="s">'+(s.users||0)+' registered accounts</span></div>'+
+   '<div class="stat" data-go="orders"><div class="t">Reserved (buyback) <span>◷</span></div><b class="g">'+money(s.total_reserved)+'</b><span class="s">held in buyback products</span></div>'+
+   '<div class="stat" data-go="deposits"><div class="t">Pending deposits <span style="color:var(--g2)">⇣</span></div><b>'+(s.pending_deposits||0)+'</b><span class="'+(s.pending_deposits?"w":"s")+'">'+(s.pending_deposits?"Needs review":"All clear")+'</span></div>'+
+   '<div class="stat" data-go="withdrawals"><div class="t">Pending withdrawals <span style="color:var(--bad)">⇡</span></div><b>'+(s.pending_withdrawals||0)+'</b><span class="'+(s.pending_withdrawals?"w":"s")+'">'+(s.pending_withdrawals?"Needs payment":"All clear")+'</span></div>'+
+   '<div class="stat" data-go="kyc"><div class="t">Pending KYC <span>✔</span></div><b>'+(s.pending_kyc||0)+'</b><span class="s">identity checks</span></div>'+
+   '<div class="stat" data-go="orders"><div class="t">Orders &amp; sell requests <span>⚑</span></div><b>'+((s.pending_orders||0)+(s.sell_requests||0))+'</b><span class="s">'+(s.pending_orders||0)+' delivery · '+(s.sell_requests||0)+' sell</span></div>'+
   '</div>';
   m.innerHTML=h;
+  m.querySelectorAll("[data-go]").forEach(c=>{
+    const t=c.dataset.go;
+    if(!TITLE[t]||!MENU.some(g=>g[1].some(i=>i[0]===t&&i[3]()))){c.style.opacity=".6";return}
+    c.onclick=()=>go(t);
+  });
   if(me.finance||me.admin){
     const box=document.createElement("div");box.className="card";box.innerHTML='<div class="row"><h2 style="margin:0">Central Ledger Transactions</h2><a class="mut" href="#" id="vl" style="color:var(--g2)">View full ledger →</a></div><div style="margin-top:12px" id="lg"></div>';
     m.appendChild(box);$("#vl").onclick=e=>{e.preventDefault();go("ledger")};
@@ -265,10 +271,8 @@ function seg(opts,cur,fn,m){
 let depF="pending";
 views.deposits=async m=>{
   m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],depF,v=>{depF=v;go("deposits")},m);
-  let q=sb.from("deposit_requests").select("*").order("created_at",{ascending:false}).limit(60);
-  if(depF==="pending")q=q.in("status",["pending","under_review"]);
-  const {data,error}=await q;if(error)throw error;
-  await loadNames(data.map(r=>r.user_id));
+  const data=await call("admin_list_deposits",{p_status:depF,p_limit:60});
+  data.forEach(r=>{if(r.user_id)names[r.user_id]=(r.username||"user")+(r.phone?" · "+r.phone:"")});
   if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
   data.forEach(r=>{
     const c=document.createElement("div");c.className="card";
@@ -283,10 +287,8 @@ views.deposits=async m=>{
 let wdF="pending";
 views.withdrawals=async m=>{
   m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],wdF,v=>{wdF=v;go("withdrawals")},m);
-  let q=sb.from("withdrawal_requests").select("*").order("created_at",{ascending:false}).limit(60);
-  if(wdF==="pending")q=q.in("status",["pending","approved","processing"]);
-  const {data,error}=await q;if(error)throw error;
-  await loadNames(data.map(r=>r.user_id));
+  const data=await call("admin_list_withdrawals",{p_status:wdF,p_limit:60});
+  data.forEach(r=>{if(r.user_id)names[r.user_id]=(r.username||"user")+(r.phone?" · "+r.phone:"")});
   if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
   data.forEach(r=>{
     const c=document.createElement("div");c.className="card";
