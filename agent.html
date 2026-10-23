@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>APRP Agent</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#050a17;--bg2:#0a1124;--card:#0b1328;--line:#18233d;--tx:#f1f5fb;--mut:#8b9ab5;--g:#10b981;--g2:#34d399;--bad:#f43f5e;--warn:#fbbf24}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--tx);font:15px/1.45 "Roboto",system-ui,-apple-system,Segoe UI,sans-serif;padding-bottom:84px}
+.top{position:sticky;top:0;z-index:6;background:linear-gradient(180deg,#060d1f,#050a17);border-bottom:1px solid var(--line);padding:11px 14px;display:flex;align-items:center;gap:11px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#38bdf8,#10b981);color:#031a14;font-weight:800;display:grid;place-items:center;font-size:18px}
+.top b{font-size:17px;flex:1}.top small{color:var(--mut);font-weight:400}
+.pill{border-radius:20px;padding:6px 12px;font-size:13px;border:1px solid var(--line);background:#0d1730;color:var(--mut)}
+.pill.on{background:#06301f;color:var(--g2);border-color:#0b5b43}.pill.off{background:#35101a;color:var(--bad);border-color:#5b1a2a}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 4px;max-width:760px;margin:auto}
+.bar span{font:600 13px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.04em;text-transform:uppercase}
+main{padding:10px 14px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:12px}
+.hero{background:radial-gradient(120% 140% at 0% 0%,#0c2a2a 0%,var(--card) 55%)}
+.big{font-size:30px;font-weight:800;margin:4px 0}
+.mut{color:var(--mut);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px}.stat b{display:block;font-size:22px;margin:6px 0 2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tag{display:inline-block;border-radius:8px;padding:2px 8px;font:12px ui-monospace,Menlo,monospace;text-transform:uppercase;background:#17233f;color:var(--mut)}
+.tag.w{background:#2e2409;color:var(--warn)}.tag.g{background:#06301f;color:var(--g2)}.tag.r{background:#35101a;color:var(--bad)}
+button.b{display:inline-block;background:var(--g);color:#032016;font-weight:700;border:0;border-radius:12px;padding:11px 15px;font-size:14px;flex:1;text-align:center;text-decoration:none}
+a.b{display:inline-block;background:#111c36;color:var(--tx);border:1px solid var(--line);font-weight:500;border-radius:12px;padding:11px 15px;font-size:14px;flex:1;text-align:center;text-decoration:none}
+button.b.no{background:#2a0f18;color:#fb7185;border:1px solid #5b1a2a}button.b.gh{background:#111c36;color:var(--tx);border:1px solid var(--line);font-weight:500}
+button.b:disabled{opacity:.5}
+button.sm{background:#111c36;border:1px solid var(--line);color:var(--tx);border-radius:11px;padding:8px 13px;font-size:14px}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.kv{display:grid;grid-template-columns:100px 1fr;gap:4px 8px;font-size:14px;margin-top:8px}.kv span:nth-child(odd){color:var(--mut)}
+.timer{display:inline-block;background:#2e2409;color:var(--warn);border-radius:9px;padding:3px 9px;font:600 13px ui-monospace,Menlo,monospace}
+.timer.late{background:#35101a;color:var(--bad)}
+.receipt{width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#000;display:block}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:7;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:#060d1f;padding:8px 4px calc(8px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:var(--mut);font-size:11px;position:relative}.nav button i{display:block;font-style:normal;font-size:19px}.nav button.on{color:var(--g2)}
+.nav button em{position:absolute;top:-2px;left:54%;background:var(--bad);color:#fff;border-radius:9px;font-size:11px;font-style:normal;padding:0 6px}
+input,select,textarea{width:100%;background:#060c1c;color:var(--tx);border:1px solid var(--line);border-radius:12px;padding:11px;font-size:15px;margin:4px 0 10px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--g)}
+label{font-size:13px;color:var(--mut)}
+h2{font-size:18px;margin:6px 0 10px}
+.ov{position:fixed;inset:0;background:#000c;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg2);border:1px solid var(--line);border-radius:22px 22px 0 0;width:100%;max-width:760px;max-height:92vh;overflow:auto;padding:18px}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:#12203d;border:1px solid var(--line);padding:11px 17px;border-radius:13px;z-index:40;max-width:90%}
+.toast.err{background:#35101a;border-color:#5b1a2a}
+.note{background:#0b241f;border:1px solid #17684e;border-radius:13px;padding:11px;color:#bdeadd;font-size:13px;line-height:1.55;margin:8px 0}
+.alert{background:#2a0f18;border:1px solid #5b1a2a;color:#fda4af}
+.prog{height:9px;border-radius:5px;background:#17233f;margin:8px 0 4px;overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#10b981,#34d399)}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+.tog{width:46px;height:26px;border-radius:13px;background:var(--g);position:relative;border:0;flex:none}.tog:after{content:"";position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff}
+.tog.off{background:#27303d}.tog.off:after{right:auto;left:3px}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:5px 11px;font-size:13px;margin:3px 4px 0 0;background:#0d1730}.chip.on{background:#06301f;color:var(--g2);border-color:#0b5b43}
+.tx{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:#08101f;border-radius:15px;padding:11px;margin-bottom:10px}
+.ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}.ic.in{background:#06301f;color:var(--g2)}.ic.out{background:#35101a;color:var(--bad)}
+.tx .m{flex:1;min-width:0}.tx .m span{font:12px ui-monospace,Menlo,monospace;color:var(--mut)}.tx .a{text-align:right}
+.center{max-width:390px;margin:9vh auto;padding:0 18px}
+.seg{display:flex;gap:6px;margin:6px 0 12px}.seg button{background:var(--card);color:var(--mut);border:1px solid var(--line);border-radius:11px;padding:8px 13px}.seg button.on{color:var(--g2);border-color:var(--g);background:#071f1a}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+const SUPABASE_URL="https://hdlskefeuodhoeaksflq.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_wls_WZ6wbLt32s_XRDu9Ug_VndX5ItE";
+const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{storageKey:"aprp-agent-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}):null;
+const $=s=>document.querySelector(s);
+const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money=n=>"৳"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const ago=t=>{if(!t)return"";const m=Math.max(0,Math.floor((Date.now()-new Date(t))/60000));return m<1?"just now":m<60?m+" min ago":m<1440?Math.floor(m/60)+" h ago":Math.floor(m/1440)+" d ago"};
+const clock=s=>{s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+let uid=null,me=null,page="home",hist="pending",seenDeposits=new Set(),firstLoad=true,ignorePop=0,ovCount=0,busy=false;
+const NAV=[["home","⌂","Home"],["deposits","⇣","Deposits"],["withdraw","⇡","Withdraw"],["history","≡","History"],["me","☺","Me"]];
+
+function toast(m,err){const t=document.createElement("div");t.className="toast"+(err?" err":"");t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3400)}
+async function call(fn,args){const {data,error}=await sb.rpc(fn,args||{});if(error)throw error;return data}
+async function guard(fn,btn){if(btn)btn.disabled=true;try{return await fn()}catch(e){toast(e.message||String(e),true)}finally{if(btn)btn.disabled=false}}
+function ovPush(){history.pushState({ov:1},"");ovCount++}
+function ovClosed(){if(ovCount>0){ovCount--;ignorePop++;history.back()}}
+function sheet(html){const had=$("#ov");if(had)had.remove();else ovPush();const o=document.createElement("div");o.className="ov";o.id="ov";o.innerHTML='<div class="sheet">'+html+'</div>';o.addEventListener("click",e=>{if(e.target===o)closeSheet()});document.body.appendChild(o);return o.firstChild}
+function closeSheet(){const o=$("#ov");if(o){o.remove();ovClosed()}}
+function ask(title,text,cb,label,needReason){
+  const s=sheet('<h2>'+esc(title)+'</h2>'+(text?'<p class="mut" style="margin-top:0">'+esc(text)+'</p>':'')+(needReason?'<label>Reason (required)</label><textarea id="nt" rows="2"></textarea>':'')+'<div class="acts"><button class="b" id="yes">'+(label||"Confirm")+'</button><button class="b gh" id="no">Cancel</button></div>');
+  s.querySelector("#no").onclick=closeSheet;
+  s.querySelector("#yes").onclick=e=>guard(async()=>{await cb(needReason?s.querySelector("#nt").value:null);closeSheet()},e.target);
+}
+window.addEventListener("popstate",e=>{
+  if(ignorePop>0){ignorePop--;return}
+  const o=$("#ov");if(o){o.remove();ovCount=Math.max(0,ovCount-1);return}
+  const p=(e.state&&e.state.p)||"home";if(me){page=p;draw()}
+});
+function go(p){if(p===page)return;page=p;history.pushState({p},"");draw();window.scrollTo(0,0);refresh()}
+
+/* ---------- images ---------- */
+function shrink(file,max=1400,q=.82){return new Promise((res,rej)=>{
+  const img=new Image(),u=URL.createObjectURL(file);
+  img.onload=()=>{const r=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement("canvas");c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error("Could not read the image")),"image/jpeg",q)};
+  img.onerror=()=>{URL.revokeObjectURL(u);rej(new Error("Choose a photo or screenshot"))};img.src=u})}
+async function upload(file,tag){
+  const blob=await shrink(file);const path=uid+"/"+tag+"-"+Date.now()+".jpg";
+  const {error}=await sb.storage.from("agent-files").upload(path,blob,{contentType:"image/jpeg"});if(error)throw error;return path}
+const urlCache={};
+async function signed(bucket,path){const k=bucket+"/"+path;if(urlCache[k])return urlCache[k];const {data,error}=await sb.storage.from(bucket).createSignedUrl(path,3600);if(error||!data)return"";return urlCache[k]=data.signedUrl}
+async function fillReceipts(){for(const im of document.querySelectorAll("img[data-rc]")){const u=await signed("deposit-receipts",im.dataset.rc);if(u){im.src=u;im.onclick=()=>sheet('<img class="receipt" style="max-height:none" src="'+u+'"><div class="acts"><button class="b gh" onclick="closeSheet()">Close</button></div>')}}}
+
+/* ---------- sign in ---------- */
+function authShell(inner){$("#app").innerHTML='<div class="center"><div class="logo" style="width:54px;height:54px;font-size:26px;margin-bottom:14px">A</div><h2 style="font-size:26px;margin:0 0 4px">APRP Agent</h2>'+inner+'</div>'}
+function loginView(msg){
+  authShell('<p class="mut" style="margin:0 0 18px">'+(msg?esc(msg):"Sign in to continue")+'</p><label>Email</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw" type="password" autocomplete="current-password"><button class="b" style="width:100%" id="go">Sign in</button>');
+  $("#pw").onkeydown=e=>{if(e.key==="Enter")$("#go").click()};
+  $("#go").onclick=e=>guard(async()=>{const {error}=await sb.auth.signInWithPassword({email:$("#em").value.trim(),password:$("#pw").value});if(error)throw error;await start()},e.target);
+}
+async function signOut(msg){try{await sb.auth.signOut()}catch(_){}me=null;uid=null;loginView(msg)}
+
+async function start(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){loginView();return}
+  uid=session.user.id;
+  try{me=await call("agent_me")}catch(e){await signOut(e.message||"This account is not an agent.");return}
+  history.replaceState({p:"home"},"");page="home";firstLoad=true;draw();
+}
+
+/* ---------- data ---------- */
+let dep=[],wd={open:[],mine:[]},reqs=[],hs=null;
+async function refresh(){
+  if(busy||!me)return;busy=true;
+  try{
+    me=await call("agent_me");
+    dep=await call("agent_list_deposits",{p_status:hist});
+    if(page==="withdraw"||page==="home")wd=await call("agent_list_withdrawals");
+    if(page==="home"||page==="request")reqs=await call("agent_list_requests");
+    if(page==="history")hs=await call("agent_history");
+    const pend=dep.filter(d=>d.status==="pending");
+    if(!firstLoad&&pend.some(d=>!seenDeposits.has(d.id))){beep();toast("New deposit waiting for you")}
+    pend.forEach(d=>seenDeposits.add(d.id));firstLoad=false;
+  }catch(e){if(/suspended|not an agent/i.test(e.message||"")){await signOut(e.message);return}}
+  finally{busy=false}
+  if(!$("#ov")&&!document.activeElement?.matches("input,textarea,select"))draw(true);
+}
+function beep(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();setTimeout(()=>{o.stop();a.close()},250);navigator.vibrate&&navigator.vibrate(200)}catch(_){}}
+
+/* ---------- screens ---------- */
+function shell(title,body){
+  const pend=dep.filter(d=>d.status==="pending").length;
+  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Agent <small>· '+esc(me.name)+'</small></b><span class="pill '+(me.available&&me.balance>0?"on":"off")+'">'+(me.available&&me.balance>0?"● Active":"● Off")+'</span></div>'+
+  '<div class="bar"><span>'+esc(title)+'</span></div><main>'+body+'</main>'+
+  '<div class="nav">'+NAV.map(n=>'<button data-p="'+n[0]+'" class="'+(n[0]===page||(page==="request"&&n[0]==="home")?"on":"")+'"><i>'+n[1]+'</i>'+n[2]+(n[0]==="deposits"&&pend?'<em>'+pend+'</em>':'')+'</button>').join("")+'</div>';
+  document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>go(b.dataset.p));
+}
+function draw(soft){
+  if(!me)return;
+  const f={home:vHome,deposits:vDeposits,withdraw:vWithdraw,history:vHistory,me:vMe,request:vRequest}[page]||vHome;
+  const y=window.scrollY;f();window.scrollTo(0,soft?y:0);fillReceipts();tick();
+}
+function tick(){document.querySelectorAll("[data-t]").forEach(e=>{const left=(Number(e.dataset.t)-Date.now())/1000;e.textContent=clock(Math.abs(left))+(e.dataset.mode==="up"?"":" left");if(e.dataset.mode==="up"){const late=(Date.now()-Number(e.dataset.t))/60000>=me.overdue_minutes;e.classList.toggle("late",late)}else if(left<=0){e.textContent="time over";e.classList.add("late")}})}
+setInterval(tick,1000);
+setInterval(()=>{if(me&&!document.hidden)refresh()},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refresh()});
+
+function maxText(){
+  if(!me.available||me.status!=="active")return null;
+  if(me.remaining<me.min_deposit)return null;
+  return{min:me.min_deposit,max:me.remaining};
+}
+function vHome(){
+  const pend=dep.filter(d=>d.status==="pending");const m=maxText();
+  const pct=me.my_limit>0?Math.min(100,Math.round(me.limit_used*100/me.my_limit)):0;
+  const off=!(me.available&&me.balance>0);
+  let h="";
+  if(me.balance<=0)h+='<div class="card alert"><b>You are switched off</b><div style="margin-top:4px">Your balance is finished. Customers cannot see your numbers. Request balance to start again.</div></div>';
+  h+='<div class="card hero"><div class="mut">BALANCE (MONEY FROM ADMIN)</div><div class="big" style="'+(me.balance<=0?"color:var(--bad)":"")+'">'+money(me.balance)+'</div>'+
+    (me.pending_balance>0?'<div class="mut">+ '+money(me.pending_balance)+' pending (waiting for customers to confirm)</div>':'')+
+    (me.balance>0?'<div class="mut" style="margin-top:12px">My limit for customers</div><div class="row"><b style="font-size:22px">'+money(me.my_limit)+'</b><button class="sm" id="lim">Change</button></div><div class="prog"><i style="width:'+pct+'%"></i></div><div class="mut">'+money(Math.max(0,me.my_limit-me.limit_used))+' left to receive · '+money(me.limit_used)+' used</div>':'')+'</div>';
+  if(pend.length){const d=pend[pend.length-1];h+='<div class="card alert"><div class="row"><b>'+pend.length+' deposit'+(pend.length>1?"s":"")+' waiting for you</b><span class="timer" data-mode="up" data-t="'+new Date(d.created_at).getTime()+'"></span></div><div style="margin-top:4px">'+money(d.amount)+' · '+esc(d.channel)+'</div><div class="acts"><button class="b" style="background:#fb7185;color:#2a0f18" id="opend">Open now</button></div></div>'}
+  if(me.balance>0){
+    h+='<div class="card"><b>What customers see now</b><div class="mut" style="margin:2px 0 6px">One limit shared by all your channels</div>'+
+      (me.accounts.filter(a=>a.active).length?me.accounts.filter(a=>a.active).map(a=>'<div class="row" style="padding:6px 0"><span>'+esc(a.label)+'</span><b>'+(m?money(m.min)+" – "+money(m.max):'<span class="mut">hidden</span>')+'</b></div>').join(""):'<div class="mut">Add a payment number in Me.</div>')+'</div>';
+  }
+  h+='<div class="grid"><div class="stat" data-g="withdraw"><div class="mut">Open withdrawals</div><b>'+me.open_withdrawals+'</b><span class="mut">first to accept gets it</span></div><div class="stat" data-g="withdraw"><div class="mut">My payouts due</div><b>'+me.due_withdrawals+'</b><span class="mut">pay within '+me.pay_minutes+' min</span></div></div>';
+  h+='<div class="acts"><button class="b" id="rq">Request balance</button>'+(me.telegram_url?'<a class="b" target="_blank" rel="noopener" href="'+esc(me.telegram_url)+'">✈ Telegram admin</a>':'')+'</div>';
+  shell("Agent: Home",h);
+  const L=$("#lim");if(L)L.onclick=limitSheet;
+  const O=$("#opend");if(O)O.onclick=()=>go("deposits");
+  $("#rq").onclick=()=>go("request");
+  document.querySelectorAll("[data-g]").forEach(e=>e.onclick=()=>go(e.dataset.g));
+}
+function limitSheet(){
+  const s=sheet('<h2>My limit</h2><p class="mut" style="margin-top:0">Highest total you will take from customers. Shared by all channels. It cannot be more than your balance ('+money(me.balance)+').</p><label>Limit</label><input id="lv" inputmode="numeric" value="'+Math.floor(me.my_limit)+'"><div class="note">Example: a customer sends ৳2,000 to Nagad, so everyone now sees ৳2,000 less on every channel.</div><div class="acts"><button class="b" id="sv">Save limit</button></div>');
+  s.querySelector("#sv").onclick=e=>guard(async()=>{await call("agent_set_limit",{p_limit:Number(s.querySelector("#lv").value)});closeSheet();toast("Limit saved");await refresh()},e.target);
+}
+
+function vDeposits(){
+  let h='<div class="seg"><button data-h="pending" class="'+(hist==="pending"?"on":"")+'">Waiting</button><button data-h="all" class="'+(hist==="all"?"on":"")+'">All</button></div>';
+  const list=hist==="pending"?dep.filter(d=>d.status==="pending"):dep;
+  if(hist==="pending")h+='<div class="note">Open your payment app, find this TrxID and check the amount, then press Accept. Never accept if the money is not there.</div>';
+  if(!list.length)h+='<div class="card mut">Nothing here.</div>';
+  list.forEach(d=>{
+    if(d.status==="pending"){
+      h+='<div class="card"><div class="row"><b style="font-size:20px">'+money(d.amount)+'</b><span class="timer" data-mode="up" data-t="'+new Date(d.created_at).getTime()+'"></span></div>'+
+      '<div class="kv"><span>Customer</span><span>'+esc(d.customer)+'</span><span>Sent from</span><span>'+esc(d.sender_account)+'</span><span>TrxID</span><span><b>'+esc(d.trx)+'</b></span><span>Your number</span><span>'+esc(d.my_number||"")+' ('+esc(d.channel)+')</span><span>Requested</span><span>'+ago(d.created_at)+'</span></div>'+
+      '<img class="receipt" data-rc="'+esc(d.receipt_path||"")+'" alt="receipt">'+
+      '<div class="acts"><button class="b" data-ac="'+d.id+'" data-a="'+d.amount+'">Accept · credit customer</button><button class="b no" data-rj="'+d.id+'">Not received</button></div></div>';
+    }else{
+      h+='<div class="card"><div class="row"><b style="font-size:20px">'+money(d.amount)+'</b><span class="tag '+(d.status==="approved"?"g":"r")+'">'+(d.status==="approved"?"Accepted":"Rejected")+'</span></div><div class="mut" style="margin-top:6px">'+esc(d.customer)+' · TrxID '+esc(d.trx)+' · '+ago(d.agent_action_at||d.created_at)+(d.rejection_reason?'<br>Reason: '+esc(d.rejection_reason):'')+(d.settled_by==="admin"?'<br>Settled by admin':'')+'</div></div>';
+    }
+  });
+  shell("Agent: Deposits",h);
+  document.querySelectorAll("[data-h]").forEach(b=>b.onclick=async()=>{hist=b.dataset.h;await refresh();draw()});
+  document.querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>ask("Accept this deposit?","Only accept if "+money(b.dataset.a)+" is in your account. It will be taken from your balance.",async()=>{await call("agent_decide_deposit",{p_id:b.dataset.ac,p_action:"accept"});toast("Deposit accepted");await refresh()},"Accept"));
+  document.querySelectorAll("[data-rj]").forEach(b=>b.onclick=()=>ask("Money not received","The customer will be told it was rejected.",async r=>{await call("agent_decide_deposit",{p_id:b.dataset.rj,p_action:"reject",p_reason:r});toast("Rejected");await refresh()},"Reject",true));
+}
+
+function vWithdraw(){
+  let h='<div class="row" style="margin:4px 0 10px"><b>My accepted</b><span class="mut">pay within '+me.pay_minutes+' min</span></div>';
+  const mine=wd.mine.filter(w=>w.status==="pending");const done=wd.mine.filter(w=>w.status!=="pending");
+  if(!mine.length)h+='<div class="card mut">No accepted withdrawals.</div>';
+  mine.forEach(w=>{
+    h+='<div class="card" style="border-color:#5c4410"><div class="row"><b style="font-size:20px">'+money(w.amount)+'</b><span class="timer" data-t="'+new Date(w.due_at).getTime()+'"></span></div>'+
+    '<div class="kv"><span>Send to</span><span><b>'+esc(w.destination_account)+'</b></span><span>Name</span><span>'+esc(w.destination_name||"")+'</span><span>Via</span><span>'+esc(w.channel)+'</span><span>You pay</span><span><b>'+money(w.net_amount)+'</b>'+(Number(w.fee)>0?' (after '+money(w.fee)+' fee)':'')+'</span></div>'+
+    '<div class="acts"><button class="b" data-pf="'+w.id+'" data-n="'+w.net_amount+'" data-d="'+esc(w.destination_account)+'">I paid · submit proof</button><button class="b gh" data-gu="'+w.id+'">Give up</button></div></div>';
+  });
+  h+='<div class="row" style="margin:16px 0 10px"><b>Open requests</b><span class="mut">first to accept wins</span></div>';
+  if(!wd.open.length)h+='<div class="card mut">No open requests.</div>';
+  wd.open.forEach(w=>{h+='<div class="card"><div class="row"><b style="font-size:20px">'+money(w.amount)+'</b><span class="tag w">Open</span></div><div class="mut" style="margin-top:6px">'+esc(w.channel)+' · '+ago(w.created_at)+'</div><div class="acts"><button class="b" data-ap="'+w.id+'">Accept</button></div></div>'});
+  if(done.length){h+='<div class="row" style="margin:16px 0 10px"><b>Recent proofs</b></div>';done.forEach(w=>{h+='<div class="tx"><div class="ic out">⇡</div><div class="m"><b>'+money(w.amount)+' · '+esc(w.destination_account)+'</b><br><span>'+esc(w.agent_trx||"")+' · '+ago(w.agent_proof_at)+'</span></div><div class="a"><span class="tag '+(w.credit_status==="released"?"g":w.credit_status==="pending"?"w":w.credit_status==="reversed"?"r":"w")+'">'+esc(({pending:"pending",needs_admin:"admin check",released:"credited",disputed:"reported",reversed:"reversed"})[w.credit_status]||w.credit_status||"")+'</span></div></div>'})}
+  shell("Agent: Withdrawals",h);
+  document.querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>guard(async()=>{await call("agent_accept_withdrawal",{p_id:b.dataset.ap});toast("Accepted. Pay within "+me.pay_minutes+" minutes");await refresh()},b));
+  document.querySelectorAll("[data-gu]").forEach(b=>b.onclick=()=>ask("Give up this request?","It goes back to all agents.",async()=>{await call("agent_release_withdrawal",{p_id:b.dataset.gu});await refresh()},"Give up"));
+  document.querySelectorAll("[data-pf]").forEach(b=>b.onclick=()=>proofSheet(b.dataset.pf,b.dataset.n,b.dataset.d));
+}
+function proofSheet(id,net,dest){
+  const s=sheet('<div class="row"><h2 style="margin:0">Submit payment proof</h2><button class="sm" id="x">✕</button></div><div class="mut" style="margin:4px 0 12px">Paid '+money(net)+' to '+esc(dest)+'</div><label>Your TrxID</label><input id="tx" autocapitalize="characters"><label>Screenshot of the payment (required)</label><input id="fl" type="file" accept="image/*"><div class="note">After you submit, the amount comes back to your balance as pending. It becomes available when the customer confirms or after 24 hours. Amounts above the auto limit wait for admin.</div><div class="acts"><button class="b" id="sv">Submit proof</button></div>');
+  s.querySelector("#x").onclick=closeSheet;
+  s.querySelector("#sv").onclick=e=>guard(async()=>{
+    const f=s.querySelector("#fl").files[0];if(!f)throw new Error("Add the payment screenshot");
+    const path=await upload(f,"payout");
+    const st=await call("agent_submit_withdraw_proof",{p_id:id,p_trx:s.querySelector("#tx").value,p_path:path});
+    closeSheet();toast(st==="needs_admin"?"Sent. Admin will check this amount":"Submitted. Credit is pending");await refresh()},e.target);
+}
+
+function vRequest(){
+  let h='<div class="card"><label>Amount you need</label><input id="am" inputmode="numeric" placeholder="30000"><label>How did you pay admin?</label><input id="pm" placeholder="bKash Personal 01XXXXXXXXX"><label>Your TrxID</label><input id="tx"><label>Payment screenshot (required)</label><input id="fl" type="file" accept="image/*"><div class="acts"><button class="b" id="sv">Send request</button></div></div><div class="note">One open request at a time. Your balance is added after admin approves.</div>';
+  reqs.forEach(r=>{h+='<div class="card"><div class="row"><b>'+money(r.amount)+'</b><span class="tag '+(r.status==="approved"?"g":r.status==="rejected"?"r":"w")+'">'+esc(r.status)+'</span></div><div class="mut">'+ago(r.created_at)+' · TrxID '+esc(r.trx_id||"")+(r.admin_note?'<br>'+esc(r.admin_note):'')+'</div></div>'});
+  if(me.telegram_url)h+='<div class="acts"><a class="b" target="_blank" rel="noopener" href="'+esc(me.telegram_url)+'">✈ Talk to admin on Telegram</a></div>';
+  shell("Agent: Request balance",h);
+  $("#sv").onclick=e=>guard(async()=>{
+    const f=$("#fl").files[0];if(!f)throw new Error("Add the payment screenshot");
+    const path=await upload(f,"topup");
+    await call("agent_request_balance",{p_amount:Number($("#am").value),p_method:$("#pm").value,p_trx:$("#tx").value,p_path:path});
+    toast("Request sent");await refresh();draw()},e.target);
+}
+
+function vHistory(){
+  const L=hs?hs.ledger:[];const r=hs&&hs.today_report;
+  let h='<div class="grid"><div class="stat"><div class="mut">Today received</div><b>'+money(me.today_in)+'</b></div><div class="stat"><div class="mut">Today paid out</div><b>'+money(me.today_out)+'</b></div></div>';
+  h+='<div class="card"><div class="row"><b>End of day check</b><span class="tag '+(r?(r.matched?"g":"r"):"w")+'">'+(r?(r.matched?"Matched":"Not matching"):"Not sent")+'</span></div><div class="mut" style="margin-top:4px">'+(r?'You sent '+money(r.claimed_total)+'. Our records: '+money(r.system_total)+'.':'Enter the total your payment app received today and add a screenshot of your statement. We compare it with our records.')+'</div><div class="acts"><button class="b gh" id="rp">'+(r?"Send again":"Send today’s statement")+'</button></div></div>';
+  if(!L.length)h+='<div class="card mut">No history yet.</div>';
+  L.forEach(x=>{const a=Number(x.amount);const lab=({topup:"Money from admin",takeback:"Taken back by admin",deposit:"Customer deposit",force_credit:"Deposit credited by admin",payout_pending:"Payout (pending)",payout_released:"Payout credited",payout_reversed:"Payout reversed"})[x.kind]||x.kind;
+    h+='<div class="tx"><div class="ic '+(a<0?"in":"out")+'">'+(a<0?"⇣":a>0?"＋":"⇡")+'</div><div class="m"><b>'+esc(lab)+'</b><br><span>'+esc(x.ref||"")+' · '+ago(x.created_at)+'</span></div><div class="a"><b>'+(a>0?"+":"")+money(a)+'</b><br><span>bal '+money(x.balance_after)+'</span></div></div>'});
+  shell("Agent: History",h);
+  $("#rp").onclick=()=>{
+    const s=sheet('<h2>End of day check</h2><div class="mut" style="margin-bottom:8px">Total received in your payment app today (customer deposits only)</div><label>Total</label><input id="tt" inputmode="numeric"><label>Statement screenshot (required)</label><input id="fl" type="file" accept="image/*"><div class="acts"><button class="b" id="sv">Send</button></div>');
+    s.querySelector("#sv").onclick=e=>guard(async()=>{const f=s.querySelector("#fl").files[0];if(!f)throw new Error("Add the screenshot");const path=await upload(f,"day");const res=await call("agent_submit_day_report",{p_total:Number(s.querySelector("#tt").value),p_path:path});closeSheet();toast(res.matched?"Matched. Thank you":"Does not match. Admin will check");await refresh()},e.target)};
+}
+
+function vMe(){
+  let h='<div class="card"><b>Services admin allowed for you</b><div class="mut" style="margin:2px 0 4px">Only these. Other services are locked.</div>'+(me.services.length?me.services.map(s=>'<span class="chip on">'+esc(s.replace(/\b\w/g,c=>c.toUpperCase()))+'</span>').join(""):'<span class="mut">None yet. Ask admin.</span>')+'</div>';
+  h+='<div class="card"><b>My payment numbers</b><div class="mut" style="margin:2px 0 6px">Customers send money to these numbers. Use a number only for this work.</div>';
+  me.accounts.forEach(a=>{h+='<div class="sw"><div><b>'+esc(a.number)+'</b><div class="mut">'+esc(a.label)+(a.name?' · '+esc(a.name):'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><button class="sm" data-del="'+a.id+'">✕</button><button class="tog '+(a.active?"":"off")+'" data-ac="'+a.id+'" data-on="'+(a.active?1:0)+'"></button></div></div>'});
+  h+='<div class="acts"><button class="b gh" id="add">+ Add number</button></div></div>';
+  h+='<div class="card"><div class="sw" style="border:0;padding:0"><div><b>I am available</b><div class="mut">Switch off when you are busy. No new work comes to you.</div></div><button class="tog '+(me.available?"":"off")+'" id="av"></button></div></div>';
+  h+='<div class="note">You cannot use customer services with your own agent number or account.</div><div class="acts"><button class="b gh" id="so">Sign out</button></div>';
+  shell("Agent: Me",h);
+  $("#av").onclick=e=>guard(async()=>{await call("agent_set_available",{p_on:!me.available});await refresh()},e.target);
+  document.querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>guard(async()=>{await call("agent_set_account",{p_id:b.dataset.ac,p_active:b.dataset.on!=="1"});await refresh()},b));
+  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>ask("Delete this number?","",async()=>{await call("agent_delete_account",{p_id:b.dataset.del});await refresh()},"Delete"));
+  $("#so").onclick=()=>signOut();
+  $("#add").onclick=()=>{
+    if(!me.channels.length){toast("Admin has not allowed any service for you",true);return}
+    const s=sheet('<h2>Add payment number</h2><label>Service</label><select id="ch">'+me.channels.map(c=>'<option value="'+c.id+'">'+esc(c.label)+'</option>').join("")+'</select><label>Number</label><input id="nu" inputmode="tel"><label>Account name (optional)</label><input id="na"><div class="acts"><button class="b" id="sv">Save</button></div>');
+    s.querySelector("#sv").onclick=e=>guard(async()=>{await call("agent_add_account",{p_channel:s.querySelector("#ch").value,p_number:s.querySelector("#nu").value,p_name:s.querySelector("#na").value});closeSheet();await refresh()},e.target)};
+}
+
+(async()=>{if(!sb){$("#app").innerHTML='<p style="padding:20px">Could not load. Check your internet and reload.</p>';return}await start()})();
+</script>
+</body>
+</html>
