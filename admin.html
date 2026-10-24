@@ -188,20 +188,21 @@ let idleT;function idleReset(){clearTimeout(idleT);if(me)idleT=setTimeout(()=>si
 /* ---------- shell and menu ---------- */
 const MENU=[
  ["Overview",[["home","▦","Dashboard",()=>true]]],
- ["Financial operations",[["deposits","⇣","Deposits",()=>me.finance],["withdrawals","⇡","Withdrawals",()=>me.finance],["ledger","≡","Transactions & Ledger",()=>me.finance||me.admin]]],
- ["Agents",[["agents","☻","Agents",()=>me.admin],["balreq","⇪","Balance requests",()=>me.admin],["agentops","⚖","Payout checks & reports",()=>me.finance||me.admin]]],
+ ["Financial operations",[["deposits","⇣","Mobile deposits",()=>me.finance],["bankdep","⇣","Bank deposits",()=>me.finance],["cryptodep","⇣","Crypto deposits",()=>me.finance],["withdrawals","⇡","Withdrawals",()=>me.finance],["ledger","≡","Transactions & Ledger",()=>me.finance||me.admin]]],
+ ["Agents",[["agents","☻","Agents",()=>me.admin],["numreq","☎","Number requests",()=>me.admin],["balreq","⇪","Balance requests",()=>me.admin],["agentops","⚖","Payout checks & reports",()=>me.finance||me.admin]]],
  ["Commerce",[["products","▣","Products & Catalog",()=>me.content],["orders","⚑","Orders & Buyback",()=>me.orders||me.finance],["reviews","★","Product Reviews",()=>me.content]]],
  ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin],["updates","✎","Updates (posts)",()=>me.content]]],
- ["Administration",[["channels","⇄","Payment Channels",()=>me.admin],["shop","⚙","Shop Settings",()=>me.admin],["logs","⛨","Security & Audit Logs",()=>me.admin]]]
+ ["Administration",[["channels","⇄","Payment Channels",()=>me.admin],["crypto","₿","Crypto coins & rates",()=>me.admin],["shop","⚙","Shop Settings",()=>me.admin],["logs","⛨","Security & Audit Logs",()=>me.admin]]]
 ];
 const TITLE={};MENU.forEach(g=>g[1].forEach(i=>TITLE[i[0]]=i[2]));
-const badge=()=>({deposits:stats.pending_deposits,withdrawals:stats.pending_withdrawals,kyc:stats.pending_kyc,orders:(stats.pending_orders||0)+(stats.sell_requests||0),balreq:alerts.balance_requests,agentops:(alerts.disputes||0)+(alerts.needs_admin||0)+(alerts.unmatched_reports||0)});
+const badge=()=>({deposits:(alerts.counts||{}).mobile,bankdep:(alerts.counts||{}).bank,cryptodep:(alerts.counts||{}).crypto,numreq:(alerts.counts||{}).number_requests,withdrawals:stats.pending_withdrawals,kyc:stats.pending_kyc,orders:(stats.pending_orders||0)+(stats.sell_requests||0),balreq:alerts.balance_requests,agentops:(alerts.disputes||0)+(alerts.needs_admin||0)+(alerts.unmatched_reports||0)});
 let alerts={};
 async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}
-  try{alerts=(me.finance||me.admin)?(await call("admin_agent_alerts")||{}):{}}catch(e){alerts={}}}
+  try{alerts=(me.finance||me.admin)?(await call("admin_agent_alerts")||{}):{}}catch(e){alerts={}}
+  try{if(me.finance||me.admin)alerts.counts=await call("admin_deposit_counts")}catch(e){}}
 function shell(){
   idleReset();
-  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v8</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
+  $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v9</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
   $("#bl").onclick=()=>signOut();$("#mm").onclick=openMenu;
   page="home";history.replaceState({p:"home"},"","#home");
   go("home",true);
@@ -238,7 +239,7 @@ views.home=async m=>{
   h+='<div class="grid">'+
    '<div class="stat" data-go="users"><div class="t">Users’ main balance <span>◧</span></div><b>'+money(s.total_available)+'</b><span class="s">'+(s.users||0)+' registered accounts</span></div>'+
    '<div class="stat" data-go="orders"><div class="t">Reserved (buyback) <span>◷</span></div><b class="g">'+money(s.total_reserved)+'</b><span class="s">held in buyback products</span></div>'+
-   '<div class="stat" data-go="deposits"><div class="t">Pending deposits <span style="color:var(--g2)">⇣</span></div><b>'+(s.pending_deposits||0)+'</b><span class="'+(s.pending_deposits?"w":"s")+'">'+(s.pending_deposits?"Needs review":"All clear")+'</span></div>'+
+   '<div class="stat" style="grid-column:1/-1"><div class="t">Pending deposits <span style="color:var(--g2)">⇣</span></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">'+[["deposits","Mobile",(alerts.counts||{}).mobile],["bankdep","Bank",(alerts.counts||{}).bank],["cryptodep","Crypto",(alerts.counts||{}).crypto]].map(x=>'<div data-go="'+x[0]+'" style="background:#08101f;border:1px solid var(--line);border-radius:13px;padding:10px;cursor:pointer"><div class="mut">'+x[1]+'</div><b style="font-size:24px;color:'+(x[2]?"var(--warn)":"var(--tx)")+'">'+(x[2]||0)+'</b></div>').join("")+'</div></div>'+(s.pending_deposits||0)+'</b><span class="'+(s.pending_deposits?"w":"s")+'">'+(s.pending_deposits?"Needs review":"All clear")+'</span></div>'+
    '<div class="stat" data-go="withdrawals"><div class="t">Pending withdrawals <span style="color:var(--bad)">⇡</span></div><b>'+(s.pending_withdrawals||0)+'</b><span class="'+(s.pending_withdrawals?"w":"s")+'">'+(s.pending_withdrawals?"Needs payment":"All clear")+'</span></div>'+
    '<div class="stat" data-go="kyc"><div class="t">Pending KYC <span>✔</span></div><b>'+(s.pending_kyc||0)+'</b><span class="s">identity checks</span></div>'+
    '<div class="stat" data-go="orders"><div class="t">Orders &amp; sell requests <span>⚑</span></div><b>'+((s.pending_orders||0)+(s.sell_requests||0))+'</b><span class="s">'+(s.pending_orders||0)+' delivery · '+(s.sell_requests||0)+' sell</span></div>'+
@@ -305,19 +306,22 @@ function depCard(r,m,after){
   });
   m.appendChild(c);
 }
-views.deposits=async m=>{
+function depView(m,cat,self){
   m.innerHTML='<div class="row" style="gap:8px"><input id="fq" placeholder="Search TrxID, phone or deposit ID" style="margin:0"><button class="b gh" id="fg" style="flex:none">Find</button></div>';
   const res=document.createElement("div");m.appendChild(res);
-  const run=async()=>{const q=$("#fq").value.trim();res.innerHTML="";if(q.length<3){go("deposits",true,true);return}
+  const run=async()=>{const q=$("#fq").value.trim();res.innerHTML="";if(q.length<3){go(self,true,true);return}
     const data=await call("admin_find_deposit",{p_q:q});data.forEach(r=>{if(r.user_id)names[r.user_id]=(r.username||"user")+(r.phone?" · "+r.phone:"")});
-    if(!data.length)res.innerHTML='<p class="mut">Nothing found.</p>';data.forEach(r=>depCard(r,res,()=>go("deposits")))};
+    if(!data.length)res.innerHTML='<p class="mut">Nothing found.</p>';data.forEach(r=>depCard(r,res,()=>go(self)))};
   $("#fg").onclick=e=>guard(run,e.target);$("#fq").onkeydown=e=>{if(e.key==="Enter")$("#fg").click()};
-  seg([["pending","Pending"],["all","Recent"]],depF,v=>{depF=v;go("deposits")},m);
-  const data=await call("admin_list_deposits",{p_status:depF,p_limit:60});
-  data.forEach(r=>{if(r.user_id)names[r.user_id]=(r.username||"user")+(r.phone?" · "+r.phone:"")});
-  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
-  data.forEach(r=>depCard(r,m,()=>go("deposits")));
-};
+  seg([["pending","Pending"],["all","Recent"]],depF,v=>{depF=v;go(self)},m);
+  return call("admin_list_deposits",{p_status:depF,p_limit:60,p_cat:cat}).then(data=>{
+    data.forEach(r=>{if(r.user_id)names[r.user_id]=(r.username||"user")+(r.phone?" · "+r.phone:"")});
+    if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+    data.forEach(r=>depCard(r,m,()=>go(self)));
+  });
+}
+views.deposits=m=>depView(m,"mobile","deposits");
+views.bankdep=m=>depView(m,"bank","bankdep");
 
 /* ---------- withdrawals ---------- */
 let wdF="pending";
@@ -622,7 +626,8 @@ function accountsSheet(c,all,missing){
     q("al").innerHTML=mine.length?"":'<p class="mut">No numbers yet. Customers cannot deposit on this channel until you add one.</p>';
     mine.forEach(a=>{
       const d=document.createElement("div");d.className="sw";
-      d.innerHTML='<span><b>'+esc(a.account_number)+'</b><br><span class="mut">'+esc(a.owner_type)+(a.account_name?" · "+esc(a.account_name):"")+'</span></span><span style="display:flex;gap:6px"><button class="b '+(a.active?"ok":"gh")+'" data-t="1">'+(a.active?"ON":"OFF")+'</button>'+(a.owner_type==="company"?'<button class="b no" data-d="1">Delete</button>':"")+'</span>';
+      d.innerHTML='<span><b>'+esc(a.account_number)+'</b><br><span class="mut">'+esc(a.owner_type)+(a.account_name?" · "+esc(a.account_name):"")+'</span></span><span style="display:flex;gap:6px"><button class="b '+(a.active?"ok":"gh")+'" data-t="1">'+(a.owner_type==="company"?"Customers ":"")+(a.active?"ON":"OFF")+'</button>'+(a.owner_type==="company"?'<button class="b '+(a.agent_topup?"ok":"gh")+'" data-ag="1">Agents '+(a.agent_topup?"ON":"OFF")+'</button><button class="b no" data-d="1">Delete</button>':"")+'</span>';
+      const agb=d.querySelector("[data-ag]");if(agb)agb.onclick=e=>guard(async()=>{const r=await sb.from("channel_accounts").update({agent_topup:!a.agent_topup}).eq("id",a.id);if(r.error)throw r.error;a.agent_topup=!a.agent_topup;draw()},e.target);
       d.querySelector("[data-t]").onclick=e=>guard(async()=>{const r=await sb.from("channel_accounts").update({active:!a.active}).eq("id",a.id);if(r.error)throw r.error;a.active=!a.active;draw()},e.target);
       const del=d.querySelector("[data-d]");if(del)del.onclick=e=>guard(async()=>{const r=await sb.from("channel_accounts").delete().eq("id",a.id);if(r.error)throw r.error;mine=mine.filter(x=>x.id!==a.id);all.splice(all.indexOf(a),1);draw()},e.target);
       q("al").appendChild(d);
@@ -648,7 +653,10 @@ boot();
 
 /* ---------- agents ---------- */
 const lbl=k=>String(k).replace(/\b\w/g,c=>c.toUpperCase());
-function svcTicks(keys,sel){return keys.map(k=>'<label class="ck"><input type="checkbox" data-sv="'+esc(k.key)+'" '+(sel.includes(k.key)?"checked":"")+'>'+esc(k.label)+'</label>').join("")}
+function svcTicks(keys,sel){
+  const one=k=>'<label class="ck"><input type="checkbox" data-sv="'+esc(k.key)+'" '+(sel.includes(k.key)?"checked":"")+'>'+esc(k.label)+'</label>';
+  const bank=keys.filter(k=>/bank/i.test(k.key)),mob=keys.filter(k=>!/bank/i.test(k.key));
+  return (mob.length?'<div class="mut" style="margin-top:6px">MOBILE SERVICES</div>'+mob.map(one).join(""):"")+(bank.length?'<div class="mut" style="margin-top:10px">BANK</div>'+bank.map(one).join(""):"")+'<div class="mut" style="margin-top:10px">Crypto stays with the company for now.</div>'}
 const ticked=el=>[...el.querySelectorAll("[data-sv]")].filter(i=>i.checked).map(i=>i.dataset.sv);
 views.agents=async m=>{
   const list=await call("admin_list_agents");const keys=await call("admin_service_keys");
@@ -659,10 +667,11 @@ views.agents=async m=>{
     const c=document.createElement("div");c.className="card";
     c.innerHTML='<div class="row"><div><b style="font-size:17px">'+esc(a.name)+'</b><div class="mut">'+esc(a.username||"")+(a.phone?" · "+esc(a.phone):"")+'</div><div class="mut">'+(a.services.length?a.services.map(lbl).join(" · "):"No services")+'</div></div><span class="tag '+(a.status!=="active"?"suspended":off?"slow":"active")+'">'+(a.status!=="active"?"suspended":Number(a.balance)<=0?"off · no balance":!a.available?"off":"active")+'</span></div>'+
      '<div class="kv" style="margin-top:8px"><span>Balance</span><span><b>'+money(a.balance)+'</b>'+(Number(a.pending_balance)>0?' (+'+money(a.pending_balance)+' pending)':'')+'</span><span>His limit</span><span>'+money(a.my_limit)+' ('+money(a.limit_used)+' used)</span><span>Overflow</span><span>'+money(a.overflow)+' · min '+money(a.min_deposit)+'</span><span>Today</span><span>'+money(a.today_in)+' in · '+money(a.today_out)+' out</span><span>Avg reply</span><span>'+(a.avg_reply_min==null?"–":a.avg_reply_min+" min")+'</span><span>Problems</span><span '+((a.overdue||a.complaints)?'style="color:var(--warn)"':'')+'>'+a.overdue+' unanswered · '+a.complaints+' complaints · '+a.rejects+' rejects</span></div>'+
-     '<div class="acts"><button class="b" data-x="add">Add money</button><button class="b gh" data-x="take">Take back</button></div><div class="acts"><button class="b gh" data-x="edit">Services</button><button class="b gh" data-x="led">History</button><button class="b no" data-x="st">'+(a.status==="active"?"Suspend":"Activate")+'</button></div>';
+     '<div class="acts"><button class="b" data-x="add">Add money</button><button class="b gh" data-x="take">Take back</button></div><div class="acts"><button class="b gh" data-x="edit">Services</button><button class="b gh" data-x="num">Numbers</button><button class="b gh" data-x="led">History</button><button class="b no" data-x="st">'+(a.status==="active"?"Suspend":"Activate")+'</button></div>';
     c.querySelector('[data-x=add]').onclick=()=>moneySheet(a,1);
     c.querySelector('[data-x=take]').onclick=()=>moneySheet(a,-1);
     c.querySelector('[data-x=edit]').onclick=()=>agentForm(keys,a);
+    c.querySelector('[data-x=num]').onclick=()=>agentNumbers(a);
     c.querySelector('[data-x=st]').onclick=()=>ask((a.status==="active"?"Suspend ":"Activate ")+a.name+"?",false,async()=>{await call("admin_set_agent_status",{p_user:a.user_id,p_status:a.status==="active"?"suspended":"active"});toast("Done");go("agents",true,true)});
     c.querySelector('[data-x=led]').onclick=async()=>{const {data,error}=await sb.rpc("admin_agent_ledger",{p_user:a.user_id});if(error){toast(error.message,true);return}
       sheet('<div class="row"><h2 style="margin:0">'+esc(a.name)+' · history</h2><button class="b gh" id="cx">✕</button></div>'+(data&&data.length?data.map(x=>'<div class="tx"><div class="m"><b>'+esc(lbl(x.kind.replace(/_/g," ")))+'</b><br><span>'+esc(x.ref||"")+' '+esc(x.note||"")+' · '+when(x.created_at)+'</span></div><div class="a"><b>'+(Number(x.amount)>0?"+":"")+money(x.amount)+'</b><span class="mut">bal '+money(x.balance_after)+'</span></div></div>').join(""):'<p class="mut">Nothing yet.</p>')).querySelector("#cx").onclick=closeSheet};
@@ -697,7 +706,7 @@ views.balreq=async m=>{
   if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
   data.forEach(r=>{
     const c=document.createElement("div");c.className="card";
-    c.innerHTML='<div class="row"><b style="font-size:22px">'+money(r.amount)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>Agent</span><span>'+esc(r.agent_name)+'</span><span>Paid via</span><span>'+esc(r.pay_method||"–")+'</span><span>TrxID</span><span><b>'+esc(r.trx_id||"")+'</b></span><span>Asked</span><span>'+when(r.created_at)+'</span>'+(r.admin_note?'<span>Note</span><span>'+esc(r.admin_note)+'</span>':'')+'</div><img class="rc" style="width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#000" alt="">'+
+    c.innerHTML='<div class="row"><b style="font-size:22px">'+money(r.amount)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>Agent</span><span>'+esc(r.agent_name)+'</span><span>Paid via</span><span>'+esc(r.pay_method||"–")+'</span>'+(r.coin_symbol?'<span>Sent</span><span><b>'+esc(r.amount_coin)+' '+esc(r.coin_symbol)+'</b> · '+esc(r.coin_network)+'</span><span>Rate locked</span><span>1 '+esc(r.coin_symbol)+' = '+money(r.rate_bdt)+'</span>':'')+'<span>TrxID</span><span><b>'+esc(r.trx_id||"")+'</b></span><span>Asked</span><span>'+when(r.created_at)+'</span>'+(r.admin_note?'<span>Note</span><span>'+esc(r.admin_note)+'</span>':'')+'</div><img class="rc" style="width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#000" alt="">'+
      (r.status==="pending"?'<div class="acts"><button class="b ok" data-a="approve">Approve · add '+money(r.amount)+'</button><button class="b no" data-a="reject">Reject</button></div>':"");
     signedImg("agent-files",r.proof_path).then(u=>{const im=c.querySelector("img.rc");if(u){im.src=u;im.onclick=()=>window.open(u,"_blank")}else im.remove()});
     c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>ask((b.dataset.a==="approve"?"Approve ":"Reject ")+money(r.amount)+"?",true,async note=>{await call("admin_review_balance_request",{p_id:r.id,p_action:b.dataset.a,p_note:note||null});toast("Done");go("balreq")}));
@@ -727,6 +736,91 @@ views.agentops=async m=>{
     $("#st").innerHTML='<div class="card">'+F.map(f=>'<label>'+f[1]+'</label><input data-k="'+f[0]+'" value="'+esc(S[f[0]]||"")+'">').join("")+'<div class="acts"><button class="b" id="ss">Save rules</button></div></div>';
     $("#ss").onclick=e=>guard(async()=>{for(const i of document.querySelectorAll("#st [data-k]"))await call("admin_set_agent_setting",{p_key:i.dataset.k,p_value:i.value});toast("Saved")},e.target);
   }
+};
+
+/* ---------- deposit channels helper ---------- */
+async function depositChannelList(){
+  const [{data:svc},{data:chs},{data:pv}]=await Promise.all([sb.from("provider_services").select("id,provider_id,service_code"),sb.from("provider_channels").select("id,provider_service_id,channel_name"),sb.from("providers").select("*")]);
+  const pn={};(pv||[]).forEach(p=>pn[p.id]=p.provider_name||p.name||p.display_name||p.title||p.provider_code||"");
+  const dep={};(svc||[]).filter(x=>x.service_code==="deposit").forEach(x=>dep[x.id]=x);
+  return (chs||[]).filter(c=>dep[c.provider_service_id]).map(c=>{const label=(pn[dep[c.provider_service_id].provider_id]||"")+" "+c.channel_name;return{id:c.id,label:label.trim(),key:label.trim().toLowerCase()}}).sort((a,b)=>a.label.localeCompare(b.label));
+}
+async function agentNumbers(a){
+  const [accs,chs]=await Promise.all([call("admin_agent_accounts",{p_user:a.user_id}),depositChannelList()]);
+  const mine=chs.filter(c=>a.services.includes(c.key));
+  const s=sheet('<div class="row"><h2 style="margin:0">'+esc(a.name)+' · numbers</h2><button class="b gh" id="cx">✕</button></div><div id="al" style="margin:10px 0"></div>'+(mine.length?'<div class="card"><b>Add a number for this agent</b><label>Service</label><select id="sv">'+mine.map(c=>'<option value="'+c.id+'">'+esc(c.label)+'</option>').join("")+'</select><label>Number</label><input id="nn" inputmode="tel"><label>Account name (optional)</label><input id="na"><button class="b" id="ad">Add number</button></div>':'<p class="mut">Tick a service for this agent first.</p>'));
+  s.querySelector("#cx").onclick=closeSheet;
+  s.querySelector("#al").innerHTML=accs.length?accs.map(x=>'<div class="sw"><span><b>'+esc(x.number)+'</b><br><span class="mut">'+esc(x.service)+(x.name?" · "+esc(x.name):"")+'</span></span><span style="display:flex;gap:6px;align-items:center">'+(x.retired?'<span class="tag rejected">retired</span>':'<span class="tag '+(x.active?"active":x.hold?"suspended":"pending")+'">'+(x.hold?"off by admin":x.active?"on":"paused")+'</span><button class="b gh" data-h="'+x.id+'" data-a="'+(x.hold?"release":"hold")+'">'+(x.hold?"Allow":"Turn off")+'</button><button class="b no" data-r="'+x.id+'">Retire</button>')+'</span></div>').join(""):'<p class="mut">No numbers yet.</p>';
+  s.querySelectorAll("[data-h]").forEach(b=>b.onclick=e=>guard(async()=>{await call("admin_set_agent_account",{p_id:b.dataset.h,p_action:b.dataset.a});closeSheet();toast("Done");agentNumbers(a)},e.target));
+  s.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{closeSheet();ask("Retire this number for good?",false,async()=>{await call("admin_set_agent_account",{p_id:b.dataset.r,p_action:"retire"});toast("Retired");agentNumbers(a)})});
+  const ad=s.querySelector("#ad");if(ad)ad.onclick=e=>guard(async()=>{await call("admin_add_agent_account",{p_user:a.user_id,p_channel:s.querySelector("#sv").value,p_number:s.querySelector("#nn").value,p_name:s.querySelector("#na").value});closeSheet();toast("Added");agentNumbers(a)},e.target);
+}
+let nrF="pending";
+views.numreq=async m=>{
+  m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],nrF,v=>{nrF=v;go("numreq")},m);
+  const data=await call("admin_list_number_requests",{p_status:nrF});
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b style="font-size:19px">'+esc(r.number)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>Agent</span><span>'+esc(r.agent_name)+'</span><span>Service</span><span>'+esc(r.service)+'</span><span>Name</span><span>'+esc(r.name||"–")+'</span><span>Asked</span><span>'+when(r.created_at)+'</span></div>'+(r.status==="pending"?(r.allowed?"":'<div class="mut" style="margin-top:8px;color:var(--warn)">This service is not ticked for the agent. Tick it first.</div>')+'<div class="acts"><button class="b ok" data-a="approve">Approve</button><button class="b no" data-a="reject">Reject</button></div>':"");
+    c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>ask((b.dataset.a==="approve"?"Approve ":"Reject ")+r.number+"?",true,async note=>{await call("admin_review_number_request",{p_id:r.id,p_action:b.dataset.a,p_note:note||null});toast("Done");go("numreq")}));
+    m.appendChild(c);
+  });
+};
+
+/* ---------- crypto ---------- */
+async function binancePrices(syms){
+  const q=encodeURIComponent(JSON.stringify(syms.map(x=>x+"USDT")));
+  for(const host of ["https://api.binance.com","https://data-api.binance.vision"]){
+    try{const r=await fetch(host+"/api/v3/ticker/price?symbols="+q);if(!r.ok)continue;const j=await r.json();const out={};j.forEach(x=>out[x.symbol.replace(/USDT$/,"")]=Number(x.price));return out}catch(e){}
+  }
+  throw new Error("Could not read Binance prices. Check your internet and press Refresh prices.");
+}
+async function refreshCryptoPrices(d){
+  const syms=[...new Set(d.coins.filter(c=>!c.is_stable&&c.active).map(c=>c.symbol))];
+  if(!syms.length)return d;
+  const p=await binancePrices(syms);await call("admin_set_crypto_prices",{p_prices:p});
+  return await call("admin_list_crypto_coins");
+}
+views.crypto=async m=>{
+  let d=await call("admin_list_crypto_coins");
+  try{d=await refreshCryptoPrices(d)}catch(e){toast(e.message,true)}
+  const st=d.settings||{};
+  m.innerHTML='<div class="card"><div class="row"><b>Crypto section</b><button class="b '+(st.enabled==="1"?"ok":"gh")+'" id="en">'+(st.enabled==="1"?"ON":"OFF")+'</button></div><div class="mut" style="margin:4px 0 10px">Customers see crypto under Bank on the deposit page.</div><label>USDT rate (৳ for 1 USDT)</label><input id="ur" inputmode="decimal" value="'+esc(st.usdt_rate||"")+'"><label>Stop a coin if its price is older than (hours)</label><input id="ag" inputmode="numeric" value="'+esc(st.max_price_age_hours||"6")+'"><div class="acts"><button class="b" id="sv">Save rates</button><button class="b gh" id="rp">Refresh prices</button></div><div class="mut" style="margin-top:8px">Prices come from Binance every time you open this page. If no admin opens it, coins other than USDT stop after the hours above (safety).</div></div><div class="row" style="margin:6px 0 10px"><span class="mut">'+d.coins.length+' coin'+(d.coins.length===1?"":"s")+'</span><button class="b" id="ac">+ Add coin</button></div><div id="cl"></div>';
+  $("#en").onclick=e=>guard(async()=>{await call("admin_set_crypto_setting",{p_key:"enabled",p_value:st.enabled==="1"?"0":"1"});go("crypto",true,true)},e.target);
+  $("#sv").onclick=e=>guard(async()=>{await call("admin_set_crypto_setting",{p_key:"usdt_rate",p_value:$("#ur").value});await call("admin_set_crypto_setting",{p_key:"max_price_age_hours",p_value:$("#ag").value});toast("Saved");go("crypto",true,true)},e.target);
+  $("#rp").onclick=e=>guard(async()=>{await refreshCryptoPrices(d);toast("Prices updated");go("crypto",true,true)},e.target);
+  $("#ac").onclick=()=>coinForm(null);
+  $("#cl").innerHTML=d.coins.length?"":'<div class="card mut">No coins yet. Add the first coin.</div>';
+  d.coins.forEach(c=>{
+    const el=document.createElement("div");el.className="card";
+    el.innerHTML='<div class="row"><div><b style="font-size:17px">'+esc(c.symbol)+' · '+esc(c.network)+'</b><div class="mut" style="word-break:break-all">'+esc(c.address)+(c.memo?" · memo "+esc(c.memo):"")+'</div></div><span class="tag '+(c.active?(c.rate_bdt?"active":"pending"):"suspended")+'">'+(!c.active?"off":c.rate_bdt?"on":"price old")+'</span></div><div class="kv" style="margin-top:8px"><span>Rate</span><span>'+(c.rate_bdt?'1 '+esc(c.symbol)+' = <b>'+money(c.rate_bdt)+'</b>':'<span style="color:var(--warn)">waiting for a fresh price</span>')+'</span><span>Margin</span><span>'+esc(c.margin_pct)+' %'+(c.is_stable?' · stable coin':'')+'</span><span>Minimum</span><span>'+esc(c.min_amount)+' '+esc(c.symbol)+'</span></div><div class="acts"><button class="b '+(c.active?"ok":"gh")+'" data-f="active">Customers '+(c.active?"ON":"OFF")+'</button><button class="b '+(c.agent_topup?"ok":"gh")+'" data-f="agent_topup">Agents '+(c.agent_topup?"ON":"OFF")+'</button></div><div class="acts"><button class="b gh" data-e="1">Edit</button><button class="b no" data-x="1">Delete</button></div>';
+    el.querySelectorAll("[data-f]").forEach(b=>b.onclick=e=>guard(async()=>{await call("admin_set_crypto_coin_flag",{p_id:c.id,p_field:b.dataset.f,p_value:!c[b.dataset.f]});go("crypto",true,true)},e.target));
+    el.querySelector("[data-e]").onclick=()=>coinForm(c);
+    el.querySelector("[data-x]").onclick=()=>ask("Delete "+c.symbol+" · "+c.network+"?",false,async()=>{await call("admin_delete_crypto_coin",{p_id:c.id});toast("Deleted");go("crypto",true,true)});
+    $("#cl").appendChild(el);
+  });
+};
+function coinForm(c){
+  c=c||{symbol:"",network:"",address:"",min_amount:0,confirmations:1,margin_pct:2,active:true,agent_topup:false,is_stable:false,sort_order:0};
+  const f=(id,l,v,ph,mode)=>'<label>'+l+'</label><input id="'+id+'" value="'+esc(v==null?"":v)+'" '+(mode?'inputmode="'+mode+'"':"")+(ph?' placeholder="'+esc(ph)+'"':"")+'>';
+  const s=sheet('<h2>'+(c.id?"Edit coin":"Add coin")+'</h2>'+f("c_sy","Coin (e.g. USDT, BTC)",c.symbol)+f("c_nw","Network (e.g. TRC20, BEP20, BTC)",c.network)+f("c_nm","Name (optional)",c.name)+f("c_ad","Deposit address (from Binance → Wallet → Deposit)",c.address)+f("c_me","Memo / Tag (only if Binance shows one)",c.memo)+f("c_mn","Minimum deposit (in coin)",c.min_amount,"","decimal")+f("c_cf","Confirmations needed",c.confirmations,"","numeric")+f("c_mg","Margin % (kept by you)",c.margin_pct,"","decimal")+f("c_wr","Warning text shown to customers",c.warning,"Send only USDT on the TRC20 network.")+f("c_so","Order (small number shows first)",c.sort_order,"","numeric")+
+   '<label class="ck"><input type="checkbox" id="c_st" '+(c.is_stable?"checked":"")+'>Stable coin (1 coin = 1 USDT, uses your USDT rate)</label><label class="ck"><input type="checkbox" id="c_ac" '+(c.active?"checked":"")+'>Customers can use it</label><label class="ck"><input type="checkbox" id="c_ag" '+(c.agent_topup?"checked":"")+'>Agents can pay with it for balance</label><div class="acts"><button class="b" id="c_sv">Save coin</button><button class="b gh" id="c_cx">Cancel</button></div>');
+  const q=i=>s.querySelector("#"+i);q("c_cx").onclick=closeSheet;
+  q("c_sv").onclick=e=>guard(async()=>{await call("admin_save_crypto_coin",{p_id:c.id||null,p_symbol:q("c_sy").value,p_network:q("c_nw").value,p_name:q("c_nm").value,p_address:q("c_ad").value,p_memo:q("c_me").value,p_min:Number(q("c_mn").value||0),p_conf:Number(q("c_cf").value||1),p_warning:q("c_wr").value,p_stable:q("c_st").checked,p_margin:Number(q("c_mg").value||0),p_active:q("c_ac").checked,p_agent_topup:q("c_ag").checked,p_sort:Number(q("c_so").value||0)});closeSheet();toast("Saved");go("crypto",true,true)},e.target);
+}
+let cdF="pending";
+views.cryptodep=async m=>{
+  m.innerHTML="";seg([["pending","Pending"],["all","Recent"]],cdF,v=>{cdF=v;go("cryptodep")},m);
+  const data=await call("admin_list_crypto_deposits",{p_status:cdF,p_limit:60});
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">Nothing here.</p>');
+  data.forEach(r=>{
+    const c=document.createElement("div");c.className="card";
+    c.innerHTML='<div class="row"><b style="font-size:22px">'+money(r.amount_bdt)+'</b><span class="tag '+r.status+'">'+r.status+'</span></div><div class="kv" style="margin-top:8px"><span>User</span><span>'+esc(r.username||"user")+(r.phone?" · "+esc(r.phone):"")+'</span><span>Coin</span><span><b>'+esc(r.amount_coin)+' '+esc(r.symbol)+'</b> · '+esc(r.network)+'</span><span>Rate locked</span><span>1 '+esc(r.symbol)+' = '+money(r.rate_bdt)+'</span><span>TxID</span><span style="word-break:break-all"><b>'+esc(r.txid)+'</b></span><span>Submitted</span><span>'+when(r.created_at)+'</span>'+(r.admin_note?'<span>Note</span><span>'+esc(r.admin_note)+'</span>':'')+'</div><img class="rc" style="width:100%;max-height:260px;object-fit:contain;border-radius:12px;margin-top:10px;background:#000" alt="">'+(r.status==="pending"?'<div class="note" style="background:#0b241f;border:1px solid #17684e;border-radius:13px;padding:11px;color:#bdeadd;font-size:13px;margin-top:10px">Check Binance → Wallet → Deposit history: same TxID, '+esc(r.amount_coin)+' '+esc(r.symbol)+', '+esc(r.network)+', status Completed.</div><div class="acts"><button class="b ok" data-a="approve">Approve · credit '+money(r.amount_bdt)+'</button><button class="b no" data-a="reject">Reject</button></div>':"");
+    signedImg("deposit-receipts",r.receipt_path).then(u=>{const im=c.querySelector("img.rc");if(u){im.src=u;im.onclick=()=>window.open(u,"_blank")}else im.remove()});
+    c.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>ask((b.dataset.a==="approve"?"Approve ":"Reject ")+money(r.amount_bdt)+"?",true,async note=>{await call("admin_review_crypto_deposit",{p_id:r.id,p_action:b.dataset.a,p_note:note||null});toast("Done");go("cryptodep")}));
+    m.appendChild(c);
+  });
 };
 </script>
 </body>
