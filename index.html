@@ -1516,6 +1516,15 @@ function t(key){
 
 
 const BN_EXTRA = {
+ "Crypto": "ক্রিপ্টো",
+ "I have sent it": "আমি পাঠিয়েছি",
+ "Confirm your deposit": "ডিপোজিট নিশ্চিত করুন",
+ "Deposit address": "ডিপোজিট ঠিকানা",
+ "⧉ Copy address": "⧉ ঠিকানা কপি",
+ "Transaction hash (TxID)": "ট্রানজেকশন হ্যাশ (TxID)",
+ "Rate not available": "রেট নেই",
+ "Minimum": "সর্বনিম্ন",
+ "Rate": "রেট",
  "Payment screenshot (required)": "পেমেন্টের স্ক্রিনশট (বাধ্যতামূলক)",
  "Please add a screenshot of your payment.": "পেমেন্টের স্ক্রিনশট দিন।",
  "Yes, received": "হ্যাঁ, পেয়েছি",
@@ -3616,6 +3625,143 @@ function closeDepositModal(){
 
 }
 
+/* =========================================================
+   CRYPTO DEPOSIT — a section of the deposit page
+   ========================================================= */
+let cryptoCoins = [];
+
+async function loadCryptoCoins(){
+  cryptoCoins = [];
+  if(!supabaseClient || !user?.id) return;
+  try{
+    const { data, error } = await supabaseClient.rpc("crypto_list_coins");
+    if(error) throw error;
+    cryptoCoins = Array.isArray(data) ? data : [];
+  }catch(e){ cryptoCoins = []; }
+}
+
+const takaText = n => "৳" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits:2 });
+
+function renderCryptoSection(){
+  const old = $("cryptoSection"); if(old) old.remove();
+  if(!cryptoCoins.length) return false;
+  const bySymbol = new Map();
+  cryptoCoins.forEach(c=>{ if(!bySymbol.has(c.symbol)) bySymbol.set(c.symbol, []); bySymbol.get(c.symbol).push(c); });
+
+  const wrap = document.createElement("div");
+  wrap.className = "provider-group";
+  wrap.id = "cryptoSection";
+  wrap.innerHTML = '<div class="provider-head"><strong>Crypto</strong><span>' + bySymbol.size + ' coin(s)</span></div><div class="channel-list"></div>';
+  const list = wrap.querySelector(".channel-list");
+  bySymbol.forEach((items, symbol)=>{
+    const first = items[0];
+    const card = document.createElement("button");
+    card.type = "button"; card.className = "channel-card";
+    const rate = items.find(x => x.rate);
+    card.innerHTML = '<strong></strong><small></small>';
+    card.querySelector("strong").textContent = symbol + (first.name ? " (" + first.name + ")" : "");
+    card.querySelector("small").textContent = items.map(x=>x.network).join(" · ") + " · " + (rate ? "1 " + symbol + " = " + takaText(rate.rate) : "Rate not available");
+    card.addEventListener("click", ()=> openCryptoSheet(symbol, 0));
+    list.appendChild(card);
+  });
+  $("depositChannelList").appendChild(wrap);
+  return true;
+}
+
+let qrLibPromise = null;
+function loadQrLib(){
+  if(window.qrcode) return Promise.resolve(true);
+  if(qrLibPromise) return qrLibPromise;
+  qrLibPromise = new Promise(res=>{
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js";
+    sc.onload = ()=>res(!!window.qrcode); sc.onerror = ()=>res(false);
+    document.head.appendChild(sc);
+  });
+  return qrLibPromise;
+}
+
+async function copyText(value, btn){
+  let ok = false;
+  try{ await navigator.clipboard.writeText(value); ok = true; }catch(e){}
+  if(!ok){
+    try{ const ta = document.createElement("textarea"); ta.value = value; ta.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); }catch(e){}
+  }
+  const old = btn.textContent;
+  btn.textContent = ok ? "✓ Copied" : "Copy failed";
+  setTimeout(()=>{ btn.textContent = old; }, 1600);
+}
+
+function openCryptoSheet(symbol, idx){
+  const items = cryptoCoins.filter(c => c.symbol === symbol);
+  const c = items[idx] || items[0];
+  const esc2 = shopEsc;
+  const warn = c.warning || ("Send only " + c.symbol + " on the " + c.network + " network. Other coins or another network will be lost and cannot be recovered.");
+  const sh = openSheet(
+    '<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">' + esc2(c.symbol) + ' deposit</h2><button class="icon-button" id="cxClose" type="button">×</button></div>' +
+    (items.length > 1 ? '<div style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap">' + items.map((x,i)=>'<button type="button" class="btn" data-net="' + i + '" style="' + (i===idx ? 'border-color:#1aa982;background:#0d2a26' : '') + '">' + esc2(x.network) + '</button>').join("") + '</div>' : '<div class="muted" style="margin:8px 0">Network: <b>' + esc2(c.network) + '</b></div>') +
+    '<div style="background:#2a0f18;border:1px solid #5b1a2a;color:#fda4af;border-radius:13px;padding:12px;font-size:14px;line-height:1.5;margin:10px 0"><b>' + esc2(warn) + '</b></div>' +
+    '<div class="acct-box"><div class="muted">Deposit address</div><div id="cxQr" style="display:flex;justify-content:center;margin:10px 0"></div>' +
+    '<div class="acct-num" style="font-size:15px;word-break:break-all">' + esc2(c.address) + '</div><div style="margin-top:8px"><button class="btn" id="cxCopy" type="button">⧉ Copy address</button></div>' +
+    (c.memo ? '<div class="muted" style="margin-top:12px">Memo / Tag (required)</div><div class="acct-num" style="font-size:16px">' + esc2(c.memo) + '</div><button class="btn" id="cxCopyMemo" type="button" style="margin-top:6px">⧉ Copy memo</button>' : '') + '</div>' +
+    '<div class="deposit-summary" style="margin-top:12px"><div class="deposit-summary-row"><span>Minimum</span><strong>' + esc2(c.min_amount) + ' ' + esc2(c.symbol) + '</strong></div><div class="deposit-summary-row"><span>Rate</span><strong>' + (c.rate ? '1 ' + esc2(c.symbol) + ' = ' + takaText(c.rate) : 'Not available now') + '</strong></div></div>' +
+    '<button class="btn btn-primary btn-block" id="cxSent" type="button" style="margin-top:14px"' + (c.rate ? '' : ' disabled') + '>I have sent it</button>'
+  );
+  sh.querySelector("#cxClose").onclick = closeSheet;
+  sh.querySelectorAll("[data-net]").forEach(b => b.onclick = ()=> openCryptoSheet(symbol, Number(b.dataset.net)));
+  sh.querySelector("#cxCopy").onclick = e => copyText(c.address, e.target);
+  const cm = sh.querySelector("#cxCopyMemo"); if(cm) cm.onclick = e => copyText(c.memo, e.target);
+  sh.querySelector("#cxSent").onclick = ()=> openCryptoForm(c);
+  loadQrLib().then(ok=>{
+    if(!ok) return;
+    try{
+      const qr = window.qrcode(0, "M"); qr.addData(c.address); qr.make();
+      const box = sh.querySelector("#cxQr"); if(box) box.innerHTML = '<div style="background:#fff;padding:8px;border-radius:12px;width:170px;height:170px">' + qr.createSvgTag({ scalable:true }) + '</div>';
+    }catch(e){}
+  });
+}
+
+function openCryptoForm(c){
+  const esc2 = shopEsc;
+  const sh = openSheet(
+    '<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Confirm your deposit</h2><button class="icon-button" id="cfClose" type="button">×</button></div>' +
+    '<div class="muted" style="margin:6px 0">' + esc2(c.symbol) + ' · ' + esc2(c.network) + '</div>' +
+    '<div class="field"><label>Amount you sent (' + esc2(c.symbol) + ')</label><input id="cfAmount" type="number" step="any" inputmode="decimal" min="' + esc2(c.min_amount) + '" placeholder="0.00"></div>' +
+    '<div id="cfGet" class="acct-box" style="margin:8px 0">You will get about <b>' + takaText(0) + '</b><div class="muted">Rate is locked when you submit: 1 ' + esc2(c.symbol) + ' = ' + takaText(c.rate) + '</div></div>' +
+    '<div class="field"><label>Transaction hash (TxID)</label><input id="cfTx" type="text" autocomplete="off" placeholder="Paste the transaction hash"></div>' +
+    '<div class="field"><label>Payment screenshot (required)</label><input id="cfFile" type="file" accept="image/*"></div>' +
+    '<div id="cfMsg" class="message hidden"></div>' +
+    '<button class="btn btn-primary btn-block" id="cfSubmit" type="button" style="margin-top:12px">Submit</button>'
+  );
+  sh.querySelector("#cfClose").onclick = closeSheet;
+  const amt = sh.querySelector("#cfAmount");
+  amt.oninput = ()=>{ sh.querySelector("#cfGet b").textContent = takaText(Number(amt.value || 0) * Number(c.rate || 0)); };
+  sh.querySelector("#cfSubmit").onclick = async e=>{
+    const msg = sh.querySelector("#cfMsg");
+    const amount = Number(amt.value), tx = sh.querySelector("#cfTx").value.trim(), file = sh.querySelector("#cfFile").files[0];
+    if(!(amount > 0)){ showMessage(msg, "Enter the amount you sent.", "error"); return; }
+    if(amount < Number(c.min_amount)){ showMessage(msg, "Minimum deposit is " + c.min_amount + " " + c.symbol + ".", "error"); return; }
+    if(tx.length < 8){ showMessage(msg, "Enter the transaction hash (TxID).", "error"); return; }
+    if(!file){ showMessage(msg, "Please add a screenshot of your payment.", "error"); return; }
+    const btn = e.target; btn.disabled = true; btn.textContent = "Submitting...";
+    try{
+      const blob = await compressImage(file);
+      const path = user.id + "/" + Date.now() + "_crypto.jpg";
+      const up = await supabaseClient.storage.from("deposit-receipts").upload(path, blob, { contentType:"image/jpeg", upsert:false });
+      if(up.error) throw up.error;
+      const { error } = await supabaseClient.rpc("create_crypto_deposit", {
+        p_coin: c.id, p_amount: amount, p_txid: tx, p_receipt_path: path, p_idempotency_key: makeRequestId("CDI") });
+      if(error) throw error;
+      closeSheet();
+      toast("Deposit request submitted", "success");
+      refreshNotificationBadge();
+    }catch(err){
+      showMessage(msg, err?.message || "Could not submit the deposit.", "error");
+      btn.disabled = false; btn.textContent = "Submit";
+    }
+  };
+}
+
 async function loadDepositChannels(){
 
   const request = ++depositRequestNumber;
@@ -3647,16 +3793,24 @@ async function loadDepositChannels(){
 
     if(result === null) return;
 
-    if(result.empty){
-      showMessage(message, result.empty === "service" ? t("noDeposit") : t("noDepositChannel"));
+    await loadCryptoCoins();
+    if(isStale()) return;
+
+    /* order: mobile services, then bank, then crypto. The old "crypto" provider is replaced by the crypto section. */
+    let groups = result.empty ? [] : result.groups.filter(g => !/crypto/i.test(g.name));
+    groups.sort((a,b) => (/bank/i.test(a.name) ? 1 : 0) - (/bank/i.test(b.name) ? 1 : 0) || a.name.localeCompare(b.name));
+    const keepIds = new Set(groups.flatMap(g => g.channels.map(c => c.id)));
+    depositOptions = result.empty ? [] : result.options.filter(o => keepIds.has(o.id));
+
+    if(!groups.length && !cryptoCoins.length){
+      showMessage(message, (result.empty === "service") ? t("noDeposit") : t("noDepositChannel"));
       return;
     }
 
-    depositOptions = result.options;
+    renderChannelGroups(groups, "depositChannelList", selectDepositChannel);
+    const hasCrypto = renderCryptoSection();
 
-    renderChannelGroups(result.groups, "depositChannelList", selectDepositChannel);
-
-    $("depositCount").textContent = countText(result.groups.length, depositOptions.length);
+    $("depositCount").textContent = groups.length ? countText(groups.length, depositOptions.length) : "";
 
     $("depositChannelsWrap").classList.remove("hidden");
     message.hidden = true;
