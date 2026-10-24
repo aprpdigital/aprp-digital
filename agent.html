@@ -95,7 +95,7 @@ window.addEventListener("popstate",e=>{
   const o=$("#ov");if(o){o.remove();ovCount=Math.max(0,ovCount-1);return}
   const p=(e.state&&e.state.p)||"home";if(me){page=p;draw()}
 });
-function go(p){if(p===page)return;page=p;history.pushState({p},"");draw();window.scrollTo(0,0);refresh()}
+function go(p){if(p===page)return;sel=null;page=p;history.pushState({p},"");draw();window.scrollTo(0,0);refresh()}
 
 /* ---------- images ---------- */
 function shrink(file,max=1400,q=.82){return new Promise((res,rej)=>{
@@ -127,7 +127,7 @@ async function start(){
 }
 
 /* ---------- data ---------- */
-let dep=[],wd={open:[],mine:[]},reqs=[],hs=null;
+let dep=[],wd={open:[],mine:[]},reqs=[],hs=null,tm={accounts:[],coins:[]},sel=null;
 async function refresh(){
   if(busy||!me)return;busy=true;
   try{
@@ -135,6 +135,7 @@ async function refresh(){
     dep=await call("agent_list_deposits",{p_status:hist});
     if(page==="withdraw"||page==="home")wd=await call("agent_list_withdrawals");
     if(page==="home"||page==="request")reqs=await call("agent_list_requests");
+    if(page==="request"){tm=await call("agent_topup_methods");(tm.accounts||[]).forEach(a=>{a.label=a.service});(tm.coins||[]).forEach(c=>{c.rate=c.rate_bdt})}
     if(page==="history")hs=await call("agent_history");
     const pend=dep.filter(d=>d.status==="pending");
     if(!firstLoad&&pend.some(d=>!seenDeposits.has(d.id))){beep();toast("New deposit waiting for you")}
@@ -244,16 +245,47 @@ function proofSheet(id,net,dest){
     closeSheet();toast(st==="needs_admin"?"Sent. Admin will check this amount":"Submitted. Credit is pending");await refresh()},e.target);
 }
 
+const tkText=n=>money(n);
+function copyBtn(val,label){return'<button class="sm" data-copy="'+esc(val)+'">'+(label||"⧉ Copy")+'</button>'}
+function bindCopy(){document.querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{let ok=false;try{await navigator.clipboard.writeText(b.dataset.copy);ok=true}catch(_){try{const t=document.createElement("textarea");t.value=b.dataset.copy;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();ok=document.execCommand("copy");t.remove()}catch(_2){}}const o=b.textContent;b.textContent=ok?"✓ Copied":"Copy failed";setTimeout(()=>b.textContent=o,1500)})}
 function vRequest(){
-  let h='<div class="card"><label>Amount you need</label><input id="am" inputmode="numeric" placeholder="30000"><label>How did you pay admin?</label><input id="pm" placeholder="bKash Personal 01XXXXXXXXX"><label>Your TrxID</label><input id="tx"><label>Payment screenshot (required)</label><input id="fl" type="file" accept="image/*"><div class="acts"><button class="b" id="sv">Send request</button></div></div><div class="note">One open request at a time. Your balance is added after admin approves.</div>';
-  reqs.forEach(r=>{h+='<div class="card"><div class="row"><b>'+money(r.amount)+'</b><span class="tag '+(r.status==="approved"?"g":r.status==="rejected"?"r":"w")+'">'+esc(r.status)+'</span></div><div class="mut">'+ago(r.created_at)+' · TrxID '+esc(r.trx_id||"")+(r.admin_note?'<br>'+esc(r.admin_note):'')+'</div></div>'});
-  if(me.telegram_url)h+='<div class="acts"><a class="b" target="_blank" rel="noopener" href="'+esc(me.telegram_url)+'">✈ Talk to admin on Telegram</a></div>';
-  shell("Agent: Request balance",h);
-  $("#sv").onclick=e=>guard(async()=>{
-    const f=$("#fl").files[0];if(!f)throw new Error("Add the payment screenshot");
-    const path=await upload(f,"topup");
-    await call("agent_request_balance",{p_amount:Number($("#am").value),p_method:$("#pm").value,p_trx:$("#tx").value,p_path:path});
-    toast("Request sent");await refresh();draw()},e.target);
+  let h="";
+  if(!sel){
+    h+='<div class="note">Pay admin first, then send the request. Choose how you will pay.</div>';
+    const cats=[["mobile","Mobile services"],["bank","Bank"]];
+    cats.forEach(([k,t])=>{const L=tm.accounts.filter(a=>k==="bank"?a.bank:!a.bank);if(!L.length)return;h+='<div class="gt" style="font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--g2);text-transform:uppercase;margin:14px 0 6px">'+t+'</div>';L.forEach(a=>{h+='<div class="tx" data-acc="'+a.id+'" style="cursor:pointer"><div class="m"><b>'+esc(a.label)+'</b><br><span>Admin account</span></div><div class="a mut">›</div></div>'})});
+    const sy=[...new Set(tm.coins.map(c=>c.symbol))];
+    if(sy.length){h+='<div class="gt" style="font:600 12px ui-monospace,Menlo,monospace;letter-spacing:.06em;color:var(--g2);text-transform:uppercase;margin:14px 0 6px">Crypto</div>';sy.forEach(x=>{const L=tm.coins.filter(c=>c.symbol===x);h+='<div class="tx" data-coin="'+esc(x)+'" style="cursor:pointer"><div class="m"><b>'+esc(x)+(L[0].name?" ("+esc(L[0].name)+")":"")+'</b><br><span>'+L.map(c=>esc(c.network)).join(" · ")+'</span></div><div class="a mut">›</div></div>'})}
+    if(!tm.accounts.length&&!tm.coins.length)h+='<div class="card mut">Admin has not opened a payment method yet. Talk to admin on Telegram.</div>';
+    h+='<div class="mut" style="margin:8px 0">Only the methods admin allows for agents are shown.</div>';
+    reqs.forEach(r=>{h+='<div class="card"><div class="row"><b>'+money(r.amount)+'</b><span class="tag '+(r.status==="approved"?"g":r.status==="rejected"?"r":"w")+'">'+esc(r.status)+'</span></div><div class="mut">'+esc(r.pay_method||"")+' · '+ago(r.created_at)+' · TrxID '+esc(r.trx_id||"")+(r.admin_note?'<br>'+esc(r.admin_note):'')+'</div></div>'});
+    if(me.telegram_url)h+='<div class="acts"><a class="b" target="_blank" rel="noopener" href="'+esc(me.telegram_url)+'">✈ Talk to admin on Telegram</a></div>';
+    shell("Agent: Request balance",h);
+    document.querySelectorAll("[data-acc]").forEach(e=>e.onclick=()=>{sel={kind:"acc",id:e.dataset.acc};draw()});
+    document.querySelectorAll("[data-coin]").forEach(e=>e.onclick=()=>{sel={kind:"coin",symbol:e.dataset.coin,idx:0};draw()});
+    return;
+  }
+  if(sel.kind==="acc"){
+    const a=tm.accounts.find(x=>x.id===sel.id);if(!a){sel=null;draw();return}
+    h+='<button class="sm" id="bk" style="margin-bottom:10px">‹ Back</button><div class="card"><div class="mut">Send money to admin number</div><div class="row" style="margin-top:6px"><b style="font-size:24px">'+esc(a.number)+'</b>'+copyBtn(a.number)+'</div><div class="mut">'+esc(a.label)+(a.name?" · "+esc(a.name):"")+'</div>'+(a.instructions?'<div class="note">'+esc(a.instructions)+'</div>':'')+'</div>'+
+      '<div class="card"><label>Amount you sent</label><input id="am" inputmode="numeric" placeholder="30000"><label>Your TrxID</label><input id="tx"><label>Screenshot (required)</label><input id="fl" type="file" accept="image/*"><div class="acts"><button class="b" id="sv">Send request</button></div></div>';
+    shell("Agent: Pay with "+a.label,h);bindCopy();
+    $("#bk").onclick=()=>{sel=null;draw()};
+    $("#sv").onclick=e=>guard(async()=>{const f=$("#fl").files[0];if(!f)throw new Error("Add the payment screenshot");const path=await upload(f,"topup");
+      await call("agent_request_balance",{p_amount:Number($("#am").value),p_method:a.label,p_trx:$("#tx").value,p_path:path});toast("Request sent");sel=null;await refresh();draw()},e.target);
+    return;
+  }
+  const L=tm.coins.filter(c=>c.symbol===sel.symbol);const c=L[sel.idx]||L[0];if(!c){sel=null;draw();return}
+  h+='<button class="sm" id="bk" style="margin-bottom:10px">‹ Back</button>'+(L.length>1?'<div class="seg">'+L.map((x,i)=>'<button data-n="'+i+'" class="'+(x===c?"on":"")+'">'+esc(x.network)+'</button>').join("")+'</div>':'')+
+    '<div class="card alert"><b>'+esc(c.warning||("Send only "+c.symbol+" on the "+c.network+" network. Anything else is lost."))+'</b></div>'+
+    '<div class="card"><div class="mut">Admin deposit address</div><div style="font:15px ui-monospace,Menlo,monospace;word-break:break-all;background:#060c1c;border:1px dashed var(--g);border-radius:12px;padding:12px;margin:8px 0">'+esc(c.address)+'</div><div class="acts" style="margin-top:0">'+copyBtn(c.address,"⧉ Copy address")+(c.memo?copyBtn(c.memo,"⧉ Copy memo"):"")+'</div>'+(c.memo?'<div class="mut" style="margin-top:8px">Memo / Tag (required): <b>'+esc(c.memo)+'</b></div>':'')+'</div>'+
+    '<div class="card"><label>Amount you sent ('+esc(c.symbol)+')</label><input id="ca" inputmode="decimal" placeholder="0.00"><div class="note" id="gt">'+(c.rate?'You will get <b>'+money(0)+'</b> balance<br><span class="mut">Rate is locked when you submit: 1 '+esc(c.symbol)+' = '+money(c.rate)+'</span>':'Rate not available right now.')+'</div><label>Transaction hash (TxID)</label><input id="tx"><label>Screenshot (required)</label><input id="fl" type="file" accept="image/*"><div class="acts"><button class="b" id="sv"'+(c.rate?'':' disabled')+'>Send request</button></div></div>';
+  shell("Agent: Pay with "+c.symbol,h);bindCopy();
+  $("#bk").onclick=()=>{sel=null;draw()};
+  document.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{sel.idx=Number(b.dataset.n);draw()});
+  $("#ca").oninput=()=>{const b=$("#gt").querySelector("b");if(b)b.textContent=money(Number($("#ca").value||0)*Number(c.rate||0))};
+  $("#sv").onclick=e=>guard(async()=>{const f=$("#fl").files[0];if(!f)throw new Error("Add the payment screenshot");const path=await upload(f,"topup");
+    await call("agent_request_balance",{p_amount:null,p_method:null,p_trx:$("#tx").value,p_path:path,p_coin:c.id,p_amount_coin:Number($("#ca").value)});toast("Request sent");sel=null;await refresh();draw()},e.target);
 }
 
 function vHistory(){
@@ -271,20 +303,20 @@ function vHistory(){
 
 function vMe(){
   let h='<div class="card"><b>Services admin allowed for you</b><div class="mut" style="margin:2px 0 4px">Only these. Other services are locked.</div>'+(me.services.length?me.services.map(s=>'<span class="chip on">'+esc(s.replace(/\b\w/g,c=>c.toUpperCase()))+'</span>').join(""):'<span class="mut">None yet. Ask admin.</span>')+'</div>';
-  h+='<div class="card"><b>My payment numbers</b><div class="mut" style="margin:2px 0 6px">Customers send money to these numbers. Use a number only for this work.</div>';
-  me.accounts.forEach(a=>{h+='<div class="sw"><div><b>'+esc(a.number)+'</b><div class="mut">'+esc(a.label)+(a.name?' · '+esc(a.name):'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><button class="sm" data-del="'+a.id+'">✕</button><button class="tog '+(a.active?"":"off")+'" data-ac="'+a.id+'" data-on="'+(a.active?1:0)+'"></button></div></div>'});
-  h+='<div class="acts"><button class="b gh" id="add">+ Add number</button></div></div>';
+  h+='<div class="card"><b>My payment numbers</b><div class="mut" style="margin:2px 0 6px">Only numbers approved by admin work.</div>';
+  me.accounts.filter(a=>!a.retired).forEach(a=>{const locked=a.locked;h+='<div class="sw"><div><b>'+esc(a.number)+'</b><div class="mut">'+esc(a.label)+(a.name?' · '+esc(a.name):'')+' · '+(locked?'turned off by admin':'approved')+'</div></div>'+(locked?'<span class="tag r">off</span>':'<button class="tog '+(a.active?"":"off")+'" data-ac="'+a.id+'" data-on="'+(a.active?1:0)+'"></button>')+'</div>'});
+  (me.number_requests||[]).forEach(r=>{h+='<div class="sw"><div><b>'+esc(r.number)+'</b><div class="mut">'+esc(r.label)+(r.note?' · '+esc(r.note):'')+'</div></div><span class="tag '+(r.status==="rejected"?"r":"w")+'">'+(r.status==="rejected"?"rejected":"waiting for admin")+'</span></div>'});
+  h+='<div class="acts"><button class="b gh" id="add">Request a number</button></div></div>';
   h+='<div class="card"><div class="sw" style="border:0;padding:0"><div><b>I am available</b><div class="mut">Switch off when you are busy. No new work comes to you.</div></div><button class="tog '+(me.available?"":"off")+'" id="av"></button></div></div>';
   h+='<div class="note">You cannot use customer services with your own agent number or account.</div><div class="acts"><button class="b gh" id="so">Sign out</button></div>';
   shell("Agent: Me",h);
   $("#av").onclick=e=>guard(async()=>{await call("agent_set_available",{p_on:!me.available});await refresh()},e.target);
   document.querySelectorAll("[data-ac]").forEach(b=>b.onclick=()=>guard(async()=>{await call("agent_set_account",{p_id:b.dataset.ac,p_active:b.dataset.on!=="1"});await refresh()},b));
-  document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>ask("Delete this number?","",async()=>{await call("agent_delete_account",{p_id:b.dataset.del});await refresh()},"Delete"));
   $("#so").onclick=()=>signOut();
   $("#add").onclick=()=>{
     if(!me.channels.length){toast("Admin has not allowed any service for you",true);return}
-    const s=sheet('<h2>Add payment number</h2><label>Service</label><select id="ch">'+me.channels.map(c=>'<option value="'+c.id+'">'+esc(c.label)+'</option>').join("")+'</select><label>Number</label><input id="nu" inputmode="tel"><label>Account name (optional)</label><input id="na"><div class="acts"><button class="b" id="sv">Save</button></div>');
-    s.querySelector("#sv").onclick=e=>guard(async()=>{await call("agent_add_account",{p_channel:s.querySelector("#ch").value,p_number:s.querySelector("#nu").value,p_name:s.querySelector("#na").value});closeSheet();await refresh()},e.target)};
+    const s=sheet('<h2>Request a payment number</h2><label>Service</label><select id="ch">'+me.channels.map(c=>'<option value="'+c.id+'">'+esc(c.label)+'</option>').join("")+'</select><label>Number</label><input id="nu" inputmode="tel"><label>Account name (optional)</label><input id="na"><div class="note">Admin must approve this number before it works.</div><div class="acts"><button class="b" id="sv">Send request</button></div>');
+    s.querySelector("#sv").onclick=e=>guard(async()=>{await call("agent_request_number",{p_channel:s.querySelector("#ch").value,p_number:s.querySelector("#nu").value,p_name:s.querySelector("#na").value});closeSheet();toast("Request sent. Waiting for admin");await refresh()},e.target)};
 }
 
 (async()=>{if(!sb){$("#app").innerHTML='<p style="padding:20px">Could not load. Check your internet and reload.</p>';return}await start()})();
