@@ -3659,7 +3659,7 @@ async function loadCryptoCoins(){
   try{
     const { data, error } = await supabaseClient.rpc("crypto_list_coins");
     if(error) throw error;
-    cryptoCoins = Array.isArray(data) ? data : [];
+    cryptoCoins = Array.isArray(data) ? data : (data && data.enabled && Array.isArray(data.coins) ? data.coins : []);
   }catch(e){ cryptoCoins = []; }
 }
 
