@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>APRP Agent</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--bg:#050a17;--bg2:#0a1124;--card:#0b1328;--line:#18233d;--tx:#f1f5fb;--mut:#8b9ab5;--g:#10b981;--g2:#34d399;--bad:#f43f5e;--warn:#fbbf24}
@@ -124,6 +125,15 @@ async function start(){
   uid=session.user.id;
   try{me=await call("agent_me")}catch(e){await signOut(e.message||"This account is not an agent.");return}
   history.replaceState({p:"home"},"");page="home";firstLoad=true;draw();
+  tgLink(session);
+}
+/* opened from the Telegram bot: link this agent to the chat so signals arrive there */
+async function tgLink(session){
+  const t=window.Telegram&&window.Telegram.WebApp;if(!t||!t.initData)return;
+  try{t.ready();t.expand()}catch(_){}
+  try{const k="aprp_tg_linked_"+session.user.id;if(localStorage.getItem(k))return;
+    const {data}=await sb.functions.invoke("telegram-bot",{body:{action:"tg_link",init_data:t.initData,access_token:session.access_token}});
+    if(data&&data.ok)localStorage.setItem(k,"1")}catch(_){}
 }
 
 /* ---------- data ---------- */
