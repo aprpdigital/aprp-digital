@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#070b17">
 <title>APRP Digital</title>
 <meta name="description" content="APRP Digital — wallet, products, referrals and account services.">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -1909,6 +1910,28 @@ function showApp(){
   loadShopSettings();
   loadSavedSet();
   refreshUpdatesBadge();
+  telegramMiniApp();
+}
+
+/* Opened inside Telegram (Mini App): fit the screen, link this account to the Telegram chat, open the page the bot asked for */
+let tgGoDone = false;
+async function telegramMiniApp(){
+  const tgApp = window.Telegram && window.Telegram.WebApp;
+  if(!tgApp || !tgApp.initData) return;
+  try{ tgApp.ready(); tgApp.expand(); }catch(e){}
+  if(!tgGoDone){
+    tgGoDone = true;
+    const go = new URLSearchParams(location.search).get("go");
+    const pages = { deposit:"depositPage", withdraw:"withdrawPage", shop:"productsPage" };
+    if(go && pages[go]) showPage(pages[go]);
+  }
+  try{
+    const key = "aprp_tg_linked_" + user.id;
+    if(localStorage.getItem(key)) return;
+    const { data:s } = await supabaseClient.auth.getSession();
+    const { data } = await supabaseClient.functions.invoke("telegram-bot", { body:{ action:"tg_link", init_data:tgApp.initData, access_token:s?.session?.access_token || "" } });
+    if(data && data.ok) localStorage.setItem(key, "1");
+  }catch(e){}
 }
 
 
