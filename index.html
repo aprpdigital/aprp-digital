@@ -3734,7 +3734,7 @@ function renderCryptoSection(){
     card.innerHTML = '<strong></strong><small></small>';
     card.querySelector("strong").textContent = symbol + (first.name ? " (" + first.name + ")" : "");
     card.querySelector("small").textContent = items.map(x=>x.network).join(" · ") + " · " + (rate ? "1 " + symbol + " = " + takaText(rate.rate) : "Rate not available");
-    card.addEventListener("click", ()=> openCryptoSheet(symbol, 0));
+    card.addEventListener("click", ()=> openCryptoSheet(symbol, items.length > 1 ? null : 0));
     list.appendChild(card);
   });
   $("depositChannelList").appendChild(wrap);
@@ -3767,12 +3767,22 @@ async function copyText(value, btn){
 
 function openCryptoSheet(symbol, idx){
   const items = cryptoCoins.filter(c => c.symbol === symbol);
-  const c = items[idx] || items[0];
   const esc2 = shopEsc;
+  if(idx === null && items.length > 1){
+    const shp = openSheet(
+      '<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">' + esc2(symbol) + ' deposit</h2><button class="icon-button" id="cxClose" type="button">×</button></div>' +
+      '<div class="muted" style="margin:10px 0">Choose network</div>' +
+      '<div class="channel-list">' + items.map((x,i)=>'<button type="button" class="channel-card" data-net="' + i + '"><strong>' + esc2(x.network) + '</strong><small>' + (x.rate ? '1 ' + esc2(symbol) + ' = ' + takaText(x.rate) : 'Rate not available') + ' · Min ' + esc2(x.min_amount) + ' ' + esc2(symbol) + '</small></button>').join("") + '</div>'
+    );
+    shp.querySelector("#cxClose").onclick = closeSheet;
+    shp.querySelectorAll("[data-net]").forEach(b => b.onclick = ()=> openCryptoSheet(symbol, Number(b.dataset.net)));
+    return;
+  }
+  const c = items[idx || 0] || items[0];
   const warn = c.warning || ("Send only " + c.symbol + " on the " + c.network + " network. Other coins or another network will be lost and cannot be recovered.");
   const sh = openSheet(
     '<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">' + esc2(c.symbol) + ' deposit</h2><button class="icon-button" id="cxClose" type="button">×</button></div>' +
-    (items.length > 1 ? '<div style="display:flex;gap:6px;margin:12px 0;flex-wrap:wrap">' + items.map((x,i)=>'<button type="button" class="btn" data-net="' + i + '" style="' + (i===idx ? 'border-color:#1aa982;background:#0d2a26' : '') + '">' + esc2(x.network) + '</button>').join("") + '</div>' : '<div class="muted" style="margin:8px 0">Network: <b>' + esc2(c.network) + '</b></div>') +
+    (items.length > 1 ? '<button type="button" class="btn" id="cxBack" style="margin:12px 0">← ' + esc2(c.network) + ' · change network</button>' : '<div class="muted" style="margin:8px 0">Network: <b>' + esc2(c.network) + '</b></div>') +
     '<div style="background:#2a0f18;border:1px solid #5b1a2a;color:#fda4af;border-radius:13px;padding:12px;font-size:14px;line-height:1.5;margin:10px 0"><b>' + esc2(warn) + '</b></div>' +
     '<div class="acct-box"><div class="muted">Deposit address</div><div id="cxQr" style="display:flex;justify-content:center;margin:10px 0"></div>' +
     '<div class="acct-num" style="font-size:15px;word-break:break-all">' + esc2(c.address) + '</div><div style="margin-top:8px"><button class="btn" id="cxCopy" type="button">⧉ Copy address</button></div>' +
@@ -3781,7 +3791,7 @@ function openCryptoSheet(symbol, idx){
     '<button class="btn btn-primary btn-block" id="cxSent" type="button" style="margin-top:14px"' + (c.rate ? '' : ' disabled') + '>I have sent it</button>'
   );
   sh.querySelector("#cxClose").onclick = closeSheet;
-  sh.querySelectorAll("[data-net]").forEach(b => b.onclick = ()=> openCryptoSheet(symbol, Number(b.dataset.net)));
+  const bk = sh.querySelector("#cxBack"); if(bk) bk.onclick = ()=> openCryptoSheet(symbol, null);
   sh.querySelector("#cxCopy").onclick = e => copyText(c.address, e.target);
   const cm = sh.querySelector("#cxCopyMemo"); if(cm) cm.onclick = e => copyText(c.memo, e.target);
   sh.querySelector("#cxSent").onclick = ()=> openCryptoForm(c);
