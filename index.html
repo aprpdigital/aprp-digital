@@ -1149,29 +1149,73 @@ button:disabled{opacity:.55;cursor:wait}
 
 
   <section id="supportPage" class="hidden">
+    <style>
+      #supportPage .sp-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:14px;margin:10px 0;color:var(--text);cursor:pointer;font:inherit}
+      #supportPage .sp-card[disabled]{opacity:.55;cursor:default}
+      #supportPage .sp-ic{width:46px;height:46px;border-radius:14px;background:var(--greenDark);color:var(--green);display:grid;place-items:center;font-size:22px;flex:none}
+      #supportPage .sp-card b{display:block;font-size:16px}#supportPage .sp-card small{color:var(--muted)}
+      #supportPage .sp-chev{margin-left:auto;color:var(--muted);font-size:22px}
+      #supportPage .sp-note{color:var(--muted);font-size:13px;margin-top:14px;line-height:1.5}
+      #supportPage .sp-recent h3{font-size:14px;color:var(--muted);margin:22px 0 6px;font-weight:600}
+      #supportPage .sp-dot{background:#ff5470;color:#fff;border-radius:99px;font-size:11px;padding:2px 8px;margin-left:8px}
+      #supportPage .sp-pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;background:var(--greenDark);color:var(--green);margin-left:8px}
+      #supportPage .sp-pill.off{background:#1a2438;color:var(--muted)}
+      #supportPage .sc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+      #supportPage .sc-head b{font-size:17px}#supportPage .sc-head small{display:block;color:var(--muted)}
+      #supportPage .sc-msgs{min-height:46vh;max-height:56vh;overflow:auto;padding:4px 2px}
+      #supportPage .sc-b{max-width:84%;padding:10px 13px;border-radius:15px;margin:8px 0;line-height:1.45;white-space:pre-wrap;word-break:break-word;font-size:15px}
+      #supportPage .sc-b.me{background:#0d5c47;margin-left:auto;border-bottom-right-radius:4px}
+      #supportPage .sc-b.co{background:var(--panel2);border:1px solid var(--border);border-bottom-left-radius:4px}
+      #supportPage .sc-b.bot{background:#122a3d;border:1px solid #1e4560;border-bottom-left-radius:4px}
+      #supportPage .sc-t{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+      #supportPage .sc-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+      #supportPage .sc-chip{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:14px;padding:10px 14px;font:inherit;font-size:14px;cursor:pointer;text-align:left}
+      #supportPage .sc-chip.p{background:var(--green);color:#04201a;border-color:var(--green);font-weight:700}
+      #supportPage .sc-in{display:flex;gap:8px;margin-top:10px;align-items:flex-end}
+      #supportPage .sc-in textarea{flex:1;min-height:46px;max-height:120px;resize:none;background:#070c18;border:1px solid var(--border);color:var(--text);border-radius:16px;padding:12px 14px;font:inherit}
+      #supportPage .sc-in button{width:46px;height:46px;border-radius:50%;border:0;background:var(--green);color:#04201a;font-weight:800;font-size:18px;cursor:pointer}
+    </style>
     <div class="welcome">
-      
       <h1 data-i18n="support">Support Center</h1>
       <p>Get help with your APRP Digital account.</p>
     </div>
-    <div class="panel">
-      <div class="message">Official support contact details have not been configured yet. Please do not trust unofficial numbers claiming to represent APRP Digital.</div>
+    <div id="supportHome">
+      <button class="sp-card" id="spChat" type="button"><span class="sp-ic">💬</span><span><b>Chat with company</b><small>Fastest way to get help</small></span><span class="sp-chev">›</span></button>
+      <button class="sp-card" id="spTg" type="button"><span class="sp-ic">✈</span><span><b>Telegram</b><small>@aprp_support</small></span><span class="sp-chev">›</span></button>
+      <button class="sp-card" id="spMail" type="button"><span class="sp-ic">✉</span><span><b>Gmail</b><small id="spMailText">Coming soon</small></span><span class="sp-chev">›</span></button>
+      <div class="sp-recent" id="spRecent"></div>
+      <div class="sp-note">These are our only official contacts. Do not trust any other number or account claiming to be APRP Digital.</div>
+    </div>
+    <div id="supportChat" class="hidden">
+      <div class="sc-head"><button class="btn" id="scBack" type="button">‹</button><div style="flex:1"><b id="scTitle">Chat with company</b><small id="scSub"></small></div><button class="btn hidden" id="scClose" type="button">Close chat</button></div>
+      <div class="sc-msgs" id="scMsgs"></div>
+      <div class="sc-chips" id="scChips"></div>
+      <div class="sc-in hidden" id="scIn"><textarea id="scText" rows="1" maxlength="1500" placeholder="Write a message"></textarea><button id="scSend" type="button" aria-label="Send">➤</button></div>
+      <div id="scMsg" class="message hidden"></div>
     </div>
   </section>
 
 
   <section id="helpPage" class="hidden">
+    <style>
+      #helpPage details.hl{border-bottom:1px solid var(--border);padding:12px 0}
+      #helpPage details.hl:last-child{border-bottom:0}
+      #helpPage summary{cursor:pointer;font-weight:600;font-size:16px;list-style:none;padding:4px 0;display:flex;justify-content:space-between;gap:10px}
+      #helpPage summary::-webkit-details-marker{display:none}
+      #helpPage summary::after{content:"+";color:var(--green);font-size:20px;line-height:1}
+      #helpPage details[open]>summary::after{content:"–"}
+      #helpPage details p{color:var(--muted);line-height:1.6;margin:8px 0;font-size:14.5px}
+      #helpPage details h4{margin:16px 0 4px;font-size:15px;color:var(--text)}
+      #helpPage details p b{color:var(--text)}
+    </style>
     <div class="welcome">
-      
-      <h1 data-i18n="helpLegal">Help & Legal</h1>
+      <h1 data-i18n="helpLegal">Help &amp; Legal</h1>
       <p>Important information for users.</p>
     </div>
     <div class="panel">
-      <h3>Help & FAQ</h3>
-      <hr style="border-color:var(--border);margin:18px 0">
-      <h3>Privacy Policy</h3>
-      <hr style="border-color:var(--border);margin:18px 0">
-      <h3>Terms & Conditions</h3>
+      <details class="hl"><summary>Help &amp; FAQ</summary><div style="margin-top:6px"><details class="hl"><summary>How do I add money (deposit)?</summary><p>Open Deposit, choose a service (bKash, Nagad, Rocket and others), a bank, or Crypto. Send the money to the number or address shown, then enter the amount, the transaction ID and a screenshot of your payment. Your balance is added after the payment is checked.</p></details><details class="hl"><summary>How long does a deposit take?</summary><p>Mobile and bank deposits are normally checked within 15 minutes. If yours is still pending after 1 hour, contact Support with your transaction ID. Crypto deposits are added after we confirm the transfer.</p></details><details class="hl"><summary>How do I withdraw?</summary><p>Open Withdraw, choose a method, enter your account number and the amount. To withdraw you need at least one completed deposit and one product purchase. The minimum is ৳1,000. The fee is shown before you submit.</p></details><details class="hl"><summary>My withdrawal is not paid yet.</summary><p>Withdrawals are paid by our agents. After an agent accepts, they pay within 1 hour, otherwise another agent takes it. Check Transactions for the status. If you did not receive the money, tap "I did not receive" on the Home page or contact Support.</p></details><details class="hl"><summary>How do orders and delivery work?</summary><p>Pay for a product from your wallet balance. You can then take the product (delivery) or sell it back to the company. Delivery takes 12-15 days and the delivery charge is ৳170.</p></details><details class="hl"><summary>How does buyback work?</summary><p>If you sell back after the maturity days shown on the product, you get the price you paid plus the company percentage. If you sell before maturity you get 60% of the price you paid.</p></details><details class="hl"><summary>How do referrals work?</summary><p>Share your referral link. A friend counts when they sign up, and your commission is added after their valid product purchases reach ৳1,000. The commission rate is set by the company.</p></details><details class="hl"><summary>Do I need KYC?</summary><p>KYC is optional. You can buy, sell back, deposit and withdraw without it.</p></details><details class="hl"><summary>I forgot my password.</summary><p>On the sign in screen tap Forgot password. Accounts created with a phone number are reset through Telegram.</p></details><details class="hl"><summary>How do I contact you?</summary><p>Open Support Center. You can chat with the company or message us on Telegram @aprp_support. These are our only official contacts.</p></details></div></details>
+      <details class="hl"><summary>Privacy Policy</summary><div><p><b>Last updated: 25 October 2026</b></p><p>APRP Digital ("we", "us") respects your privacy. This page explains what we collect, why, and your choices.</p><h4>What we collect</h4><p>Account details (email or phone number, username, password in protected form); wallet and transaction records; deposit and withdrawal details you enter (sender account, transaction ID, payment screenshots); order and delivery details (name, phone, address); referral records; support messages; and, only if you choose KYC, the identity documents you upload. If you use our Telegram bot, your Telegram ID is linked to your account.</p><h4>Why we use it</h4><p>To run your wallet, check and process deposits and withdrawals, deliver orders, pay referral commission, prevent fraud and misuse, answer your support requests, and send you notifications about your account.</p><h4>Who can see it</h4><p>Only authorised company staff and the agents who process your payment can see what they need for that task (for example, the payment details of a deposit or withdrawal). We do not sell your personal data. We use trusted service providers to host and run the app (for example, database hosting and Telegram for messages). We may share information when the law requires it or to protect against fraud.</p><h4>Security</h4><p>We use access controls and encryption in transit, and staff accounts need two-step verification. No system is perfectly secure, so please keep your password private and never share verification codes.</p><h4>Keeping and deleting data</h4><p>We keep records as long as needed to run your account and to meet legal and accounting needs. You can ask Support to correct or delete your account data. Some records (such as transactions) may have to be kept.</p><h4>Changes</h4><p>We may update this page. The date above shows the latest version. If you have a question, contact Support Center.</p></div></details>
+      <details class="hl"><summary>Terms &amp; Conditions</summary><div><p><b>Last updated: 25 October 2026</b></p><p>By creating an account or using APRP Digital you agree to these terms.</p><h4>1. Your account</h4><p>You must be 18 or older and give correct information. You are responsible for your account and password. One person may keep one account. We may limit or close an account that breaks these terms or is used for fraud.</p><h4>2. Wallet and deposits</h4><p>Your wallet balance is added only after we confirm your deposit. Send money only to the number, account or address shown in the app at the time. Money sent to any other place is not our responsibility. For crypto, send only the coin and network shown. A wrong coin or network can be lost for good, and we cannot recover it. The crypto rate is fixed when you submit your request. You must include your payment screenshot and transaction ID, and a transaction ID can be used only once.</p><h4>3. Withdrawals</h4><p>To withdraw you need at least one completed deposit and one product purchase. The minimum amount and any fee are shown before you submit. Check your account number carefully, because a payment sent to the number you entered cannot be taken back by us. The amount is deducted from your balance when you submit and is returned if the request is rejected.</p><h4>4. Products, delivery and buyback</h4><p>Products are paid from your wallet balance. If you take delivery, it normally takes 12-15 days and the delivery charge is ৳170. If you choose buyback, the company buys the product back at the price shown on the product after its maturity days (the price you paid plus the company percentage). If you sell back earlier, you receive 60% of the price you paid. Buyback requests are approved by the company. Product details and prices may change; the price at the time you buy is the price you pay.</p><h4>5. Referrals</h4><p>A referral counts when your friend signs up with your link. Commission is added after their valid product purchases reach ৳1,000, at the rate set by the company at the time. We may withhold commission from fake or abusive referrals.</p><h4>6. Agents</h4><p>Payments for deposits and withdrawals may be handled by company agents. Pay only the numbers shown in the app. If you did not receive a withdrawal, report it in the app so we can check.</p><h4>7. Not allowed</h4><p>Fake payments or screenshots, using someone else's account, money laundering, abusing offers or referrals, and any illegal activity. We may reject requests, hold funds while we investigate, suspend accounts and report to the authorities where required.</p><h4>8. Service and changes</h4><p>We try to keep the app available but we do not promise it will never stop or have errors. We may change services, limits, fees and these terms. Using the app after a change means you accept it.</p><h4>9. Contact</h4><p>Use Support Center for any question or complaint.</p></div></details>
     </div>
   </section>
 
@@ -1658,6 +1702,9 @@ Object.assign(BN_EXTRA, {"Full name": "পূর্ণ নাম", "Phone number
 
 Object.assign(BN_EXTRA, {"Enter your email or phone number.": "আপনার ইমেইল বা ফোন নাম্বার দিন।", "Open Telegram and share your phone number, then set the new password below.": "টেলিগ্রাম খুলে ফোন নাম্বার শেয়ার করুন, তারপর নিচে নতুন পাসওয়ার্ড দিন।", "Could not reset the password.": "পাসওয়ার্ড রিসেট করা যায়নি।", "Reset password": "পাসওয়ার্ড রিসেট"});
 
+
+Object.assign(BN_EXTRA, {"How do I add money (deposit)?": "আমি কীভাবে টাকা যোগ (ডিপোজিট) করব?", "Open Deposit, choose a service (bKash, Nagad, Rocket and others), a bank, or Crypto. Send the money to the number or address shown, then enter the amount, the transaction ID and a screenshot of your payment. Your balance is added after the payment is checked.": "ডিপোজিট খুলুন, একটি সার্ভিস (বিকাশ, নগদ, রকেট ইত্যাদি), ব্যাংক বা ক্রিপ্টো বেছে নিন। দেখানো নাম্বার বা ঠিকানায় টাকা পাঠান, তারপর পরিমাণ, ট্রানজেকশন আইডি ও পেমেন্টের স্ক্রিনশট দিন। পেমেন্ট যাচাই হলে আপনার ব্যালেন্সে টাকা যোগ হবে।", "How long does a deposit take?": "ডিপোজিট হতে কত সময় লাগে?", "Mobile and bank deposits are normally checked within 15 minutes. If yours is still pending after 1 hour, contact Support with your transaction ID. Crypto deposits are added after we confirm the transfer.": "মোবাইল ও ব্যাংক ডিপোজিট সাধারণত ১৫ মিনিটের মধ্যে যাচাই হয়। ১ ঘণ্টা পরও পেন্ডিং থাকলে ট্রানজেকশন আইডিসহ সাপোর্টে জানান। ক্রিপ্টো ডিপোজিট ট্রান্সফার নিশ্চিত হওয়ার পর যোগ হয়।", "How do I withdraw?": "আমি কীভাবে উইথড্র করব?", "Open Withdraw, choose a method, enter your account number and the amount. To withdraw you need at least one completed deposit and one product purchase. The minimum is ৳1,000. The fee is shown before you submit.": "উইথড্র খুলুন, একটি মাধ্যম বেছে নিন, আপনার অ্যাকাউন্ট নাম্বার ও পরিমাণ দিন। উইথড্র করতে অন্তত একটি সম্পন্ন ডিপোজিট ও একটি প্রোডাক্ট কেনা থাকতে হবে। সর্বনিম্ন ৳১,০০০। ফি জমা দেওয়ার আগেই দেখানো হয়।", "My withdrawal is not paid yet.": "আমার উইথড্র এখনো পেমেন্ট হয়নি।", "Withdrawals are paid by our agents. After an agent accepts, they pay within 1 hour, otherwise another agent takes it. Check Transactions for the status. If you did not receive the money, tap \"I did not receive\" on the Home page or contact Support.": "উইথড্র আমাদের এজেন্টরা পেমেন্ট করেন। কোনো এজেন্ট গ্রহণ করলে ১ ঘণ্টার মধ্যে পেমেন্ট করেন, না করলে অন্য এজেন্ট নেন। অবস্থা দেখতে ট্রানজেকশনস দেখুন। টাকা না পেলে হোম পেজে \"I did not receive\" চাপুন অথবা সাপোর্টে জানান।", "How do orders and delivery work?": "অর্ডার ও ডেলিভারি কীভাবে হয়?", "Pay for a product from your wallet balance. You can then take the product (delivery) or sell it back to the company. Delivery takes 12-15 days and the delivery charge is ৳170.": "ওয়ালেট ব্যালেন্স থেকে প্রোডাক্টের দাম দিন। তারপর প্রোডাক্ট নিতে (ডেলিভারি) অথবা কোম্পানিকে ফেরত বিক্রি করতে পারেন। ডেলিভারি ১২-১৫ দিনে হয় এবং ডেলিভারি চার্জ ৳১৭০।", "How does buyback work?": "বাইব্যাক কীভাবে কাজ করে?", "If you sell back after the maturity days shown on the product, you get the price you paid plus the company percentage. If you sell before maturity you get 60% of the price you paid.": "প্রোডাক্টে দেখানো মেয়াদের পর ফেরত বিক্রি করলে আপনি যে দামে কিনেছেন সেই দাম ও কোম্পানির নির্ধারিত শতাংশ পাবেন। মেয়াদের আগে বিক্রি করলে কেনা দামের ৬০% পাবেন।", "How do referrals work?": "রেফারেল কীভাবে কাজ করে?", "Share your referral link. A friend counts when they sign up, and your commission is added after their valid product purchases reach ৳1,000. The commission rate is set by the company.": "আপনার রেফারেল লিংক শেয়ার করুন। বন্ধু সাইন আপ করলে গণনা হয়, আর তার বৈধ প্রোডাক্ট কেনা ৳১,০০০ হলে আপনার কমিশন যোগ হয়। কমিশনের হার কোম্পানি ঠিক করে।", "Do I need KYC?": "আমার কি KYC লাগবে?", "KYC is optional. You can buy, sell back, deposit and withdraw without it.": "KYC ঐচ্ছিক। এটি ছাড়াই কিনতে, ফেরত বিক্রি করতে, ডিপোজিট ও উইথড্র করতে পারবেন।", "I forgot my password.": "আমি পাসওয়ার্ড ভুলে গেছি।", "On the sign in screen tap Forgot password. Accounts created with a phone number are reset through Telegram.": "সাইন ইন পেজে Forgot password চাপুন। ফোন নাম্বার দিয়ে খোলা অ্যাকাউন্ট টেলিগ্রামের মাধ্যমে রিসেট হয়।", "How do I contact you?": "আপনাদের সাথে কীভাবে যোগাযোগ করব?", "Open Support Center. You can chat with the company or message us on Telegram @aprp_support. These are our only official contacts.": "সাপোর্ট সেন্টার খুলুন। কোম্পানির সাথে চ্যাট করতে পারেন অথবা টেলিগ্রামে @aprp_support-এ মেসেজ করুন। এগুলোই আমাদের একমাত্র অফিসিয়াল যোগাযোগ।", "Last updated: 25 October 2026": "সর্বশেষ হালনাগাদ: ২৫ অক্টোবর ২০২৬", "APRP Digital (\"we\", \"us\") respects your privacy. This page explains what we collect, why, and your choices.": "APRP Digital (\"আমরা\") আপনার গোপনীয়তাকে সম্মান করে। এই পেজে বলা হয়েছে আমরা কী তথ্য নিই, কেন নিই এবং আপনার কী করার সুযোগ আছে।", "What we collect": "আমরা কী তথ্য নিই", "Account details (email or phone number, username, password in protected form); wallet and transaction records; deposit and withdrawal details you enter (sender account, transaction ID, payment screenshots); order and delivery details (name, phone, address); referral records; support messages; and, only if you choose KYC, the identity documents you upload. If you use our Telegram bot, your Telegram ID is linked to your account.": "অ্যাকাউন্টের তথ্য (ইমেইল বা ফোন নাম্বার, ইউজারনেম, সুরক্ষিত আকারে পাসওয়ার্ড); ওয়ালেট ও লেনদেনের রেকর্ড; আপনার দেওয়া ডিপোজিট ও উইথড্রের তথ্য (প্রেরকের অ্যাকাউন্ট, ট্রানজেকশন আইডি, পেমেন্টের স্ক্রিনশট); অর্ডার ও ডেলিভারির তথ্য (নাম, ফোন, ঠিকানা); রেফারেল রেকর্ড; সাপোর্টের মেসেজ; এবং শুধু আপনি KYC করলে আপলোড করা পরিচয়পত্র। আমাদের টেলিগ্রাম বট ব্যবহার করলে আপনার টেলিগ্রাম আইডি অ্যাকাউন্টের সাথে যুক্ত হয়।", "Why we use it": "কেন ব্যবহার করি", "To run your wallet, check and process deposits and withdrawals, deliver orders, pay referral commission, prevent fraud and misuse, answer your support requests, and send you notifications about your account.": "আপনার ওয়ালেট চালাতে, ডিপোজিট ও উইথড্র যাচাই ও সম্পন্ন করতে, অর্ডার পৌঁছে দিতে, রেফারেল কমিশন দিতে, প্রতারণা ও অপব্যবহার ঠেকাতে, সাপোর্টের অনুরোধের উত্তর দিতে এবং অ্যাকাউন্টের নোটিফিকেশন পাঠাতে।", "Who can see it": "কারা দেখতে পারে", "Only authorised company staff and the agents who process your payment can see what they need for that task (for example, the payment details of a deposit or withdrawal). We do not sell your personal data. We use trusted service providers to host and run the app (for example, database hosting and Telegram for messages). We may share information when the law requires it or to protect against fraud.": "শুধু অনুমোদিত কোম্পানির স্টাফ এবং আপনার পেমেন্ট সম্পন্ন করা এজেন্টরা নিজের কাজের জন্য যতটুকু দরকার ততটুকু দেখতে পারেন (যেমন ডিপোজিট বা উইথড্রের পেমেন্টের তথ্য)। আমরা আপনার ব্যক্তিগত তথ্য বিক্রি করি না। অ্যাপ হোস্ট ও চালাতে বিশ্বস্ত সেবাদাতা ব্যবহার করি (যেমন ডেটাবেস হোস্টিং ও মেসেজের জন্য টেলিগ্রাম)। আইনের প্রয়োজনে বা প্রতারণা ঠেকাতে তথ্য শেয়ার করতে পারি।", "Security": "নিরাপত্তা", "We use access controls and encryption in transit, and staff accounts need two-step verification. No system is perfectly secure, so please keep your password private and never share verification codes.": "আমরা অ্যাক্সেস নিয়ন্ত্রণ ও ডেটা পাঠানোর সময় এনক্রিপশন ব্যবহার করি, এবং স্টাফ অ্যাকাউন্টে টু-স্টেপ ভেরিফিকেশন লাগে। কোনো সিস্টেমই শতভাগ নিরাপদ নয়, তাই পাসওয়ার্ড গোপন রাখুন এবং ভেরিফিকেশন কোড কাউকে দেবেন না।", "Keeping and deleting data": "তথ্য রাখা ও মুছে ফেলা", "We keep records as long as needed to run your account and to meet legal and accounting needs. You can ask Support to correct or delete your account data. Some records (such as transactions) may have to be kept.": "আপনার অ্যাকাউন্ট চালাতে এবং আইনি ও হিসাবের প্রয়োজনে যতদিন লাগে ততদিন রেকর্ড রাখি। আপনি সাপোর্টকে বলে অ্যাকাউন্টের তথ্য সংশোধন বা মুছে ফেলার অনুরোধ করতে পারেন। কিছু রেকর্ড (যেমন লেনদেন) রাখতে হতে পারে।", "Changes": "পরিবর্তন", "We may update this page. The date above shows the latest version. If you have a question, contact Support Center.": "আমরা এই পেজ হালনাগাদ করতে পারি। উপরের তারিখে সর্বশেষ সংস্করণ বোঝা যায়। কোনো প্রশ্ন থাকলে সাপোর্ট সেন্টারে যোগাযোগ করুন।", "By creating an account or using APRP Digital you agree to these terms.": "অ্যাকাউন্ট খুলে বা APRP Digital ব্যবহার করে আপনি এই শর্তগুলো মেনে নিচ্ছেন।", "1. Your account": "১. আপনার অ্যাকাউন্ট", "You must be 18 or older and give correct information. You are responsible for your account and password. One person may keep one account. We may limit or close an account that breaks these terms or is used for fraud.": "আপনার বয়স ১৮ বা তার বেশি হতে হবে এবং সঠিক তথ্য দিতে হবে। অ্যাকাউন্ট ও পাসওয়ার্ডের দায়িত্ব আপনার। একজন ব্যক্তি একটি অ্যাকাউন্ট রাখতে পারবেন। এই শর্ত ভাঙলে বা প্রতারণায় ব্যবহার হলে আমরা অ্যাকাউন্ট সীমিত বা বন্ধ করতে পারি।", "2. Wallet and deposits": "২. ওয়ালেট ও ডিপোজিট", "Your wallet balance is added only after we confirm your deposit. Send money only to the number, account or address shown in the app at the time. Money sent to any other place is not our responsibility. For crypto, send only the coin and network shown. A wrong coin or network can be lost for good, and we cannot recover it. The crypto rate is fixed when you submit your request. You must include your payment screenshot and transaction ID, and a transaction ID can be used only once.": "আপনার ডিপোজিট নিশ্চিত হওয়ার পরই ওয়ালেটে ব্যালেন্স যোগ হয়। শুধু ওই সময় অ্যাপে দেখানো নাম্বার, অ্যাকাউন্ট বা ঠিকানায় টাকা পাঠান। অন্য কোথাও পাঠানো টাকার দায় আমাদের নয়। ক্রিপ্টোর ক্ষেত্রে শুধু দেখানো কয়েন ও নেটওয়ার্কে পাঠান। ভুল কয়েন বা নেটওয়ার্কে পাঠালে চিরতরে হারিয়ে যেতে পারে, আমরা ফেরত আনতে পারি না। রিকোয়েস্ট জমা দেওয়ার সময়ের ক্রিপ্টো রেট ধরা হয়। পেমেন্টের স্ক্রিনশট ও ট্রানজেকশন আইডি দিতে হবে, এবং একটি ট্রানজেকশন আইডি একবারই ব্যবহার করা যায়।", "3. Withdrawals": "৩. উইথড্র", "To withdraw you need at least one completed deposit and one product purchase. The minimum amount and any fee are shown before you submit. Check your account number carefully, because a payment sent to the number you entered cannot be taken back by us. The amount is deducted from your balance when you submit and is returned if the request is rejected.": "উইথড্র করতে অন্তত একটি সম্পন্ন ডিপোজিট ও একটি প্রোডাক্ট কেনা লাগবে। সর্বনিম্ন পরিমাণ ও ফি জমা দেওয়ার আগে দেখানো হয়। অ্যাকাউন্ট নাম্বার ভালো করে দেখুন, কারণ আপনার দেওয়া নাম্বারে পাঠানো পেমেন্ট আমরা ফেরত আনতে পারি না। জমা দিলে পরিমাণ ব্যালেন্স থেকে কেটে নেওয়া হয় এবং রিকোয়েস্ট বাতিল হলে ফেরত দেওয়া হয়।", "4. Products, delivery and buyback": "৪. প্রোডাক্ট, ডেলিভারি ও বাইব্যাক", "Products are paid from your wallet balance. If you take delivery, it normally takes 12-15 days and the delivery charge is ৳170. If you choose buyback, the company buys the product back at the price shown on the product after its maturity days (the price you paid plus the company percentage). If you sell back earlier, you receive 60% of the price you paid. Buyback requests are approved by the company. Product details and prices may change; the price at the time you buy is the price you pay.": "প্রোডাক্টের দাম ওয়ালেট ব্যালেন্স থেকে দেওয়া হয়। ডেলিভারি নিলে সাধারণত ১২-১৫ দিন লাগে এবং ডেলিভারি চার্জ ৳১৭০। বাইব্যাক বেছে নিলে মেয়াদের পর কোম্পানি প্রোডাক্টে দেখানো দামে কিনে নেয় (আপনার কেনা দাম ও কোম্পানির শতাংশ)। আগে বিক্রি করলে কেনা দামের ৬০% পাবেন। বাইব্যাক রিকোয়েস্ট কোম্পানি অনুমোদন করে। প্রোডাক্টের তথ্য ও দাম বদলাতে পারে; কেনার সময়ের দামই আপনার দাম।", "5. Referrals": "৫. রেফারেল", "A referral counts when your friend signs up with your link. Commission is added after their valid product purchases reach ৳1,000, at the rate set by the company at the time. We may withhold commission from fake or abusive referrals.": "আপনার লিংকে বন্ধু সাইন আপ করলে রেফারেল গণনা হয়। তার বৈধ প্রোডাক্ট কেনা ৳১,০০০ হলে ওই সময়ে কোম্পানি নির্ধারিত হারে কমিশন যোগ হয়। ভুয়া বা অপব্যবহারের রেফারেলের কমিশন আমরা আটকে রাখতে পারি।", "6. Agents": "৬. এজেন্ট", "Payments for deposits and withdrawals may be handled by company agents. Pay only the numbers shown in the app. If you did not receive a withdrawal, report it in the app so we can check.": "ডিপোজিট ও উইথড্রের পেমেন্ট কোম্পানির এজেন্টরা সামলাতে পারেন। শুধু অ্যাপে দেখানো নাম্বারেই পেমেন্ট করুন। উইথড্রের টাকা না পেলে অ্যাপে জানান, আমরা যাচাই করব।", "7. Not allowed": "৭. যা করা যাবে না", "Fake payments or screenshots, using someone else's account, money laundering, abusing offers or referrals, and any illegal activity. We may reject requests, hold funds while we investigate, suspend accounts and report to the authorities where required.": "ভুয়া পেমেন্ট বা স্ক্রিনশট, অন্যের অ্যাকাউন্ট ব্যবহার, অর্থ পাচার, অফার বা রেফারেলের অপব্যবহার এবং যেকোনো অবৈধ কাজ। আমরা রিকোয়েস্ট বাতিল, তদন্তের সময় টাকা আটকে রাখা, অ্যাকাউন্ট স্থগিত এবং প্রয়োজনে কর্তৃপক্ষকে জানাতে পারি।", "8. Service and changes": "৮. সার্ভিস ও পরিবর্তন", "We try to keep the app available but we do not promise it will never stop or have errors. We may change services, limits, fees and these terms. Using the app after a change means you accept it.": "আমরা অ্যাপ চালু রাখার চেষ্টা করি, তবে কখনো বন্ধ হবে না বা ত্রুটি হবে না এমন প্রতিশ্রুতি দিই না। আমরা সার্ভিস, সীমা, ফি ও এই শর্ত বদলাতে পারি। পরিবর্তনের পর অ্যাপ ব্যবহার করলে আপনি তা মেনে নিচ্ছেন।", "9. Contact": "৯. যোগাযোগ", "Use Support Center for any question or complaint.": "যেকোনো প্রশ্ন বা অভিযোগের জন্য সাপোর্ট সেন্টার ব্যবহার করুন।", "Get help with your APRP Digital account.": "আপনার APRP Digital অ্যাকাউন্ট নিয়ে সাহায্য নিন।", "Chat with company": "কোম্পানির সাথে চ্যাট", "Fastest way to get help": "সবচেয়ে দ্রুত সাহায্য পাওয়ার উপায়", "Telegram": "টেলিগ্রাম", "Gmail": "জিমেইল", "Coming soon": "শীঘ্রই আসছে", "These are our only official contacts. Do not trust any other number or account claiming to be APRP Digital.": "এগুলোই আমাদের একমাত্র অফিসিয়াল যোগাযোগ। APRP Digital দাবি করা অন্য কোনো নাম্বার বা অ্যাকাউন্টকে বিশ্বাস করবেন না।", "Close chat": "চ্যাট বন্ধ করুন", "Help & FAQ": "সাহায্য ও প্রশ্নোত্তর", "Privacy Policy": "প্রাইভেসি পলিসি", "Terms & Conditions": "শর্তাবলী", "Help & Legal": "সাহায্য ও আইনি তথ্য", "Important information for users.": "ব্যবহারকারীদের জন্য গুরুত্বপূর্ণ তথ্য।"});
+
 function translateTree(root){
   if(currentLang() !== "bn") return;
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -1834,6 +1881,8 @@ function showPage(pageId, opts={}){
   if(pageId === "accountPage")       { loadProfile(); loadKyc(); }
   if(pageId === "kycPage")           { loadProfile(); loadKyc(); }
   if(pageId === "referralPage")      loadReferral();
+  if(pageId === "supportPage")       supportHome();
+  if(pageId !== "supportPage")       stopSupportPoll();
 
   if(pageId === "homePage"){
     loadWallet();
@@ -5647,6 +5696,206 @@ if(supabaseClient){
   });
 
 }
+
+
+/* =========================================================
+   SUPPORT CENTER — chat with the company (Bangla / English)
+   ========================================================= */
+const SUPPORT_TG = "aprp_support";
+const SUPPORT_EMAIL = "";
+const SC_TOPICS = [["deposit", "➕", "Deposit", "ডিপোজিট"], ["withdraw", "➖", "Withdraw", "উইথড্র"], ["product", "🛍", "Product", "প্রোডাক্ট"], ["buyback", "↩", "Buyback", "বাইব্যাক"], ["account", "👤", "Account", "অ্যাকাউন্ট"], ["referral", "🎁", "Referral", "রেফারেল"]];
+const SC_FAQ = {"deposit": [["My deposit is still pending", "Deposits are checked by the agent whose number you paid, usually within 15 minutes. If it is still pending after 1 hour, message us with your transaction ID.", "আমার ডিপোজিট এখনো পেন্ডিং", "যে এজেন্টের নাম্বারে পেমেন্ট করেছেন তিনি সাধারণত ১৫ মিনিটের মধ্যে যাচাই করেন। ১ ঘণ্টা পরও পেন্ডিং থাকলে ট্রানজেকশন আইডিসহ আমাদের মেসেজ করুন।"], ["I sent a different amount", "Message us with your transaction ID and the amount you sent. We will check it for you.", "আমি ভিন্ন পরিমাণ পাঠিয়েছি", "ট্রানজেকশন আইডি ও যত টাকা পাঠিয়েছেন তা জানিয়ে আমাদের মেসেজ করুন। আমরা দেখে দেব।"], ["Minimum and maximum amount", "They are shown under each channel on the Deposit page. The maximum can get smaller during the day as the agent receives deposits.", "সর্বনিম্ন ও সর্বোচ্চ পরিমাণ", "ডিপোজিট পেজে প্রতিটি চ্যানেলের নিচে দেখানো আছে। এজেন্ট ডিপোজিট পেতে থাকলে দিনের মধ্যে সর্বোচ্চ পরিমাণ কমে যেতে পারে।"], ["How does a crypto deposit work?", "Send the coin to the address shown, then tap \"I have sent it\" and enter the amount, the transaction hash (TxID) and a screenshot. We check it and add the balance after it is confirmed.", "ক্রিপ্টো ডিপোজিট কীভাবে হয়?", "দেখানো ঠিকানায় কয়েন পাঠান, তারপর \"I have sent it\" চেপে পরিমাণ, ট্রানজেকশন হ্যাশ (TxID) ও স্ক্রিনশট দিন। আমরা যাচাই করে নিশ্চিত হলে ব্যালেন্স যোগ করি।"]], "withdraw": [["My withdrawal is pending for a long time", "A withdrawal goes to our agents. The first agent who accepts pays you within 1 hour, otherwise it goes to the other agents. Check Transactions for the status. If it stays pending for more than 2 hours, message us.", "আমার উইথড্র অনেকক্ষণ পেন্ডিং", "উইথড্র আমাদের এজেন্টদের কাছে যায়। প্রথম যে এজেন্ট গ্রহণ করেন তিনি ১ ঘণ্টার মধ্যে পেমেন্ট করেন, না করলে অন্য এজেন্টদের কাছে যায়। অবস্থা দেখতে ট্রানজেকশনস দেখুন। ২ ঘণ্টার বেশি পেন্ডিং থাকলে আমাদের মেসেজ করুন।"], ["I did not receive the money", "Open the payout card on the Home page and tap \"I did not receive\". If you do not see it, message us with your withdrawal ID.", "আমি টাকা পাইনি", "হোম পেজে পেআউট কার্ড খুলে \"I did not receive\" চাপুন। কার্ড না দেখলে উইথড্র আইডিসহ আমাদের মেসেজ করুন।"], ["Minimum amount and fees", "The minimum withdrawal is ৳1,000. The fee is shown before you submit. To withdraw you need at least one completed deposit and one product purchase.", "সর্বনিম্ন পরিমাণ ও ফি", "সর্বনিম্ন উইথড্র ৳১,০০০। ফি জমা দেওয়ার আগে দেখানো হয়। উইথড্র করতে অন্তত একটি সম্পন্ন ডিপোজিট ও একটি প্রোডাক্ট কেনা লাগবে।"], ["I entered a wrong account number", "Message us now with your withdrawal ID, before it is paid.", "আমি ভুল অ্যাকাউন্ট নাম্বার দিয়েছি", "পেমেন্ট হওয়ার আগেই উইথড্র আইডিসহ এখনই আমাদের মেসেজ করুন।"]], "product": [["When will my product arrive?", "Delivery takes 12-15 days and the delivery charge is ৳170. You can follow it in Order.", "আমার প্রোডাক্ট কবে আসবে?", "ডেলিভারি ১২-১৫ দিনে হয় এবং ডেলিভারি চার্জ ৳১৭০। অর্ডার পেজে অবস্থা দেখতে পারবেন।"], ["Can I cancel my order?", "Message us with your order number and we will check it.", "আমি কি অর্ডার বাতিল করতে পারি?", "অর্ডার নম্বরসহ আমাদের মেসেজ করুন, আমরা দেখে জানাব।"], ["I have not got my product", "Message us with your order number.", "আমি প্রোডাক্ট পাইনি", "অর্ডার নম্বরসহ আমাদের মেসেজ করুন।"]], "buyback": [["How does buyback work?", "If you sell back after the maturity days, you get the price you paid plus the company percentage. If you sell before maturity, you get 60% of the price you paid.", "বাইব্যাক কীভাবে কাজ করে?", "মেয়াদের পর ফেরত বিক্রি করলে কেনা দাম ও কোম্পানির শতাংশ পাবেন। মেয়াদের আগে বিক্রি করলে কেনা দামের ৬০% পাবেন।"], ["Where is my buyback money?", "Buyback requests are approved by the company and then added to your balance. You can see the status in Order, under Buyback.", "আমার বাইব্যাকের টাকা কোথায়?", "বাইব্যাক রিকোয়েস্ট কোম্পানি অনুমোদন করার পর ব্যালেন্সে যোগ হয়। অবস্থা অর্ডার পেজে বাইব্যাক অংশে দেখতে পারবেন।"]], "account": [["Change my username, phone or email", "Open Account. Your username can be changed any time, the phone can be changed once more after it is set, and the email can be changed once with codes sent to the old and new email.", "ইউজারনেম, ফোন বা ইমেইল বদলাতে চাই", "অ্যাকাউন্ট পেজ খুলুন। ইউজারনেম যেকোনো সময় বদলানো যায়, ফোন সেট করার পর আরও একবার বদলানো যায়, আর ইমেইল পুরনো ও নতুন ইমেইলে কোড পাঠিয়ে একবার বদলানো যায়।"], ["I forgot my password", "Tap \"Forgot password\" on the sign in screen. Phone accounts are reset through Telegram.", "আমি পাসওয়ার্ড ভুলে গেছি", "সাইন ইন পেজে \"Forgot password\" চাপুন। ফোন অ্যাকাউন্ট টেলিগ্রামের মাধ্যমে রিসেট হয়।"], ["Do I need KYC?", "KYC is optional. You can buy, sell back, deposit and withdraw without it.", "আমার কি KYC লাগবে?", "KYC ঐচ্ছিক। এটি ছাড়াই কিনতে, ফেরত বিক্রি করতে, ডিপোজিট ও উইথড্র করতে পারবেন।"]], "referral": [["How do referrals work?", "Share your referral link. A friend counts when they sign up, and your commission is added after their valid product purchases reach ৳1,000.", "রেফারেল কীভাবে কাজ করে?", "রেফারেল লিংক শেয়ার করুন। বন্ধু সাইন আপ করলে গণনা হয়, আর তার বৈধ প্রোডাক্ট কেনা ৳১,০০০ হলে আপনার কমিশন যোগ হয়।"], ["I did not get my commission", "Commission is added only after the friend's valid purchases reach ৳1,000. If that is done, message us with the friend's username.", "আমি কমিশন পাইনি", "বন্ধুর বৈধ কেনা ৳১,০০০ হলেই কমিশন যোগ হয়। তা হয়ে থাকলে বন্ধুর ইউজারনেমসহ আমাদের মেসেজ করুন।"]]};
+const SC_T = {"en": {"lang": "Choose your language", "hi": "Hi! What do you need help with?", "pick": "Choose your question.", "else": "Something else", "still": "Still need help", "solved": "That solved it", "another": "Another question", "great": "Great! Message us any time.", "back": "Back to Support", "ask": "Write your message below. Add your transaction ID or order number if you have one. We will reply here.", "ph": "Write a message"}, "bn": {"lang": "ভাষা বাছাই করুন", "hi": "হ্যালো! আপনার কী সাহায্য লাগবে?", "pick": "আপনার প্রশ্নটি বেছে নিন।", "else": "অন্য কিছু", "still": "এখনও সাহায্য দরকার", "solved": "সমাধান হয়েছে", "another": "আরেকটি প্রশ্ন", "great": "দারুণ! যেকোনো সময় মেসেজ করুন।", "back": "সাপোর্টে ফিরুন", "ask": "নিচে আপনার মেসেজ লিখুন। ট্রানজেকশন আইডি বা অর্ডার নম্বর থাকলে দিন। আমরা এখানেই উত্তর দেব।", "ph": "মেসেজ লিখুন"}};
+const SC_UI = {"en": {"open": "Open", "closed": "Closed", "newreply": "New reply", "mychats": "My chats", "chatclosed": "Chat closed", "title": "Chat with company"}, "bn": {"open": "খোলা", "closed": "বন্ধ", "newreply": "নতুন উত্তর", "mychats": "আমার চ্যাট", "chatclosed": "চ্যাট বন্ধ হয়েছে", "title": "কোম্পানির সাথে চ্যাট"}};
+let sc = { id:null, topic:null, lang:null, timer:null, count:-1, busy:false };
+
+const scLang = () => sc.lang || (currentLang() === "bn" ? "bn" : "en");
+const scT = k => SC_T[scLang()][k];
+const scU = k => SC_UI[currentLang() === "bn" ? "bn" : "en"][k];
+const scTopicName = (k, lang) => { const x = SC_TOPICS.find(t=>t[0] === k); return x ? (lang === "bn" ? x[3] : x[2]) : (lang === "bn" ? "অন্যান্য" : "Other"); };
+
+function stopSupportPoll(){ if(sc.timer){ clearInterval(sc.timer); sc.timer = null; } }
+
+function scTime(t){ try{ return new Date(t).toLocaleString("en-GB", { day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }); }catch(e){ return ""; } }
+
+function scBubble(kind, text, time){
+  const d = document.createElement("div");
+  d.className = "sc-b " + kind;
+  d.textContent = text;
+  if(time){ const t = document.createElement("span"); t.className = "sc-t"; t.textContent = time; d.appendChild(t); }
+  $("scMsgs").appendChild(d);
+  $("scMsgs").scrollTop = $("scMsgs").scrollHeight;
+}
+
+function scChips(items){
+  const box = $("scChips"); box.replaceChildren();
+  items.forEach(([label, fn, primary])=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "sc-chip" + (primary ? " p" : "");
+    b.textContent = label; b.addEventListener("click", fn);
+    box.appendChild(b);
+  });
+}
+
+function supportHome(){
+  stopSupportPoll();
+  $("supportChat").classList.add("hidden");
+  $("supportHome").classList.remove("hidden");
+  $("spMailText").textContent = SUPPORT_EMAIL || tx("Coming soon");
+  loadSupportRecent();
+}
+
+async function loadSupportRecent(){
+  const box = $("spRecent"); box.replaceChildren();
+  if(!supabaseClient || !user?.id) return;
+  try{
+    const { data, error } = await supabaseClient.rpc("support_my_tickets");
+    if(error || !Array.isArray(data) || !data.length) return;
+    const h = document.createElement("h3"); h.textContent = scU("mychats"); box.appendChild(h);
+    const ul = currentLang() === "bn" ? "bn" : "en";
+    data.forEach(t=>{
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "sp-card";
+      b.innerHTML = '<span class="sp-ic">#</span><span style="min-width:0"><b></b><small></small></span><span class="sp-chev">›</span>';
+      b.querySelector("b").textContent = scTopicName(t.topic, ul) + " · #" + t.ticket_no;
+      const pill = document.createElement("span"); pill.className = "sp-pill" + (t.status === "open" ? "" : " off"); pill.textContent = t.status === "open" ? scU("open") : scU("closed");
+      b.querySelector("b").appendChild(pill);
+      if(t.user_unread > 0){ const dot = document.createElement("span"); dot.className = "sp-dot"; dot.textContent = scU("newreply"); b.querySelector("b").appendChild(dot); }
+      b.querySelector("small").textContent = t.preview || "";
+      b.addEventListener("click", ()=> openSupportThread(t.id));
+      box.appendChild(b);
+    });
+  }catch(e){}
+}
+
+function startSupportChat(){
+  stopSupportPoll();
+  sc.id = null; sc.topic = null; sc.lang = null; sc.count = -1;
+  $("supportHome").classList.add("hidden");
+  $("supportChat").classList.remove("hidden");
+  $("scTitle").textContent = scU("title"); $("scSub").textContent = "";
+  $("scClose").classList.add("hidden"); $("scIn").classList.add("hidden");
+  $("scMsgs").replaceChildren(); $("scChips").replaceChildren(); $("scMsg").className = "message hidden";
+  scBubble("bot", "Choose your language / ভাষা বাছাই করুন");
+  scChips([["বাংলা", ()=> scPickLang("bn")], ["English", ()=> scPickLang("en")]]);
+}
+
+function scPickLang(l){
+  sc.lang = l;
+  $("scText").placeholder = scT("ph");
+  $("scTitle").textContent = SC_UI[l].title;
+  scBubble("me", l === "bn" ? "বাংলা" : "English");
+  scBubble("bot", scT("hi"));
+  scChips(SC_TOPICS.map(([k, e, en, bnn])=> [e + " " + (l === "bn" ? bnn : en), ()=> scPickTopic(k)]));
+}
+
+function scPickTopic(k){
+  sc.topic = k;
+  const l = scLang();
+  scBubble("me", scTopicName(k, l));
+  scBubble("bot", scT("pick"));
+  const items = (SC_FAQ[k] || []).map(([q, a, qb, ab])=> [l === "bn" ? qb : q, ()=> scAnswer(l === "bn" ? qb : q, l === "bn" ? ab : a)]);
+  items.push([scT("else"), ()=> scAsk()]);
+  scChips(items);
+}
+
+function scAnswer(q, a){
+  scBubble("me", q);
+  scBubble("bot", a);
+  scChips([
+    [scT("still"), ()=> scAsk(), true],
+    [scT("solved"), ()=>{ scBubble("me", scT("solved")); scBubble("bot", scT("great")); scChips([[scT("back"), supportHome]]); }],
+    [scT("another"), ()=> scPickTopic(sc.topic)]
+  ]);
+}
+
+function scAsk(){
+  scBubble("bot", scT("ask"));
+  scChips([]);
+  $("scIn").classList.remove("hidden");
+  $("scText").placeholder = scT("ph");
+  $("scText").focus();
+}
+
+function renderSupportThread(data){
+  const t = data.ticket, msgs = data.messages || [];
+  if(msgs.length === sc.count) return;
+  sc.count = msgs.length;
+  $("scMsgs").replaceChildren();
+  msgs.forEach(m=> scBubble(m.sender === "user" ? "me" : "co", m.body, scTime(m.created_at)));
+  $("scTitle").textContent = scTopicName(t.topic, currentLang() === "bn" ? "bn" : "en") + " · #" + t.ticket_no;
+  $("scSub").textContent = t.status === "open" ? scU("open") : scU("closed");
+  $("scClose").classList.toggle("hidden", t.status !== "open");
+}
+
+async function openSupportThread(id){
+  stopSupportPoll();
+  sc.id = id; sc.count = -1;
+  $("supportHome").classList.add("hidden");
+  $("supportChat").classList.remove("hidden");
+  $("scChips").replaceChildren(); $("scIn").classList.remove("hidden"); $("scMsg").className = "message hidden";
+  $("scText").placeholder = SC_T[currentLang() === "bn" ? "bn" : "en"].ph;
+  $("scMsgs").replaceChildren();
+  await refreshSupportThread();
+  sc.timer = setInterval(()=>{ if(!document.hidden) refreshSupportThread(); }, 8000);
+}
+
+async function refreshSupportThread(){
+  if(!sc.id) return;
+  try{
+    const { data, error } = await supabaseClient.rpc("support_get", { p_ticket: sc.id });
+    if(error) throw error;
+    renderSupportThread(data);
+  }catch(e){}
+}
+
+async function scSend(){
+  if(sc.busy) return;
+  const box = $("scText"), text = box.value.trim();
+  if(!text) return;
+  sc.busy = true; $("scSend").disabled = true;
+  try{
+    if(sc.id){
+      const { error } = await supabaseClient.rpc("support_send", { p_ticket: sc.id, p_body: text });
+      if(error) throw error;
+      box.value = "";
+      await refreshSupportThread();
+    }else{
+      const { data, error } = await supabaseClient.rpc("support_open", { p_topic: sc.topic || "other", p_body: text, p_lang: scLang() });
+      if(error) throw error;
+      box.value = "";
+      await openSupportThread(data.id);
+    }
+  }catch(e){
+    showMessage($("scMsg"), e?.message || "Could not send. Please try again.", "error");
+  }finally{
+    sc.busy = false; $("scSend").disabled = false;
+  }
+}
+
+function openTelegramSupport(){
+  const url = "https://t.me/" + SUPPORT_TG;
+  const tgApp = window.Telegram && window.Telegram.WebApp;
+  if(tgApp && tgApp.initData && tgApp.openTelegramLink){ tgApp.openTelegramLink(url); return; }
+  window.open(url, "_blank", "noopener");
+}
+
+function initSupport(){
+  $("spChat").addEventListener("click", startSupportChat);
+  $("spTg").addEventListener("click", openTelegramSupport);
+  $("spMail").addEventListener("click", ()=>{ if(SUPPORT_EMAIL) location.href = "mailto:" + SUPPORT_EMAIL; });
+  $("spMail").disabled = !SUPPORT_EMAIL;
+  $("scBack").addEventListener("click", supportHome);
+  $("scSend").addEventListener("click", scSend);
+  $("scText").addEventListener("keydown", e=>{ if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); scSend(); } });
+  $("scClose").addEventListener("click", async ()=>{
+    if(!sc.id) return;
+    try{ const { error } = await supabaseClient.rpc("support_close", { p_ticket: sc.id }); if(error) throw error; toast(scU("chatclosed")); sc.count = -1; await refreshSupportThread(); }
+    catch(e){ showMessage($("scMsg"), e?.message || "Could not close the chat.", "error"); }
+  });
+}
+
+initSupport();
 
 initializeApp();
 </script>
