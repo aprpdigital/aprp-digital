@@ -191,15 +191,16 @@ const MENU=[
  ["Financial operations",[["deposits","⇣","Mobile deposits",()=>me.finance],["bankdep","⇣","Bank deposits",()=>me.finance],["cryptodep","⇣","Crypto deposits",()=>me.finance],["withdrawals","⇡","Withdrawals",()=>me.finance],["ledger","≡","Transactions & Ledger",()=>me.finance||me.admin]]],
  ["Agents",[["agents","☻","Agents",()=>me.admin],["numreq","☎","Number requests",()=>me.admin],["balreq","⇪","Balance requests",()=>me.admin],["agentops","⚖","Payout checks & reports",()=>me.finance||me.admin]]],
  ["Commerce",[["products","▣","Products & Catalog",()=>me.content],["orders","⚑","Orders & Buyback",()=>me.orders||me.finance],["reviews","★","Product Reviews",()=>me.content]]],
- ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin],["updates","✎","Updates (posts)",()=>me.content]]],
+ ["Users & community",[["users","☺","User Management",()=>me.admin||me.finance||me.kyc],["kyc","✔","KYC Verification",()=>me.kyc],["referral","✦","Referral & Commission",()=>me.admin],["updates","✎","Updates (posts)",()=>me.content],["support","✉","Support chats",()=>me.admin||me.kyc]]],
  ["Administration",[["channels","⇄","Payment Channels",()=>me.admin],["crypto","₿","Crypto coins & rates",()=>me.admin],["shop","⚙","Shop Settings",()=>me.admin],["logs","⛨","Security & Audit Logs",()=>me.admin]]]
 ];
 const TITLE={};MENU.forEach(g=>g[1].forEach(i=>TITLE[i[0]]=i[2]));
-const badge=()=>({deposits:(alerts.counts||{}).mobile,bankdep:(alerts.counts||{}).bank,cryptodep:(alerts.counts||{}).crypto,numreq:(alerts.counts||{}).number_requests,withdrawals:stats.pending_withdrawals,kyc:stats.pending_kyc,orders:(stats.pending_orders||0)+(stats.sell_requests||0),balreq:alerts.balance_requests,agentops:(alerts.disputes||0)+(alerts.needs_admin||0)+(alerts.unmatched_reports||0)});
+const badge=()=>({deposits:(alerts.counts||{}).mobile,bankdep:(alerts.counts||{}).bank,cryptodep:(alerts.counts||{}).crypto,numreq:(alerts.counts||{}).number_requests,support:alerts.support,withdrawals:stats.pending_withdrawals,kyc:stats.pending_kyc,orders:(stats.pending_orders||0)+(stats.sell_requests||0),balreq:alerts.balance_requests,agentops:(alerts.disputes||0)+(alerts.needs_admin||0)+(alerts.unmatched_reports||0)});
 let alerts={};
 async function refreshStats(){try{stats=await call("admin_stats")}catch(e){stats={}}
   try{alerts=(me.finance||me.admin)?(await call("admin_agent_alerts")||{}):{}}catch(e){alerts={}}
-  try{if(me.finance||me.admin)alerts.counts=await call("admin_deposit_counts")}catch(e){}}
+  try{if(me.finance||me.admin)alerts.counts=await call("admin_deposit_counts")}catch(e){}
+  try{if(me.admin||me.kyc)alerts.support=(await call("support_counts")||{}).waiting||0}catch(e){}}
 function shell(){
   idleReset();
   $("#app").innerHTML='<div class="top"><div class="logo">A</div><b>APRP Admin <span class="mut" style="font-weight:400">v9</span></b><button class="ib" id="bl" style="width:auto;padding:0 13px;font-size:14px">Sign out</button></div><div class="bar"><span id="ttl"></span><button id="mm">☰ Modules</button></div><main id="main"></main>';
@@ -767,6 +768,43 @@ views.numreq=async m=>{
     m.appendChild(c);
   });
 };
+
+/* ---------- support chats ---------- */
+let spF="open",spTimer=null;
+const SP_TOPIC={deposit:"Deposit",withdraw:"Withdraw",product:"Product",buyback:"Buyback",account:"Account",referral:"Referral",other:"Other"};
+const SP_QUICK={en:["Please send the TrxID","Please send a screenshot","We are checking, please wait","Your request is done. Anything else?"],bn:["অনুগ্রহ করে ট্রানজেকশন আইডি পাঠান","অনুগ্রহ করে স্ক্রিনশট পাঠান","আমরা দেখছি, অনুগ্রহ করে অপেক্ষা করুন","আপনার অনুরোধ সম্পন্ন হয়েছে। আর কিছু লাগবে?"]};
+views.support=async m=>{
+  m.innerHTML="";seg([["open","Open"],["all","All"]],spF,v=>{spF=v;go("support")},m);
+  const data=await call("support_staff_list",{p_status:spF});
+  if(!data.length)m.insertAdjacentHTML("beforeend",'<p class="mut">No chats.</p>');
+  data.forEach(t=>{
+    const c=document.createElement("div");c.className="card";c.style.cursor="pointer";
+    const wait=t.status==="open"&&t.last_from==="user";
+    c.innerHTML='<div class="row"><b>#'+t.ticket_no+' · '+esc(SP_TOPIC[t.topic]||t.topic)+(t.lang==="bn"?' · বাংলা':' · English')+'</b><span class="tag '+(wait?"pending":(t.status==="open"?"approved":"rejected"))+'">'+(wait?"Waiting for you":t.status)+'</span></div><div class="mut" style="margin-top:6px">'+esc(t.username)+' · '+when(t.last_message_at)+'</div><div style="margin-top:6px">'+esc(t.preview||"")+'</div>';
+    c.onclick=()=>supportThread(t.id);m.appendChild(c);
+  });
+};
+async function supportThread(id){
+  let last=-1;
+  const s=sheet('<div class="row"><h2 id="spT" style="margin:0">Chat</h2><button class="sm" id="spX">✕</button></div><div id="spM" style="max-height:48vh;overflow:auto;margin:10px 0"></div><div id="spQ" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div><textarea id="spR" rows="2" placeholder="Write a reply"></textarea><div class="acts"><button class="b" id="spS">Send</button><button class="b gh" id="spC">Close chat</button></div>');
+  const draw=async()=>{
+    const d=await call("support_staff_get",{p_ticket:id});
+    if(d.messages.length===last)return;last=d.messages.length;
+    s.querySelector("#spT").textContent="#"+d.ticket.ticket_no+" · "+(SP_TOPIC[d.ticket.topic]||d.ticket.topic)+" · "+d.ticket.username+(d.ticket.lang==="bn"?" · বাংলা":"");
+    const ql=d.ticket.lang==="bn"?SP_QUICK.bn:SP_QUICK.en;if(ql!==quick){quick=ql;drawQ()}
+    s.querySelector("#spM").innerHTML=d.messages.map(x=>'<div style="max-width:86%;margin:6px 0;padding:9px 12px;border-radius:14px;line-height:1.4;white-space:pre-wrap;word-break:break-word;'+(x.sender==="staff"?'margin-left:auto;background:#0d5c47':'background:#162338;border:1px solid #24334a')+'">'+esc(x.body)+'<div class="mut" style="font-size:11px;margin-top:3px">'+when(x.created_at)+'</div></div>').join("");
+    const box=s.querySelector("#spM");box.scrollTop=box.scrollHeight;
+  };
+  let quick=SP_QUICK.en;
+  const drawQ=()=>{s.querySelector("#spQ").innerHTML=quick.map((q,i)=>'<button class="sm" data-q="'+i+'">'+esc(q)+'</button>').join("");
+    s.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{s.querySelector("#spR").value=quick[b.dataset.q]})};
+  drawQ();
+  const stop=()=>{if(spTimer){clearInterval(spTimer);spTimer=null}};
+  s.querySelector("#spX").onclick=()=>{stop();closeSheet();go("support")};
+  s.querySelector("#spS").onclick=e=>guard(async()=>{const v=s.querySelector("#spR").value.trim();if(!v)return;await call("support_staff_reply",{p_ticket:id,p_body:v});s.querySelector("#spR").value="";last=-1;await draw()},e.target);
+  s.querySelector("#spC").onclick=e=>guard(async()=>{await call("support_staff_close",{p_ticket:id});stop();closeSheet();toast("Closed");go("support")},e.target);
+  await draw();stop();spTimer=setInterval(()=>{if(!$("#ov")){stop();return}draw().catch(()=>{})},8000);
+}
 
 /* ---------- crypto ---------- */
 async function binancePrices(syms){
